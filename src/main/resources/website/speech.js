@@ -29,6 +29,9 @@ function setupTranscriber(lang) {
 
     transcriber.onend = () => {
         console.log('Transcriber resetting...');
+        ws.send(JSON.stringify({
+            op: 'reset'
+        }));
         transcriber.start();
     }
 

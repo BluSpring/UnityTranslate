@@ -1,12 +1,12 @@
 package xyz.bluspring.unitytranslate.client.gui
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap
 import net.minecraft.ChatFormatting
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.network.chat.Component
 import net.minecraft.util.FastColor
 import xyz.bluspring.unitytranslate.Language
-import xyz.bluspring.unitytranslate.client.transcribers.SpeechTranscriber
 
 class TranscriptBox(
     var x: Int,
@@ -15,9 +15,10 @@ class TranscriptBox(
     var height: Int,
     var opacity: Int,
 
-    var language: Language,
-    var transcriber: SpeechTranscriber
+    var language: Language
 ) {
+    val transcripts = Int2ObjectLinkedOpenHashMap<String>()
+
     fun render(guiGraphics: GuiGraphics) {
         guiGraphics.pose().pushPose()
 
@@ -30,7 +31,7 @@ class TranscriptBox(
 
         guiGraphics.enableScissor(x, y + 15, x + width, y + height)
 
-        val lines = transcriber.transcripts.toList().sortedByDescending { it.first }.map {
+        val lines = transcripts.toList().sortedByDescending { it.first }.map {
             Component.empty()
                 .append("<")
                 .append(Minecraft.getInstance().player!!.displayName)

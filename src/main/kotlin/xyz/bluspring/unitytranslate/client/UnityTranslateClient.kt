@@ -10,6 +10,8 @@ import xyz.bluspring.unitytranslate.Language
 import xyz.bluspring.unitytranslate.client.gui.EditTranscriptBoxesScreen
 import xyz.bluspring.unitytranslate.client.gui.TranscriptBox
 import xyz.bluspring.unitytranslate.client.transcribers.browser.BrowserSpeechTranscriber
+import xyz.bluspring.unitytranslate.translator.TranslatorManager
+import java.util.function.BiConsumer
 
 class UnityTranslateClient : ClientModInitializer {
     override fun onInitializeClient() {
@@ -18,9 +20,50 @@ class UnityTranslateClient : ClientModInitializer {
         val languageBoxes = mutableListOf<TranscriptBox>()
         languageBoxes.add(
             TranscriptBox(
-                5, 150, 150, 170, 120, Language.ENGLISH, transcriber
+                5, 150, 150, 170, 120, Language.ENGLISH
             )
         )
+
+        languageBoxes.add(
+            TranscriptBox(
+                35, 150, 150, 170, 120, Language.SPANISH
+            )
+        )
+
+        languageBoxes.add(
+            TranscriptBox(
+                75, 150, 150, 170, 120, Language.MALAY
+            )
+        )
+
+        languageBoxes.add(
+            TranscriptBox(
+                105, 150, 150, 170, 120, Language.FRENCH
+            )
+        )
+
+        languageBoxes.add(
+            TranscriptBox(
+                125, 150, 150, 170, 120, Language.SWEDISH
+            )
+        )
+
+        languageBoxes.add(
+            TranscriptBox(
+                155, 150, 150, 170, 120, Language.PORTUGUESE
+            )
+        )
+
+        transcriber.updater = BiConsumer { i, text ->
+            for (box in languageBoxes) {
+                if (box.language == transcriber.language) {
+                    box.transcripts[i] = text
+                    continue
+                }
+
+                box.transcripts[i] = TranslatorManager.translateLine(text, transcriber.language, box.language)
+            }
+        }
 
         HudRenderCallback.EVENT.register { guiGraphics, delta ->
             for (languageBox in languageBoxes) {

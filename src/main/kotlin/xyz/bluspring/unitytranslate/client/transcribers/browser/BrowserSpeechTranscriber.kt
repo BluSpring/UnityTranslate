@@ -80,15 +80,16 @@ class BrowserSpeechTranscriber(language: Language) : SpeechTranscriber(language)
                         deserialized.add(d.get("text").asString to d.get("confidence").asDouble)
                     }
 
+                    lastIndex = currentOffset + index
+
                     if (deserialized.isEmpty())
                         return
 
                     val selected = deserialized.sortedByDescending { it.second }[0].first
 
-                    if (selected.isNotBlank())
-                        transcripts[currentOffset + index] = selected.trim()
-
-                    lastIndex = currentOffset + index
+                    if (selected.isNotBlank()) {
+                        updater.accept(lastIndex, selected.trim())
+                    }
                 }
 
                 "reset" -> {
