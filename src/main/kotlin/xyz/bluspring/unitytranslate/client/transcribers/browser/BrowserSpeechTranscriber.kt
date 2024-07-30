@@ -92,7 +92,7 @@ class BrowserSpeechTranscriber(language: Language) : SpeechTranscriber(language)
                 }
 
                 "reset" -> {
-                    currentOffset = lastIndex
+                    currentOffset = lastIndex + 1
                 }
             }
         }
