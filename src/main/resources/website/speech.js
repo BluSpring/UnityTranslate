@@ -1,4 +1,6 @@
-let ws = new WebSocket('ws://0.0.0.0:%SOCKET_PORT%');
+let ws = new WebSocket('ws://127.0.0.1:%SOCKET_PORT%');
+
+window.SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
 
 /**
  * @type {SpeechRecognition}
@@ -12,6 +14,10 @@ ws.onopen = () => {
 function setupTranscriber(lang) {
     transcriber = new SpeechRecognition();
 
+    ws.send(JSON.stringify({
+        op: 'reset'
+    }));
+
     transcriber.lang = lang;
     transcriber.continuous = true;
     transcriber.interimResults = true;
@@ -19,6 +25,11 @@ function setupTranscriber(lang) {
 
     transcriber.onerror = (ev) => {
         console.error(ev.error);
+    }
+
+    transcriber.onend = () => {
+        console.log('Transcriber resetting...');
+        transcriber.start();
     }
 
     transcriber.onresult = (ev) => {
@@ -40,13 +51,16 @@ function setupTranscriber(lang) {
                 index: ev.resultIndex
             }
         }));
+
+        if (results.length > 0)
+            document.getElementById('transcript').innerText = results[0].text;
     }
 
     transcriber.start();
 }
 
-ws.onmessage = (msg) => {
-    const data = JSON.parse(msg);
+ws.onmessage = (ev) => {
+    const data = JSON.parse(ev.data);
 
     switch (data.op) {
         case 'set_language': {
@@ -56,11 +70,25 @@ ws.onmessage = (msg) => {
                 transcriber.stop();
             }
 
+            if (!!SpeechRecognition) {
+                ws.send(JSON.stringify({
+                    op: "error",
+                    d: {
+                        type: "no_support"
+                    }
+                }));
+            }
+
             setupTranscriber(lang);
 
             break;
         }
     }
+}
+
+ws.onerror = e => {
+    console.error('Failed to connect!');
+    console.error(e);
 }
 
 ws.onclose = () => {

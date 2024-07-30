@@ -32,6 +32,7 @@ class BrowserSpeechTranscriber(language: Language) : SpeechTranscriber(language)
                 wsPort = socketPort
             }
 
+        socket.isDaemon = true
         socket.start()
 
         ClientPlayConnectionEvents.JOIN.register { listener, sender, mc ->
@@ -50,7 +51,7 @@ class BrowserSpeechTranscriber(language: Language) : SpeechTranscriber(language)
         socket.stop(1000)
     }
 
-    inner class BrowserSocket : WebSocketServer(InetSocketAddress(socketPort)) {
+    inner class BrowserSocket : WebSocketServer(InetSocketAddress("localhost", socketPort)) {
         var totalConnections = 0
 
         override fun onOpen(ws: WebSocket, handshake: ClientHandshake) {
@@ -82,8 +83,16 @@ class BrowserSpeechTranscriber(language: Language) : SpeechTranscriber(language)
                     if (deserialized.isEmpty())
                         return
 
-                    transcripts[index] = deserialized.sortedBy { it.second }[0].first
-                    lastIndex = index
+                    val selected = deserialized.sortedByDescending { it.second }[0].first
+
+                    if (selected.isNotBlank())
+                        transcripts[currentOffset + index] = selected.trim()
+
+                    lastIndex = currentOffset + index
+                }
+
+                "reset" -> {
+                    currentOffset = lastIndex
                 }
             }
         }
@@ -93,6 +102,7 @@ class BrowserSpeechTranscriber(language: Language) : SpeechTranscriber(language)
         }
 
         override fun onStart() {
+            UnityTranslate.logger.info("Started WebSocket server for Browser Transcriber mode at ${this.address}")
         }
 
         fun WebSocket.sendData(op: String, data: JsonObject = JsonObject()) {

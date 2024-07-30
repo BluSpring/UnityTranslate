@@ -9,13 +9,16 @@ import org.lwjgl.glfw.GLFW
 import xyz.bluspring.unitytranslate.Language
 import xyz.bluspring.unitytranslate.client.gui.EditTranscriptBoxesScreen
 import xyz.bluspring.unitytranslate.client.gui.TranscriptBox
+import xyz.bluspring.unitytranslate.client.transcribers.browser.BrowserSpeechTranscriber
 
 class UnityTranslateClient : ClientModInitializer {
     override fun onInitializeClient() {
+        val transcriber = BrowserSpeechTranscriber(Language.ENGLISH)
+
         val languageBoxes = mutableListOf<TranscriptBox>()
         languageBoxes.add(
             TranscriptBox(
-            5, 150, 150, 170, 120, Language.MALAY
+                5, 150, 150, 170, 120, Language.ENGLISH, transcriber
             )
         )
 

@@ -1,5 +1,6 @@
 package xyz.bluspring.unitytranslate.client.transcribers.browser
 
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -15,11 +16,11 @@ var wsPort: Int
 fun Application.module() {
     routing {
         get("/") {
-            call.respondText(this::class.java.getResource("/website/speech_recognition.html")!!.readText())
+            call.respondText(contentType = ContentType.Text.Html, text = this::class.java.getResource("/website/speech_recognition.html")!!.readText())
         }
 
         get("/index.js") {
-            call.respondText(this::class.java.getResource("/website/speech.js")!!.readText()
+            call.respondText(contentType = ContentType.Text.Html, text = this::class.java.getResource("/website/speech.js")!!.readText()
                 .replace("%SOCKET_PORT%", socketPort.toString())
             )
         }
