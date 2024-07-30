@@ -1,0 +1,32 @@
+{
+    "schemaVersion": 1,
+    "id": "unitytranslate",
+    "version": "${version}",
+    "name": "UnityTranslate",
+    "description": "A mod designed for free live translation, inspired by the QSMP.",
+    "authors": [
+        "BluSpring"
+    ],
+    "contact": {
+        "repo": "https://github.com/BluSpring/UnityTranslate"
+    },
+    "license": "MIT",
+    "icon": "assets/unitytranslate/icon.png",
+    "environment": "*",
+    "entrypoints": {
+        "client": [
+            "xyz.bluspring.unitytranslate.client.UnityTranslateClient"
+        ],
+        "main": [
+            "xyz.bluspring.unitytranslate.UnityTranslate"
+        ]
+    },
+    "mixins": [
+        "unitytranslate.mixins.json"
+    ],
+    "depends": {
+        "fabricloader": ">=${loader_version}",
+        "fabric": "*",
+        "minecraft": "${minecraft_version}"
+    }
+}

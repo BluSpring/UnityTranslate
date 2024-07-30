@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@types/webspeechapi": "^0.0.29"
+  }
+}
