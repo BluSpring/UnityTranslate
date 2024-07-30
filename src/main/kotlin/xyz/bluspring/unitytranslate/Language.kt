@@ -28,5 +28,9 @@ enum class Language(
     )),
     MALAY("ms", mapOf(
         TranscriberType.BROWSER to "ms"
+    )),
+    HEBREW("he", mapOf(
+    )),
+    ARABIC("ar", mapOf(
     ))
 }

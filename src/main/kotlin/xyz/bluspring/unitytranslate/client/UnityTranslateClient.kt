@@ -54,6 +54,18 @@ class UnityTranslateClient : ClientModInitializer {
             )
         )
 
+        languageBoxes.add(
+            TranscriptBox(
+                175, 150, 150, 170, 120, Language.ARABIC
+            )
+        )
+
+        languageBoxes.add(
+            TranscriptBox(
+                195, 150, 150, 170, 120, Language.HEBREW
+            )
+        )
+
         transcriber.updater = BiConsumer { i, text ->
             for (box in languageBoxes) {
                 if (box.language == transcriber.language) {
