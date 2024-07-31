@@ -7,6 +7,7 @@ enum class Language(
     val supportedTranscribers: Map<TranscriberType, String>
 ) {
     // Any languages that don't have translation support in LibreTranslate should not be supported here.
+    // Use this for reference for the Browser Transcriber: https://r12a.github.io/app-subtags/
     ENGLISH("en", mapOf(
         TranscriberType.SPHINX to "en-us",
         TranscriberType.BROWSER to "en-US"
@@ -30,7 +31,9 @@ enum class Language(
         TranscriberType.BROWSER to "ms"
     )),
     HEBREW("he", mapOf(
+        TranscriberType.BROWSER to "he"
     )),
     ARABIC("ar", mapOf(
+        TranscriberType.BROWSER to "ar"
     ))
 }
