@@ -73,7 +73,10 @@ class UnityTranslateClient : ClientModInitializer {
                     continue
                 }
 
-                box.transcripts[i] = TranslatorManager.translateLine(text, transcriber.language, box.language)
+                TranslatorManager.queueTranslation(text, transcriber.language, box.language)
+                    .thenApplyAsync {
+                        box.transcripts[i] = it
+                    }
             }
         }
 
