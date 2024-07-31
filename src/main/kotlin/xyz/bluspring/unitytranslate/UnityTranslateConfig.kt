@@ -16,7 +16,14 @@ data class UnityTranslateConfig(
             TranslationPriority.SERVER_GPU, // if supported, use CUDA on the server-side.
             TranslationPriority.SERVER_CPU, // otherwise, translate on the CPU.
             TranslationPriority.CLIENT_CPU, // worst case scenario, use client CPU.
-        )
+        ),
+
+    )
+
+    data class OffloadedLibreTranslateServer(
+        var url: String, // follows http://127.0.0.1:5000 - the /translate endpoint will be appended at the end automatically.
+        var authKey: String? = null,
+        var weight: Int = 100
     )
 
     enum class TranslationPriority(val usesCuda: Boolean) {
