@@ -36,7 +36,7 @@ object TranslatorManager {
         if (translated != null)
             return translated
 
-        for (instance in possible.filter { it != selected }) {
+        for (instance in possible.filter { it != selected }.sortedBy { it.latency }) {
             return instance.translate(line, from, to) ?: continue
         }
 

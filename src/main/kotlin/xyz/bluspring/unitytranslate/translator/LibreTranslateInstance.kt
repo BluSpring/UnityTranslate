@@ -11,7 +11,7 @@ import java.net.URL
 
 open class LibreTranslateInstance(val url: String, private var weight: Int) : WeightedEntry {
     private var cachedSupportedLanguages = HashMultimap.create<Language, Language>()
-    var latency: Int = 0
+    var latency: Int = -1
         private set
 
     init {
