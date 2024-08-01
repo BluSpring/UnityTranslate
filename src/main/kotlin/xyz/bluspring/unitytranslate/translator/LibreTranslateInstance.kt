@@ -52,11 +52,7 @@ open class LibreTranslateInstance(val url: String, private var weight: Int) : We
 
         val supportedTargets = supportedLanguages.get(from)
 
-        if (!supportedTargets.contains(to)) {
-            return false
-        }
-
-        return true
+        return supportedTargets.contains(to)
     }
 
     fun translate(text: String, from: Language, to: Language): String? {
