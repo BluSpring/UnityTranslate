@@ -24,7 +24,10 @@ class BrowserSpeechTranscriber(language: Language) : SpeechTranscriber(language)
     val socket = BrowserSocket()
 
     init {
-        val port = HttpUtil.getAvailablePort()
+        val port = if (!HttpUtil.isPortAvailable(25117))
+            HttpUtil.getAvailablePort()
+        else
+            25117
 
         server = embeddedServer(Netty, port = port, host = "0.0.0.0", module = Application::module)
             .start(wait = false)

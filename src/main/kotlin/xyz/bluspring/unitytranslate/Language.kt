@@ -35,5 +35,15 @@ enum class Language(
     )),
     ARABIC("ar", mapOf(
         TranscriberType.BROWSER to "ar"
-    ))
+    ));
+
+    override fun toString(): String {
+        return "$name ($code)"
+    }
+
+    companion object {
+        fun findLibreLang(code: String): Language? {
+            return Language.entries.firstOrNull { it.code == code }
+        }
+    }
 }

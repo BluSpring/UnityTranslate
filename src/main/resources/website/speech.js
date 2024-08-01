@@ -12,6 +12,7 @@ ws.onopen = () => {
 }
 
 function setupTranscriber(lang) {
+    console.log(`Starting transcriber with lang ${lang}`);
     transcriber = new SpeechRecognition();
 
     ws.send(JSON.stringify({

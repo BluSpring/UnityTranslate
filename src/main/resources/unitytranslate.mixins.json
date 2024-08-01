@@ -1,13 +1,14 @@
 {
-  "required": true,
-  "minVersion": "0.8",
-  "package": "xyz.bluspring.unitytranslate.mixin",
-  "compatibilityLevel": "JAVA_17",
-  "mixins": [
-  ],
-  "client": [
-  ],
-  "injectors": {
-    "defaultRequire": 1
+    "required": true,
+    "minVersion": "0.8",
+    "package": "xyz.bluspring.unitytranslate.mixin",
+    "compatibilityLevel": "JAVA_17",
+    "mixins": [
+        "TranslatorMixin"
+    ],
+    "client": [
+    ],
+    "injectors": {
+        "defaultRequire": 1
   }
 }
