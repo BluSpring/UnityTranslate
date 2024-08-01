@@ -36,7 +36,7 @@ class BrowserSpeechTranscriber(language: Language) : SpeechTranscriber(language)
         socket.start()
 
         ClientPlayConnectionEvents.JOIN.register { listener, sender, mc ->
-            if (socket.totalConnections <= 0) {
+            if (socket.totalConnections <= 0 && UnityTranslate.config.client.enabled) {
                 if (UnityTranslate.config.client.openBrowserWithoutPrompt) {
                     Util.getPlatform().openUri("http://127.0.0.1:$port")
                 } else {

@@ -5,12 +5,15 @@ import net.minecraft.client.gui.components.Button
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.network.chat.CommonComponents
 import net.minecraft.network.chat.Component
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.FastColor
 import net.minecraft.util.Mth
 import org.lwjgl.glfw.GLFW
 import java.util.*
 
 class EditTranscriptBoxesScreen(val boxes: MutableList<TranscriptBox>) : Screen(Component.empty()) {
+    val CLOSE_BUTTON = ResourceLocation("unitytranslate", "textures/gui/close.png")
+
     override fun init() {
         this.addRenderableWidget(
             Button.builder(CommonComponents.GUI_DONE) {
@@ -26,47 +29,58 @@ class EditTranscriptBoxesScreen(val boxes: MutableList<TranscriptBox>) : Screen(
     override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
         var inAnyBox = false
 
-        for (box in boxes) {
-            if (mouseX >= box.x - 1 && mouseY >= box.y - 1 && mouseX <= box.x + box.width + 1 && mouseY <= box.y + box.height + 1) {
-                if (mouseX >= box.x - 1 && mouseX <= box.x + 1) {
-                    if (mouseY >= box.y - 1 && mouseY <= box.y + 1) {
+        if (this.children().none { it.isMouseOver(mouseX.toDouble(), mouseY.toDouble()) })
+            for (box in boxes) {
+                if (mouseX >= box.x - 1 && mouseY >= box.y - 1 && mouseX <= box.x + box.width + 1 && mouseY <= box.y + box.height + 1) {
+                    if (mouseX >= box.x - 1 && mouseX <= box.x + 1) {
+                        if (mouseY >= box.y - 1 && mouseY <= box.y + 1) {
+                            guiGraphics.fill(box.x, box.y - 1, box.x + box.width, box.y + 1, FastColor.ARGB32.color(255, 255, 255, 255))
+                            GLFW.glfwSetCursor(this.minecraft!!.window.window, GLFW.glfwCreateStandardCursor(GLFW.GLFW_RESIZE_NWSE_CURSOR))
+                        } else if (mouseY >= box.y + box.height - 1 && mouseY <= box.y + box.height + 1) {
+                            guiGraphics.fill(box.x, box.y + box.height - 1, box.x + box.width, box.y + box.height + 1, FastColor.ARGB32.color(255, 255, 255, 255))
+                            GLFW.glfwSetCursor(this.minecraft!!.window.window, GLFW.glfwCreateStandardCursor(GLFW.GLFW_RESIZE_NESW_CURSOR))
+                        } else {
+                            GLFW.glfwSetCursor(this.minecraft!!.window.window, GLFW.glfwCreateStandardCursor(GLFW.GLFW_HRESIZE_CURSOR))
+                        }
+
+                        guiGraphics.fill(box.x - 1, box.y, box.x + 1, box.y + box.height, FastColor.ARGB32.color(255, 255, 255, 255))
+                    } else if (mouseX >= box.x + box.width - 1 && mouseX <= box.x + box.width + 1) {
+                        if (mouseY >= box.y - 1 && mouseY <= box.y + 1) {
+                            guiGraphics.fill(box.x, box.y - 1, box.x + box.width, box.y + 1, FastColor.ARGB32.color(255, 255, 255, 255))
+                            GLFW.glfwSetCursor(this.minecraft!!.window.window, GLFW.glfwCreateStandardCursor(GLFW.GLFW_RESIZE_NESW_CURSOR))
+                        } else if (mouseY >= box.y + box.height - 1 && mouseY <= box.y + box.height + 1) {
+                            guiGraphics.fill(box.x, box.y + box.height - 1, box.x + box.width, box.y + box.height + 1, FastColor.ARGB32.color(255, 255, 255, 255))
+                            GLFW.glfwSetCursor(this.minecraft!!.window.window, GLFW.glfwCreateStandardCursor(GLFW.GLFW_RESIZE_NWSE_CURSOR))
+                        } else {
+                            GLFW.glfwSetCursor(this.minecraft!!.window.window, GLFW.glfwCreateStandardCursor(GLFW.GLFW_HRESIZE_CURSOR))
+                        }
+
+                        guiGraphics.fill(box.x + box.width - 1, box.y, box.x + box.width + 1, box.y + box.height, FastColor.ARGB32.color(255, 255, 255, 255))
+                    } else if (mouseY >= box.y - 1 && mouseY <= box.y + 1) {
                         guiGraphics.fill(box.x, box.y - 1, box.x + box.width, box.y + 1, FastColor.ARGB32.color(255, 255, 255, 255))
-                        GLFW.glfwSetCursor(this.minecraft!!.window.window, GLFW.glfwCreateStandardCursor(GLFW.GLFW_RESIZE_NWSE_CURSOR))
+                        GLFW.glfwSetCursor(this.minecraft!!.window.window, GLFW.glfwCreateStandardCursor(GLFW.GLFW_VRESIZE_CURSOR))
                     } else if (mouseY >= box.y + box.height - 1 && mouseY <= box.y + box.height + 1) {
                         guiGraphics.fill(box.x, box.y + box.height - 1, box.x + box.width, box.y + box.height + 1, FastColor.ARGB32.color(255, 255, 255, 255))
-                        GLFW.glfwSetCursor(this.minecraft!!.window.window, GLFW.glfwCreateStandardCursor(GLFW.GLFW_RESIZE_NESW_CURSOR))
+                        GLFW.glfwSetCursor(this.minecraft!!.window.window, GLFW.glfwCreateStandardCursor(GLFW.GLFW_VRESIZE_CURSOR))
                     } else {
-                        GLFW.glfwSetCursor(this.minecraft!!.window.window, GLFW.glfwCreateStandardCursor(GLFW.GLFW_HRESIZE_CURSOR))
+                        guiGraphics.renderOutline(box.x, box.y, box.width, box.height, FastColor.ARGB32.color(255, 255, 255, 255))
+
+                        val offset = 5
+                        if (mouseX >= box.x + offset + 1 && mouseY >= box.y + offset + 1 && mouseX <= box.x + offset + 16 && mouseY <= box.y + offset + 16) {
+                            GLFW.glfwSetCursor(this.minecraft!!.window.window, GLFW.glfwCreateStandardCursor(GLFW.GLFW_ARROW_CURSOR))
+                            guiGraphics.fill(box.x + offset, box.y + offset, box.x + offset + 16, box.y + offset + 16, FastColor.ARGB32.color(95, 255, 0, 0))
+                            guiGraphics.renderOutline(box.x + offset, box.y + offset, 16, 16, FastColor.ARGB32.color(95, 255, 255, 255))
+                        } else {
+                            GLFW.glfwSetCursor(this.minecraft!!.window.window, GLFW.glfwCreateStandardCursor(GLFW.GLFW_RESIZE_ALL_CURSOR))
+                        }
+
+                        guiGraphics.blit(CLOSE_BUTTON, box.x + offset, box.y + offset, 0f, 0f, 16, 16, 16, 16)
                     }
 
-                    guiGraphics.fill(box.x - 1, box.y, box.x + 1, box.y + box.height, FastColor.ARGB32.color(255, 255, 255, 255))
-                } else if (mouseX >= box.x + box.width - 1 && mouseX <= box.x + box.width + 1) {
-                    if (mouseY >= box.y - 1 && mouseY <= box.y + 1) {
-                        guiGraphics.fill(box.x, box.y - 1, box.x + box.width, box.y + 1, FastColor.ARGB32.color(255, 255, 255, 255))
-                        GLFW.glfwSetCursor(this.minecraft!!.window.window, GLFW.glfwCreateStandardCursor(GLFW.GLFW_RESIZE_NESW_CURSOR))
-                    } else if (mouseY >= box.y + box.height - 1 && mouseY <= box.y + box.height + 1) {
-                        guiGraphics.fill(box.x, box.y + box.height - 1, box.x + box.width, box.y + box.height + 1, FastColor.ARGB32.color(255, 255, 255, 255))
-                        GLFW.glfwSetCursor(this.minecraft!!.window.window, GLFW.glfwCreateStandardCursor(GLFW.GLFW_RESIZE_NWSE_CURSOR))
-                    } else {
-                        GLFW.glfwSetCursor(this.minecraft!!.window.window, GLFW.glfwCreateStandardCursor(GLFW.GLFW_HRESIZE_CURSOR))
-                    }
-
-                    guiGraphics.fill(box.x + box.width - 1, box.y, box.x + box.width + 1, box.y + box.height, FastColor.ARGB32.color(255, 255, 255, 255))
-                } else if (mouseY >= box.y - 1 && mouseY <= box.y + 1) {
-                    guiGraphics.fill(box.x, box.y - 1, box.x + box.width, box.y + 1, FastColor.ARGB32.color(255, 255, 255, 255))
-                    GLFW.glfwSetCursor(this.minecraft!!.window.window, GLFW.glfwCreateStandardCursor(GLFW.GLFW_VRESIZE_CURSOR))
-                } else if (mouseY >= box.y + box.height - 1 && mouseY <= box.y + box.height + 1) {
-                    guiGraphics.fill(box.x, box.y + box.height - 1, box.x + box.width, box.y + box.height + 1, FastColor.ARGB32.color(255, 255, 255, 255))
-                    GLFW.glfwSetCursor(this.minecraft!!.window.window, GLFW.glfwCreateStandardCursor(GLFW.GLFW_VRESIZE_CURSOR))
-                } else {
-                    guiGraphics.renderOutline(box.x, box.y, box.width, box.height, FastColor.ARGB32.color(255, 255, 255, 255))
-                    GLFW.glfwSetCursor(this.minecraft!!.window.window, GLFW.glfwCreateStandardCursor(GLFW.GLFW_RESIZE_ALL_CURSOR))
+                    inAnyBox = true
+                    break
                 }
-
-                inAnyBox = true
-                break
             }
-        }
 
         if (!inAnyBox) {
             GLFW.glfwSetCursor(this.minecraft!!.window.window, GLFW.glfwCreateStandardCursor(GLFW.GLFW_ARROW_CURSOR))
@@ -76,8 +90,20 @@ class EditTranscriptBoxesScreen(val boxes: MutableList<TranscriptBox>) : Screen(
     }
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
-        for ((index, box) in boxes.withIndex()) {
+        val result = super.mouseClicked(mouseX, mouseY, button)
+
+        if (result)
+            return true
+
+        for ((index, box) in boxes.toList().withIndex()) {
             if (mouseX >= box.x - 1 && mouseY >= box.y - 1 && mouseX <= box.x + box.width + 1 && mouseY <= box.y + box.height + 1) {
+                val offset = 5
+                if (mouseX >= box.x + offset + 1 && mouseY >= box.y + offset + 1 && mouseX <= box.x + offset + 16 && mouseY <= box.y + offset + 16) {
+                    boxes.removeAt(index)
+
+                    return true
+                }
+
                 boxEditContext = if (mouseX >= box.x - 1 && mouseX <= box.x + 1) {
                     if (mouseY >= box.y - 1 && mouseY <= box.y + 1) {
                         BoxEditContext(index, box, EnumSet.of(MoveMode.START_X, MoveMode.START_Y), mouseX, mouseY)
@@ -122,7 +148,7 @@ class EditTranscriptBoxesScreen(val boxes: MutableList<TranscriptBox>) : Screen(
             }
         }
 
-        return super.mouseClicked(mouseX, mouseY, button)
+        return false
     }
 
     override fun mouseReleased(mouseX: Double, mouseY: Double, button: Int): Boolean {

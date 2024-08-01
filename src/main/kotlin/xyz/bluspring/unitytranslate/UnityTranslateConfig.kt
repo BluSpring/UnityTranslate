@@ -7,7 +7,8 @@ data class UnityTranslateConfig(
     val server: CommonConfig = CommonConfig()
 ) {
     data class ClientConfig(
-        var openBrowserWithoutPrompt: Boolean = false
+        var enabled: Boolean = true,
+        var openBrowserWithoutPrompt: Boolean = false,
     )
 
     data class CommonConfig(
