@@ -10,12 +10,19 @@ import net.minecraft.util.FastColor
 import net.minecraft.util.Mth
 import org.lwjgl.glfw.GLFW
 import xyz.bluspring.unitytranslate.UnityTranslate
+import xyz.bluspring.unitytranslate.client.UnityTranslateClient
 import java.util.*
 
 class EditTranscriptBoxesScreen(val boxes: MutableList<TranscriptBox>) : Screen(Component.empty()) {
     val CLOSE_BUTTON = ResourceLocation(UnityTranslate.MOD_ID, "textures/gui/close.png")
+    var shouldDisableHudAfter = false
 
     override fun init() {
+        if (!UnityTranslateClient.shouldRenderBoxes) {
+            shouldDisableHudAfter = true
+            UnityTranslateClient.shouldRenderBoxes = true
+        }
+
         this.addRenderableWidget(
             Button.builder(CommonComponents.GUI_DONE) {
                 this.onClose()
@@ -23,6 +30,13 @@ class EditTranscriptBoxesScreen(val boxes: MutableList<TranscriptBox>) : Screen(
                 .pos(this.width / 2 - (Button.DEFAULT_WIDTH / 2), this.height - 50)
                 .build()
         )
+    }
+
+    override fun onClose() {
+        super.onClose()
+
+        if (shouldDisableHudAfter)
+            UnityTranslateClient.shouldRenderBoxes = false
     }
 
     private var boxEditContext: BoxEditContext? = null

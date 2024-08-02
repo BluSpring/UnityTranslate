@@ -27,8 +27,6 @@ class UnityTranslateClient : ClientModInitializer {
         transcriber = UnityTranslate.config.client.transcriber.creator.invoke(UnityTranslate.config.client.language)
         setupTranscriber(transcriber)
 
-        var shouldRenderBoxes = true
-
         HudRenderCallback.EVENT.register { guiGraphics, delta ->
             if (shouldRenderBoxes) {
                 for (languageBox in languageBoxes) {
@@ -50,7 +48,7 @@ class UnityTranslateClient : ClientModInitializer {
                 )
             }
 
-            if (TOGGLE_BOXES.consumeClick()) {
+            if (TOGGLE_BOXES.consumeClick() && it.screen !is EditTranscriptBoxesScreen) {
                 shouldRenderBoxes = !shouldRenderBoxes
                 it.player?.displayClientMessage(Component.translatable("unitytranslate.transcript_boxes")
                     .append(": ")
@@ -125,6 +123,8 @@ class UnityTranslateClient : ClientModInitializer {
         var connectedServerHasSupport = false
 
         var shouldTranscribe = true
+        var shouldRenderBoxes = true
+
         val languageBoxes: MutableList<TranscriptBox>
             get() {
                 return UnityTranslate.config.client.transcriptBoxes
