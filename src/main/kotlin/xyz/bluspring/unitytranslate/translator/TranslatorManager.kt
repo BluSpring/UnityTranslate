@@ -74,7 +74,9 @@ object TranslatorManager {
                 if (PFN_cuInit == MemoryUtil.NULL || PFN_cuDeviceGetCount == MemoryUtil.NULL || PFN_cuDeviceComputeCapability == MemoryUtil.NULL) {
                     return false
                 }
-            } catch (_: Throwable) {
+            } catch (e: Throwable) {
+                UnityTranslate.logger.warn("An error occurred while searching for CUDA devices! You don't have to report this, don't worry.")
+                e.printStackTrace()
                 return false
             }
 
