@@ -1,6 +1,10 @@
 package xyz.bluspring.unitytranslate.client.transcribers
 
-enum class TranscriberType {
-    SPHINX,
-    BROWSER
+import xyz.bluspring.unitytranslate.Language
+import xyz.bluspring.unitytranslate.client.transcribers.browser.BrowserSpeechTranscriber
+import xyz.bluspring.unitytranslate.client.transcribers.sphinx.SphinxSpeechTranscriber
+
+enum class TranscriberType(val creator: (Language) -> SpeechTranscriber) {
+    SPHINX(::BrowserSpeechTranscriber),
+    BROWSER(::SphinxSpeechTranscriber)
 }

@@ -1,6 +1,5 @@
 package xyz.bluspring.unitytranslate.client.gui
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import net.minecraft.ChatFormatting
@@ -8,7 +7,11 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.network.chat.Component
 import net.minecraft.util.FastColor
+import net.minecraft.world.entity.player.Player
 import xyz.bluspring.unitytranslate.Language
+import xyz.bluspring.unitytranslate.transcript.Transcript
+import java.util.*
+import java.util.concurrent.ConcurrentLinkedQueue
 
 @Serializable
 data class TranscriptBox(
@@ -21,7 +24,7 @@ data class TranscriptBox(
     var language: Language
 ) {
     @Transient
-    val transcripts = Int2ObjectLinkedOpenHashMap<String>()
+    val transcripts = ConcurrentLinkedQueue<Transcript>()
 
     fun render(guiGraphics: GuiGraphics) {
         guiGraphics.pose().pushPose()
@@ -35,16 +38,16 @@ data class TranscriptBox(
 
         guiGraphics.enableScissor(x, y + 15, x + width, y + height)
 
-        val lines = transcripts.toList().sortedByDescending { it.first }.map {
+        val lines = transcripts.reversed().map {
             Component.empty()
                 .append("<")
-                .append(Minecraft.getInstance().player!!.displayName)
+                .append(it.player.displayName)
                 .append(
-                    Component.literal(" (English)")
+                    Component.literal(" (${it.language.code.uppercase(Locale.ENGLISH)})")
                         .withStyle(ChatFormatting.GREEN)
                 )
                 .append("> ")
-                .append(it.second)
+                .append(it.text)
         }
 
         val font = Minecraft.getInstance().font
@@ -65,5 +68,13 @@ data class TranscriptBox(
         guiGraphics.renderOutline(x, y, width, height, FastColor.ARGB32.color(100, 0, 0, 0))
 
         guiGraphics.pose().popPose()
+    }
+
+    fun updateTranscript(source: Player, text: String, language: Language, updateLast: Boolean) {
+        if (updateLast) {
+            this.transcripts.remove(this.transcripts.last())
+        }
+
+        this.transcripts.add(Transcript(source, text, language))
     }
 }
