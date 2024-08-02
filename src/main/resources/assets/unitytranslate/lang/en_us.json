@@ -1,5 +1,12 @@
 {
     "unitytranslate.open_browser.prompt": "For UnityTranslate to transcribe your speech in Browser Transcription mode, your browser must be left opened to a website running locally. You may close your browser once you are no longer using UnityTranslate.",
     "unitytranslate.do_not_show_again": "Don't show me again",
-    "unitytranslate.open_browser.open_in_browser": "Open in Browser"
+    "unitytranslate.open_browser.open_in_browser": "Open in Browser",
+
+    "unitytranslate.transcriber.connected": "Connected to Browser Transcription.",
+    "unitytranslate.transcriber.disconnected": "Disconnected from Browser Transcription, please click here to reconnect.",
+
+    "unitytranslate.transcriber.error": "An error occurred: ",
+    "unitytranslate.transcriber.error.too_many_resets": "Too many transcriber resets have occurred within a small timeframe, please restart your browser!",
+    "unitytranslate.transcriber.error.no_support": "Your browser doesn't support the Web Speech Recognition API! Please try using Google Chrome or Microsoft Edge instead."
 }

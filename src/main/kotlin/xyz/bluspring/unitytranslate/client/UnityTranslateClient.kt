@@ -4,7 +4,10 @@ import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback
+import net.minecraft.ChatFormatting
 import net.minecraft.client.KeyMapping
+import net.minecraft.client.Minecraft
+import net.minecraft.network.chat.Component
 import org.lwjgl.glfw.GLFW
 import xyz.bluspring.unitytranslate.Language
 import xyz.bluspring.unitytranslate.client.gui.EditTranscriptBoxesScreen
@@ -95,5 +98,15 @@ class UnityTranslateClient : ClientModInitializer {
 
     companion object {
         val CONFIGURE_BOXES = KeyBindingHelper.registerKeyBinding(KeyMapping("unitytranslate.configure_boxes", GLFW.GLFW_KEY_KP_7, "UnityTranslate"))
+
+        fun displayMessage(component: Component, isError: Boolean = false) {
+            val full = Component.empty()
+                .append(Component.literal("[UnityTranslate]: ")
+                    .withStyle(if (isError) ChatFormatting.RED else ChatFormatting.YELLOW, ChatFormatting.BOLD)
+                )
+                .append(component)
+
+            Minecraft.getInstance().gui.chat.addMessage(full)
+        }
     }
 }

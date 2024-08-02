@@ -7,12 +7,15 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents
 import net.minecraft.Util
+import net.minecraft.network.chat.ClickEvent
+import net.minecraft.network.chat.Component
 import net.minecraft.util.HttpUtil
 import org.java_websocket.WebSocket
 import org.java_websocket.handshake.ClientHandshake
 import org.java_websocket.server.WebSocketServer
 import xyz.bluspring.unitytranslate.Language
 import xyz.bluspring.unitytranslate.UnityTranslate
+import xyz.bluspring.unitytranslate.client.UnityTranslateClient
 import xyz.bluspring.unitytranslate.client.gui.OpenBrowserScreen
 import xyz.bluspring.unitytranslate.client.transcribers.SpeechTranscriber
 import xyz.bluspring.unitytranslate.client.transcribers.TranscriberType
@@ -62,10 +65,17 @@ class BrowserSpeechTranscriber(language: Language) : SpeechTranscriber(language)
                 addProperty("language", language.supportedTranscribers[TranscriberType.BROWSER])
             })
             totalConnections++
+
+            UnityTranslateClient.displayMessage(Component.translatable("unitytranslate.transcriber.connected"))
         }
 
         override fun onClose(ws: WebSocket, code: Int, reason: String, remote: Boolean) {
             totalConnections--
+
+            UnityTranslateClient.displayMessage(Component.translatable("unitytranslate.transcriber.disconnected")
+                .withStyle {
+                    it.withClickEvent(ClickEvent(ClickEvent.Action.OPEN_URL, "http://127.0.0.1:$port"))
+                })
         }
 
         override fun onMessage(ws: WebSocket, message: String) {
@@ -97,6 +107,13 @@ class BrowserSpeechTranscriber(language: Language) : SpeechTranscriber(language)
 
                 "reset" -> {
                     currentOffset = lastIndex + 1
+                }
+
+                "error" -> {
+                    val type = data.get("type").asString
+
+                    UnityTranslateClient.displayMessage(Component.translatable("unitytranslate.transcriber.error")
+                        .append(Component.translatable("unitytranslate.transcriber.error.$type")), true)
                 }
             }
         }

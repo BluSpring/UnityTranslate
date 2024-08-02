@@ -7,6 +7,10 @@ window.SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecogn
  */
 let transcriber;
 
+let lastReset = 0;
+let totalResetsBelow50ms = 0;
+let isErrored = false;
+
 ws.onopen = () => {
     console.log('Connected');
 }
@@ -14,6 +18,8 @@ ws.onopen = () => {
 function setupTranscriber(lang) {
     console.log(`Starting transcriber with lang ${lang}`);
     transcriber = new SpeechRecognition();
+
+    lastReset = Date.now();
 
     ws.send(JSON.stringify({
         op: 'reset'
@@ -29,11 +35,27 @@ function setupTranscriber(lang) {
     }
 
     transcriber.onend = () => {
+        if (isErrored)
+            return;
+
         console.log('Transcriber resetting...');
         ws.send(JSON.stringify({
             op: 'reset'
         }));
         transcriber.start();
+
+        if (Date.now() - lastReset >= 50) {
+            if (++totalResetsBelow50ms >= 30) {
+                ws.send(JSON.stringify({
+                    op: "error",
+                    d: {
+                        type: "too_many_resets"
+                    }
+                }));
+                isErrored = true;
+            }
+        }
+        lastReset = Date.now();
     }
 
     transcriber.onresult = (ev) => {
@@ -81,6 +103,7 @@ ws.onmessage = (ev) => {
                         type: "no_support"
                     }
                 }));
+                return;
             }
 
             setupTranscriber(lang);
