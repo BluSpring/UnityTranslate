@@ -58,7 +58,7 @@ class UnityTranslate : ModInitializer {
         }
 
         ServerPlayConnectionEvents.JOIN.register { handler, sender, server ->
-            if (server.isDedicatedServer) {
+            if (!server.isSingleplayer) {
                 ServerPlayNetworking.send(handler.player, PacketIds.SERVER_SUPPORT, PacketByteBufs.empty())
             }
         }
