@@ -2,6 +2,7 @@ package xyz.bluspring.unitytranslate
 
 import kotlinx.serialization.Serializable
 import net.fabricmc.fabric.api.util.TriState
+import xyz.bluspring.unitytranslate.client.gui.TranscriptBox
 import java.util.*
 
 @Serializable
@@ -14,6 +15,8 @@ data class UnityTranslateConfig(
         var enabled: Boolean = true,
         var openBrowserWithoutPrompt: Boolean = false,
         var muteTranscriptWhenVoiceChatMuted: Boolean = false,
+
+        var transcriptBoxes: MutableList<TranscriptBox> = mutableListOf()
     )
 
     @Serializable

@@ -1,6 +1,8 @@
 package xyz.bluspring.unitytranslate.client.gui
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import net.minecraft.ChatFormatting
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
@@ -8,7 +10,8 @@ import net.minecraft.network.chat.Component
 import net.minecraft.util.FastColor
 import xyz.bluspring.unitytranslate.Language
 
-class TranscriptBox(
+@Serializable
+data class TranscriptBox(
     var x: Int,
     var y: Int,
     var width: Int,
@@ -17,6 +20,7 @@ class TranscriptBox(
 
     var language: Language
 ) {
+    @Transient
     val transcripts = Int2ObjectLinkedOpenHashMap<String>()
 
     fun render(guiGraphics: GuiGraphics) {
