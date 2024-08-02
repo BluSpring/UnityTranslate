@@ -62,13 +62,13 @@ dependencies {
 
     modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
 
-    shadow(api("edu.cmu.sphinx:sphinx4-core:5prealpha-SNAPSHOT"))
-    shadow(api("edu.cmu.sphinx:sphinx4-data:5prealpha-SNAPSHOT"))
+    //shadow(api("edu.cmu.sphinx:sphinx4-core:5prealpha-SNAPSHOT"))
+    //shadow(api("edu.cmu.sphinx:sphinx4-data:5prealpha-SNAPSHOT"))
     shadow(api("net.clojars.suuft:libretranslate-java:1.0.5"))
     shadow(api('org.java-websocket:Java-WebSocket:1.5.7'))
 
-    include(implementation("io.ktor:ktor-server-core-jvm"))
-    include(implementation("io.ktor:ktor-server-netty-jvm"))
+    shadow(implementation("io.ktor:ktor-server-core-jvm:2.3.11"))
+    shadow(implementation("io.ktor:ktor-server-netty-jvm:2.3.11"))
 
     implementation "de.maxhenkel.voicechat:voicechat-api:${voicechat_api_version}"
     modRuntimeOnly "maven.modrinth:simple-voice-chat:fabric-${voicechat_version}"
@@ -123,6 +123,17 @@ shadowJar {
     archiveClassifier.set("dev-shadow")
 
     exclude "kotlin/**/*", "kotlinx/**/*", "org/intellij/**/*", "org/jetbrains/**/*"
+
+    // required cuz otherwise it just breaks
+    application {
+        mainClass.set("ThisDoesNotFuckingExist")
+    }
+
+    def packageName = "xyz.bluspring.unitytranslate.shade"
+    relocate("org", "${packageName}.org")
+    relocate("io", "${packageName}.io")
+    relocate("com", "${packageName}.com")
+    relocate("net", "${packageName}.net")
 }
 
 remapJar {
