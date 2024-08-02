@@ -9,10 +9,11 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.FastColor
 import net.minecraft.util.Mth
 import org.lwjgl.glfw.GLFW
+import xyz.bluspring.unitytranslate.UnityTranslate
 import java.util.*
 
 class EditTranscriptBoxesScreen(val boxes: MutableList<TranscriptBox>) : Screen(Component.empty()) {
-    val CLOSE_BUTTON = ResourceLocation("unitytranslate", "textures/gui/close.png")
+    val CLOSE_BUTTON = ResourceLocation(UnityTranslate.MOD_ID, "textures/gui/close.png")
 
     override fun init() {
         this.addRenderableWidget(

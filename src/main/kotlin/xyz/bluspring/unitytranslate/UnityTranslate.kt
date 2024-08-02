@@ -10,6 +10,8 @@ class UnityTranslate : ModInitializer {
     }
 
     companion object {
+        const val MOD_ID = "unitytranslate"
+
         val config = UnityTranslateConfig()
         val logger = LoggerFactory.getLogger("UnityTranslate")
     }

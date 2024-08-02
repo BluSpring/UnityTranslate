@@ -26,7 +26,7 @@ class TranscriptBox(
         guiGraphics.enableScissor(x, y, x + width, y + height)
 
         guiGraphics.fill(x, y, x + width, y + height, FastColor.ARGB32.color(opacity, 0, 0, 0))
-        guiGraphics.drawCenteredString(Minecraft.getInstance().font, Component.literal("Transcript (${language.code.uppercase()})")
+        guiGraphics.drawCenteredString(Minecraft.getInstance().font, Component.translatable("unitytranslate.transcript").append(" (${language.code.uppercase()})")
             .withStyle(ChatFormatting.UNDERLINE, ChatFormatting.BOLD), x + (width / 2), y + 5, 16777215)
 
         guiGraphics.enableScissor(x, y + 15, x + width, y + height)

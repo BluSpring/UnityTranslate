@@ -1,19 +1,24 @@
 package xyz.bluspring.unitytranslate
 
+import kotlinx.serialization.Serializable
 import net.fabricmc.fabric.api.util.TriState
 import java.util.*
 
+@Serializable
 data class UnityTranslateConfig(
     val client: ClientConfig = ClientConfig(),
     val server: CommonConfig = CommonConfig()
 ) {
+    @Serializable
     data class ClientConfig(
         var enabled: Boolean = true,
         var openBrowserWithoutPrompt: Boolean = false,
+        var muteTranscriptWhenVoiceChatMuted: Boolean = false,
     )
 
+    @Serializable
     data class CommonConfig(
-        var translatePriority: EnumSet<TranslationPriority> = EnumSet.of(
+        var translatePriority: Set<TranslationPriority> = EnumSet.of(
             TranslationPriority.CLIENT_GPU, // highest priority, prioritize using CUDA on the client-side.
             TranslationPriority.SERVER_GPU, // if supported, use CUDA on the server-side.
             TranslationPriority.OFFLOADED,  // use alternative servers if available
@@ -25,10 +30,11 @@ data class UnityTranslateConfig(
         var offloadServers: MutableList<OffloadedLibreTranslateServer> = mutableListOf(
             OffloadedLibreTranslateServer("https://trans.zillyhuhn.com"),
             OffloadedLibreTranslateServer("https://translate.fedilab.app", weight = 5), // this server is pretty slow, use with doubt
-            OffloadedLibreTranslateServer("https://devos.one")
+            OffloadedLibreTranslateServer("https://devos.one") // TODO: set this to proper devOS server
         )
     )
 
+    @Serializable
     data class OffloadedLibreTranslateServer(
         var url: String, // follows http://127.0.0.1:5000 - the /translate endpoint will be appended at the end automatically.
         var authKey: String? = null,

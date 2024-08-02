@@ -1,8 +1,8 @@
 plugins {
-    id 'fabric-loom' version '1.6-SNAPSHOT'
+    id 'fabric-loom' version '1.7-SNAPSHOT'
     id 'maven-publish'
     id 'org.jetbrains.kotlin.jvm' version '2.0.0'
-    id 'org.jetbrains.kotlin.plugin.serialization' version '1.9.24'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '2.0.0'
     id "com.github.johnrengelman.shadow" version "7.1.2"
     id 'io.ktor.plugin' version '2.3.11'
 }
@@ -37,6 +37,13 @@ repositories {
         name = "clojars.org"
         url = uri("https://repo.clojars.org")
     }
+    maven {
+        name = "Terraformers"
+        url = "https://maven.terraformersmc.com/"
+    }
+    maven {
+        url = 'https://maven.maxhenkel.de/repository/public'
+    }
 }
 
 dependencies {
@@ -44,14 +51,16 @@ dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings loom.layered() {
         officialMojangMappings()
-        parchment("org.parchmentmc.data:parchment-1.20.1:2023.09.03@zip")
+        parchment("org.parchmentmc.data:parchment-${project.minecraft_version}:${project.parchment_snapshot}@zip")
     }
 
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-    modImplementation "net.fabricmc:fabric-language-kotlin:1.11.0+kotlin.2.0.0"
+    modImplementation "net.fabricmc:fabric-language-kotlin:${project.fabric_kotlin_version}"
+
+    modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
 
     shadow(api("edu.cmu.sphinx:sphinx4-core:5prealpha-SNAPSHOT"))
     shadow(api("edu.cmu.sphinx:sphinx4-data:5prealpha-SNAPSHOT"))
@@ -60,18 +69,23 @@ dependencies {
 
     include(implementation("io.ktor:ktor-server-core-jvm"))
     include(implementation("io.ktor:ktor-server-netty-jvm"))
+
+    implementation "de.maxhenkel.voicechat:voicechat-api:${voicechat_api_version}"
+    modRuntimeOnly "maven.modrinth:simple-voice-chat:fabric-${voicechat_version}"
 }
 
 processResources {
     inputs.property "version", project.version
     inputs.property "minecraft_version", project.minecraft_version
     inputs.property "loader_version", project.loader_version
+    inputs.property "fabric_kotlin_version", project.fabric_kotlin_version
     filteringCharset "UTF-8"
 
     filesMatching("fabric.mod.json") {
         expand "version": project.version,
                 "minecraft_version": project.minecraft_version,
-                "loader_version": project.loader_version
+                "loader_version": project.loader_version,
+                "fabric_kotlin_version": project.fabric_kotlin_version
     }
 }
 

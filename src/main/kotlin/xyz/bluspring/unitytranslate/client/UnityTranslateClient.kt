@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback
 import net.minecraft.ChatFormatting
 import net.minecraft.client.KeyMapping
 import net.minecraft.client.Minecraft
+import net.minecraft.network.chat.CommonComponents
 import net.minecraft.network.chat.Component
 import org.lwjgl.glfw.GLFW
 import xyz.bluspring.unitytranslate.Language
@@ -83,9 +84,13 @@ class UnityTranslateClient : ClientModInitializer {
             }
         }
 
+        var shouldRenderBoxes = true
+
         HudRenderCallback.EVENT.register { guiGraphics, delta ->
-            for (languageBox in languageBoxes) {
-                languageBox.render(guiGraphics)
+            if (shouldRenderBoxes) {
+                for (languageBox in languageBoxes) {
+                    languageBox.render(guiGraphics)
+                }
             }
         }
 
@@ -93,11 +98,31 @@ class UnityTranslateClient : ClientModInitializer {
             if (CONFIGURE_BOXES.consumeClick()) {
                 it.setScreen(EditTranscriptBoxesScreen(languageBoxes))
             }
+
+            if (TOGGLE_TRANSCRIPTION.consumeClick()) {
+                shouldTranscribe = !shouldTranscribe
+                it.player?.displayClientMessage(Component.translatable("unitytranslate.transcript")
+                    .append(": ")
+                    .append(if (shouldTranscribe) CommonComponents.OPTION_ON else CommonComponents.OPTION_OFF), true
+                )
+            }
+
+            if (TOGGLE_BOXES.consumeClick()) {
+                shouldRenderBoxes = !shouldRenderBoxes
+                it.player?.displayClientMessage(Component.translatable("unitytranslate.transcript_boxes")
+                    .append(": ")
+                    .append(if (shouldRenderBoxes) CommonComponents.OPTION_ON else CommonComponents.OPTION_OFF), true
+                )
+            }
         }
     }
 
     companion object {
+        var shouldTranscribe = true
+
         val CONFIGURE_BOXES = KeyBindingHelper.registerKeyBinding(KeyMapping("unitytranslate.configure_boxes", GLFW.GLFW_KEY_KP_7, "UnityTranslate"))
+        val TOGGLE_TRANSCRIPTION = KeyBindingHelper.registerKeyBinding(KeyMapping("unitytranslate.toggle_transcription", GLFW.GLFW_KEY_KP_8, "UnityTranslate"))
+        val TOGGLE_BOXES = KeyBindingHelper.registerKeyBinding(KeyMapping("unitytranslate.toggle_boxes", GLFW.GLFW_KEY_KP_9, "UnityTranslate"))
 
         fun displayMessage(component: Component, isError: Boolean = false) {
             val full = Component.empty()

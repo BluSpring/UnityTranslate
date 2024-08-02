@@ -19,6 +19,12 @@
         ],
         "main": [
             "xyz.bluspring.unitytranslate.UnityTranslate"
+        ],
+        "modmenu": [
+            "xyz.bluspring.unitytranslate.compat.modmenu.UTModMenuIntegration"
+        ],
+        "voicechat": [
+            "xyz.bluspring.unitytranslate.compat.voicechat.UTVoiceChatCompat"
         ]
     },
     "mixins": [
@@ -26,7 +32,8 @@
     ],
     "depends": {
         "fabricloader": ">=${loader_version}",
-        "fabric": "*",
-        "minecraft": "${minecraft_version}"
+        "fabric-api": "*",
+        "minecraft": "${minecraft_version}",
+        "fabric-language-kotlin": ">=${fabric_kotlin_version}"
     }
 }

@@ -8,5 +8,12 @@
 
     "unitytranslate.transcriber.error": "An error occurred: ",
     "unitytranslate.transcriber.error.too_many_resets": "Too many transcriber resets have occurred within a small timeframe, please restart your browser!",
-    "unitytranslate.transcriber.error.no_support": "Your browser doesn't support the Web Speech Recognition API! Please try using Google Chrome or Microsoft Edge instead."
+    "unitytranslate.transcriber.error.no_support": "Your browser doesn't support the Web Speech Recognition API! Please try using Google Chrome or Microsoft Edge instead.",
+
+    "unitytranslate.configure_boxes": "Configure Transcript Boxes",
+    "unitytranslate.toggle_transcription": "Mute/Unmute Own Transcription",
+    "unitytranslate.toggle_boxes": "Show/Hide Transcript Boxes",
+
+    "unitytranslate.transcript_boxes": "Transcript Boxes",
+    "unitytranslate.transcript": "Transcript"
 }
