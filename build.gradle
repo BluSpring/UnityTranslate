@@ -122,7 +122,7 @@ shadowJar {
     configurations = [project.configurations.shadow]
     archiveClassifier.set("dev-shadow")
 
-    exclude "kotlin/**/*", "kotlinx/**/*", "org/intellij/**/*", "org/jetbrains/**/*"
+    exclude "kotlin/**/*", "kotlinx/**/*", "org/intellij/**/*", "org/jetbrains/**/*", "com/google/**/*", "org/slf4j/**/*"
 
     // required cuz otherwise it just breaks
     application {
@@ -130,10 +130,10 @@ shadowJar {
     }
 
     def packageName = "xyz.bluspring.unitytranslate.shade"
-    relocate("org", "${packageName}.org")
-    relocate("io", "${packageName}.io")
-    relocate("com", "${packageName}.com")
-    relocate("net", "${packageName}.net")
+    def relocatePackages = ["com.typesafe", "io.ktor", "io.netty", "net.suuft", "org.eclipse", "org.fusesource", "org.java_websocket"]
+    for (final def pkg in relocatePackages) {
+        relocate(pkg, "${packageName}.${pkg}")
+    }
 }
 
 remapJar {
