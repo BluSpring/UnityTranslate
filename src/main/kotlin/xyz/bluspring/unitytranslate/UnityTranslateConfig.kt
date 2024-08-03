@@ -27,8 +27,8 @@ data class UnityTranslateConfig(
         var translatePriority: Set<TranslationPriority> = EnumSet.of(
             TranslationPriority.CLIENT_GPU, // highest priority, prioritize using CUDA on the client-side.
             TranslationPriority.SERVER_GPU, // if supported, use CUDA on the server-side.
-            TranslationPriority.OFFLOADED,  // use alternative servers if available
             TranslationPriority.SERVER_CPU, // otherwise, translate on the CPU.
+            TranslationPriority.OFFLOADED,  // use alternative servers if available
             TranslationPriority.CLIENT_CPU, // worst case scenario, use client CPU.
         ),
         var shouldUseCuda: Boolean = true,
