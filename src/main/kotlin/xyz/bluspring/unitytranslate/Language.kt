@@ -36,6 +36,9 @@ enum class Language(
     )),
     ARABIC("ar", mapOf(
         TranscriberType.BROWSER to "ar"
+    )),
+    GERMAN("de", mapOf(
+        TranscriberType.BROWSER to "de"
     ));
 
     override fun toString(): String {
