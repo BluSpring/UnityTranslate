@@ -81,7 +81,7 @@ class BrowserSpeechTranscriber(language: Language) : SpeechTranscriber(language)
 
             UnityTranslateClient.displayMessage(Component.translatable("unitytranslate.transcriber.disconnected")
                 .withStyle {
-                    it.withClickEvent(ClickEvent(ClickEvent.Action.OPEN_URL, "http://127.0.0.1:$port"))
+                    it.withClickEvent(ClickEvent(ClickEvent.Action.OPEN_URL, "http://127.0.0.1:${this@BrowserSpeechTranscriber.server.environment.config.port}"))
                 })
         }
 
