@@ -59,7 +59,12 @@ class LanguageSelectScreen(val parent: Screen?, val isAddingBox: Boolean) : Scre
     private inner class LanguageSelectionList : ObjectSelectionList<LanguageSelectionList.Entry>(Minecraft.getInstance(), this@LanguageSelectScreen.width, this@LanguageSelectScreen.height, 32, this@LanguageSelectScreen.height - 65 + 4, 18) {
         init {
             for (language in Language.entries.sortedBy { it.name }) {
-                this.addEntry(Entry(language))
+                val entry = Entry(language)
+                this.addEntry(entry)
+
+                if (!isAddingBox && UnityTranslateClient.transcriber.language == language) {
+                    this.selected = entry
+                }
             }
         }
 
