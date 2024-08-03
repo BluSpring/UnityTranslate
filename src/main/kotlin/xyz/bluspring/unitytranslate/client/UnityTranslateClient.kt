@@ -87,7 +87,9 @@ class UnityTranslateClient : ClientModInitializer {
             val source = client.level!!.getPlayerByUUID(sourceId) ?: return@registerGlobalReceiver
 
             val sourceLanguage = buf.readEnum(Language::class.java)
-            val updateLast = buf.readBoolean()
+            val index = buf.readVarInt()
+            val updateTime = buf.readVarLong()
+
             val totalLanguages = buf.readVarInt()
 
             val boxes = languageBoxes
@@ -100,7 +102,7 @@ class UnityTranslateClient : ClientModInitializer {
                     continue
 
                 val box = boxes.firstOrNull { it.language == language }
-                box?.updateTranscript(source, text, sourceLanguage, updateLast)
+                box?.updateTranscript(source, text, sourceLanguage, index, updateTime)
             }
         }
 
@@ -110,32 +112,35 @@ class UnityTranslateClient : ClientModInitializer {
     }
 
     fun setupTranscriber(transcriber: SpeechTranscriber) {
-        transcriber.updater = BiConsumer { updateLast, text ->
+        transcriber.updater = BiConsumer { index, text ->
             if (!shouldTranscribe)
                 return@BiConsumer
+
+            val updateTime = System.currentTimeMillis()
 
             if (connectedServerHasSupport) {
                 val buf = PacketByteBufs.create()
                 buf.writeEnum(transcriber.language)
                 buf.writeUtf(text)
-                buf.writeBoolean(updateLast)
+                buf.writeVarInt(index)
+                buf.writeVarLong(updateTime)
 
                 ClientPlayNetworking.send(PacketIds.SEND_TRANSCRIPT, buf)
-                languageBoxes.firstOrNull { it.language == transcriber.language }?.updateTranscript(Minecraft.getInstance().player!!, text, transcriber.language, updateLast)
+                languageBoxes.firstOrNull { it.language == transcriber.language }?.updateTranscript(Minecraft.getInstance().player!!, text, transcriber.language, index, updateTime)
             } else {
                 if (Minecraft.getInstance().player == null)
                     return@BiConsumer
 
                 for (box in languageBoxes) {
                     if (box.language == transcriber.language) {
-                        box.updateTranscript(Minecraft.getInstance().player!!, text, transcriber.language, updateLast)
+                        box.updateTranscript(Minecraft.getInstance().player!!, text, transcriber.language, index, updateTime)
 
                         continue
                     }
 
                     TranslatorManager.queueTranslation(text, transcriber.language, box.language)
                         .thenApplyAsync {
-                            box.updateTranscript(Minecraft.getInstance().player!!, it, transcriber.language, updateLast)
+                            box.updateTranscript(Minecraft.getInstance().player!!, it, transcriber.language, index, updateTime)
                         }
                 }
             }

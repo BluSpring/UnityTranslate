@@ -7,7 +7,7 @@ abstract class SpeechTranscriber(var language: Language) {
     var lastIndex = 0
     var currentOffset = 0
 
-    lateinit var updater: BiConsumer<Boolean, String>
+    lateinit var updater: BiConsumer<Int, String>
 
     abstract fun stop()
 

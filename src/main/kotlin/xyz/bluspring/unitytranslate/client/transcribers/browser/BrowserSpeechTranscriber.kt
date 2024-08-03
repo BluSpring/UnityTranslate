@@ -107,7 +107,7 @@ class BrowserSpeechTranscriber(language: Language) : SpeechTranscriber(language)
                     val selected = deserialized.sortedByDescending { it.second }[0].first
 
                     if (selected.isNotBlank()) {
-                        updater.accept(lastIndex == currentOffset + index, selected.trim())
+                        updater.accept(currentOffset + index, selected.trim())
                     }
 
                     lastIndex = currentOffset + index

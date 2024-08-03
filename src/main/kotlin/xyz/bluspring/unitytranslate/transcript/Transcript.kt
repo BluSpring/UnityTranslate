@@ -4,7 +4,9 @@ import net.minecraft.world.entity.player.Player
 import xyz.bluspring.unitytranslate.Language
 
 data class Transcript(
+    val index: Int,
     val player: Player,
-    val text: String,
-    val language: Language
+    var text: String,
+    val language: Language,
+    var lastUpdateTime: Long
 )

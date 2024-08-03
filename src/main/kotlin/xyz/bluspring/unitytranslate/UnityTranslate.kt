@@ -18,11 +18,12 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedDeque
 
 class UnityTranslate : ModInitializer {
-    private fun broadcastTranslations(source: ServerPlayer, sourceLanguage: Language, updateLast: Boolean, sentTranslations: ConcurrentLinkedDeque<Language>, translations: ConcurrentHashMap<Language, String>) {
+    private fun broadcastTranslations(source: ServerPlayer, sourceLanguage: Language, index: Int, updateTime: Long, sentTranslations: ConcurrentLinkedDeque<Language>, translations: ConcurrentHashMap<Language, String>) {
         val buf = PacketByteBufs.create()
         buf.writeUUID(source.uuid)
         buf.writeEnum(sourceLanguage)
-        buf.writeBoolean(updateLast)
+        buf.writeVarInt(index)
+        buf.writeVarLong(updateTime)
 
         val toSend = translations.filter { a -> !sentTranslations.contains(a.key) }
 
@@ -62,7 +63,8 @@ class UnityTranslate : ModInitializer {
         ServerPlayNetworking.registerGlobalReceiver(PacketIds.SEND_TRANSCRIPT) { server, player, handler, buf, sender ->
             val sourceLanguage = buf.readEnum(Language::class.java)
             val text = buf.readUtf()
-            val updateLast = buf.readBoolean()
+            val index = buf.readVarInt()
+            val updateTime = buf.readVarLong()
 
             val translations = ConcurrentHashMap<Language, String>()
             val sentTranslations = ConcurrentLinkedDeque<Language>()
@@ -74,7 +76,7 @@ class UnityTranslate : ModInitializer {
                             translations[sourceLanguage] = text
 
                             server.execute {
-                                broadcastTranslations(player, sourceLanguage, updateLast, sentTranslations, translations)
+                                broadcastTranslations(player, sourceLanguage, index, updateTime, sentTranslations, translations)
                             }
                         }
                 else
@@ -83,7 +85,7 @@ class UnityTranslate : ModInitializer {
                             translations[it] = translated
 
                             server.execute {
-                                broadcastTranslations(player, sourceLanguage, updateLast, sentTranslations, translations)
+                                broadcastTranslations(player, sourceLanguage, index, updateTime, sentTranslations, translations)
                             }
                         }
             }

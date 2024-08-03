@@ -72,11 +72,20 @@ data class TranscriptBox(
         guiGraphics.pose().popPose()
     }
 
-    fun updateTranscript(source: Player, text: String, language: Language, updateLast: Boolean) {
-        if (updateLast && this.transcripts.isNotEmpty() && this.transcripts.any { it.player.uuid == source.uuid }) {
-            this.transcripts.remove(this.transcripts.last { it.player.uuid == source.uuid })
+    fun updateTranscript(source: Player, text: String, language: Language, index: Int, updateTime: Long) {
+        if (this.transcripts.any { it.player.uuid == source.uuid && it.index == index }) {
+            val transcript = this.transcripts.first { it.player.uuid == source.uuid && it.index == index }
+
+            // it's possible for this to go out of order, let's avoid that
+            if (transcript.lastUpdateTime > updateTime)
+                return
+
+            transcript.lastUpdateTime = updateTime
+            transcript.text = text
+
+            return
         }
 
-        this.transcripts.add(Transcript(source, text, language))
+        this.transcripts.add(Transcript(index, source, text, language, updateTime))
     }
 }
