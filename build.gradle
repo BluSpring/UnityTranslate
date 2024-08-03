@@ -122,7 +122,7 @@ shadowJar {
     configurations = [project.configurations.shadow]
     archiveClassifier.set("dev-shadow")
 
-    exclude "kotlin/**/*", "kotlinx/**/*", "org/intellij/**/*", "org/jetbrains/**/*", "com/google/**/*", "org/slf4j/**/*"
+    exclude "kotlin/**/*", "kotlinx/**/*", "org/intellij/**/*", "org/jetbrains/**/*", "com/google/**/*", "org/slf4j/**/*", "io/netty/channel/unix/**/*"
 
     // required cuz otherwise it just breaks
     application {
