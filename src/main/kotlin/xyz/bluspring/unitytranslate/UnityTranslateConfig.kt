@@ -36,7 +36,7 @@ data class UnityTranslateConfig(
         var offloadServers: MutableList<OffloadedLibreTranslateServer> = mutableListOf(
             OffloadedLibreTranslateServer("https://trans.zillyhuhn.com"),
             OffloadedLibreTranslateServer("https://translate.fedilab.app", weight = 5, maxConcurrentTranslations = 3), // this server is pretty slow, use with doubt
-            OffloadedLibreTranslateServer("https://libretranslate.devos.one", weight = 105)
+            OffloadedLibreTranslateServer("https://libretranslate.devos.gay", weight = 105)
         )
     )
 
