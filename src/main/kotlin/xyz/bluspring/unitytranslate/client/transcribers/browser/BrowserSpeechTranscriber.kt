@@ -25,14 +25,13 @@ class BrowserSpeechTranscriber(language: Language) : SpeechTranscriber(language)
     val socketPort = HttpUtil.getAvailablePort()
     val server: ApplicationEngine
     val socket = BrowserSocket()
+    val serverPort = if (!HttpUtil.isPortAvailable(25117))
+        HttpUtil.getAvailablePort()
+    else
+        25117
 
     init {
-        val port = if (!HttpUtil.isPortAvailable(25117))
-            HttpUtil.getAvailablePort()
-        else
-            25117
-
-        server = embeddedServer(Netty, port = port, host = "0.0.0.0", module = Application::module)
+        server = embeddedServer(Netty, port = serverPort, host = "0.0.0.0", module = Application::module)
             .start(wait = false)
             .apply {
                 wsPort = socketPort
@@ -44,9 +43,9 @@ class BrowserSpeechTranscriber(language: Language) : SpeechTranscriber(language)
         ClientPlayConnectionEvents.JOIN.register { listener, sender, mc ->
             if (socket.totalConnections <= 0 && UnityTranslate.config.client.enabled) {
                 if (UnityTranslate.config.client.openBrowserWithoutPrompt) {
-                    Util.getPlatform().openUri("http://127.0.0.1:$port")
+                    Util.getPlatform().openUri("http://127.0.0.1:$serverPort")
                 } else {
-                    mc.setScreen(OpenBrowserScreen("http://127.0.0.1:$port"))
+                    mc.setScreen(OpenBrowserScreen("http://127.0.0.1:$serverPort"))
                 }
             }
         }
@@ -81,7 +80,7 @@ class BrowserSpeechTranscriber(language: Language) : SpeechTranscriber(language)
 
             UnityTranslateClient.displayMessage(Component.translatable("unitytranslate.transcriber.disconnected")
                 .withStyle {
-                    it.withClickEvent(ClickEvent(ClickEvent.Action.OPEN_URL, "http://127.0.0.1:${this@BrowserSpeechTranscriber.server.environment.config.port}"))
+                    it.withClickEvent(ClickEvent(ClickEvent.Action.OPEN_URL, "http://127.0.0.1:${serverPort}"))
                 })
         }
 

@@ -13,6 +13,7 @@ import xyz.bluspring.unitytranslate.translator.TranslatorManager
 import java.io.File
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentLinkedDeque
 
 class UnityTranslate : ModInitializer {
     override fun onInitialize() {
@@ -25,8 +26,9 @@ class UnityTranslate : ModInitializer {
             val updateLast = buf.readBoolean()
 
             val translations = ConcurrentHashMap<Language, String>()
+            val sentTranslations = ConcurrentLinkedDeque<Language>()
 
-            CompletableFuture.allOf(*Language.entries.map {
+            Language.entries.map {
                 if (sourceLanguage == it)
                     CompletableFuture.completedFuture(text)
                         .thenApplyAsync {
@@ -37,18 +39,21 @@ class UnityTranslate : ModInitializer {
                         .thenApplyAsync { translated ->
                             translations[it] = translated
                         }
-            }.toTypedArray())
-                .thenApplyAsync {
+            }.forEach {
+                it.thenApplyAsync {
                     val buf2 = PacketByteBufs.create()
                     buf2.writeUUID(player.uuid)
                     buf2.writeEnum(sourceLanguage)
                     buf2.writeBoolean(updateLast)
 
-                    buf2.writeVarInt(translations.size)
+                    val toSend = translations.filter { a -> !sentTranslations.contains(a.key) }
+
+                    buf2.writeVarInt(toSend.size)
 
                     for ((language, translated) in translations) {
                         buf2.writeEnum(language)
                         buf2.writeUtf(translated)
+                        sentTranslations.add(language)
                     }
 
                     if (hasVoiceChat) {
@@ -64,6 +69,7 @@ class UnityTranslate : ModInitializer {
                         ServerPlayNetworking.send(player, PacketIds.SEND_TRANSCRIPT, buf2)
                     }
                 }
+            }
         }
 
         ServerPlayConnectionEvents.JOIN.register { handler, sender, server ->
