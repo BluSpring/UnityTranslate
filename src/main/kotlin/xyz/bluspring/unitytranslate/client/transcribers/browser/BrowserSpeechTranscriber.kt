@@ -57,6 +57,13 @@ class BrowserSpeechTranscriber(language: Language) : SpeechTranscriber(language)
         socket.stop(1000)
     }
 
+    override fun changeLanguage(language: Language) {
+        super.changeLanguage(language)
+        this.socket.broadcast("set_language", JsonObject().apply {
+            addProperty("language", language.supportedTranscribers[TranscriberType.BROWSER])
+        })
+    }
+
     inner class BrowserSocket : WebSocketServer(InetSocketAddress("localhost", socketPort)) {
         var totalConnections = 0
 
@@ -126,6 +133,13 @@ class BrowserSpeechTranscriber(language: Language) : SpeechTranscriber(language)
 
         override fun onStart() {
             UnityTranslate.logger.info("Started WebSocket server for Browser Transcriber mode at ${this.address}")
+        }
+
+        fun broadcast(op: String, data: JsonObject = JsonObject()) {
+            super.broadcast(JsonObject().apply {
+                this.addProperty("op", op)
+                this.add("d", data)
+            }.toString())
         }
 
         fun WebSocket.sendData(op: String, data: JsonObject = JsonObject()) {

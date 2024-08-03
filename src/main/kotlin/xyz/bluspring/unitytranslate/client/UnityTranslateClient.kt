@@ -110,7 +110,7 @@ class UnityTranslateClient : ClientModInitializer {
 
                     TranslatorManager.queueTranslation(text, transcriber.language, box.language)
                         .thenApplyAsync {
-                            box.updateTranscript(Minecraft.getInstance().player!!, text, transcriber.language, updateLast)
+                            box.updateTranscript(Minecraft.getInstance().player!!, it, transcriber.language, updateLast)
                         }
                 }
             }

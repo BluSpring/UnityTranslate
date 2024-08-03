@@ -1,5 +1,6 @@
 package xyz.bluspring.unitytranslate
 
+import kotlinx.serialization.json.Json
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
@@ -9,12 +10,14 @@ import net.minecraft.resources.ResourceLocation
 import org.slf4j.LoggerFactory
 import xyz.bluspring.unitytranslate.compat.voicechat.UTVoiceChatCompat
 import xyz.bluspring.unitytranslate.translator.TranslatorManager
+import java.io.File
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 
 class UnityTranslate : ModInitializer {
     override fun onInitialize() {
         TranslatorManager.init()
+        loadConfig()
 
         ServerPlayNetworking.registerGlobalReceiver(PacketIds.SEND_TRANSCRIPT) { server, player, handler, buf, sender ->
             val sourceLanguage = buf.readEnum(Language::class.java)
@@ -24,10 +27,13 @@ class UnityTranslate : ModInitializer {
             val translations = ConcurrentHashMap<Language, String>()
 
             CompletableFuture.allOf(*Language.entries.map {
-                TranslatorManager.queueTranslation(text, sourceLanguage, it)
-                    .thenApplyAsync { translated ->
-                        translations[it] = translated
-                    }
+                if (sourceLanguage == it)
+                    CompletableFuture.completedFuture(text)
+                else
+                    TranslatorManager.queueTranslation(text, sourceLanguage, it)
+                        .thenApplyAsync { translated ->
+                            translations[it] = translated
+                        }
             }.toTypedArray())
                 .thenApplyAsync {
                     val buf2 = PacketByteBufs.create()
@@ -67,7 +73,8 @@ class UnityTranslate : ModInitializer {
     companion object {
         const val MOD_ID = "unitytranslate"
 
-        val config = UnityTranslateConfig()
+        val configFile = File(FabricLoader.getInstance().configDir.toFile(), "unitytranslate.json")
+        var config = UnityTranslateConfig()
         val logger = LoggerFactory.getLogger("UnityTranslate")
 
         val hasVoiceChat = FabricLoader.getInstance().isModLoaded("voicechat")
@@ -75,6 +82,21 @@ class UnityTranslate : ModInitializer {
         @JvmStatic
         fun id(path: String): ResourceLocation {
             return ResourceLocation(MOD_ID, path)
+        }
+
+        fun saveConfig() {
+            if (!configFile.exists())
+                configFile.createNewFile()
+
+            val serialized = Json.encodeToString(UnityTranslateConfig.serializer(), config)
+            configFile.writeText(serialized)
+        }
+
+        fun loadConfig() {
+            if (!configFile.exists())
+                return
+
+            config = Json.decodeFromString(UnityTranslateConfig.serializer(), configFile.readText())
         }
     }
 }

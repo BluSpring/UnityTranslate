@@ -1,5 +1,6 @@
 package xyz.bluspring.unitytranslate
 
+import net.minecraft.network.chat.Component
 import xyz.bluspring.unitytranslate.client.transcribers.TranscriberType
 
 enum class Language(
@@ -40,6 +41,8 @@ enum class Language(
     override fun toString(): String {
         return "$name ($code)"
     }
+
+    val text = Component.translatable("unitytranslate.language.$code")
 
     companion object {
         fun findLibreLang(code: String): Language? {

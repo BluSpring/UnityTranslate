@@ -17,6 +17,7 @@ class OpenBrowserScreen(val address: String) : Screen(Component.empty()) {
             Button.builder(Component.translatable("unitytranslate.do_not_show_again")) {
                 Util.getPlatform().openUri(address)
                 UnityTranslate.config.client.openBrowserWithoutPrompt = true
+                UnityTranslate.saveConfig()
                 this.onClose()
             }
                 .pos(this.width / 2 - (Button.DEFAULT_WIDTH / 2), this.height - 20 - Button.DEFAULT_HEIGHT - 5 - Button.DEFAULT_HEIGHT - 15)

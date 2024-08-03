@@ -5,6 +5,6 @@ import xyz.bluspring.unitytranslate.client.transcribers.browser.BrowserSpeechTra
 import xyz.bluspring.unitytranslate.client.transcribers.sphinx.SphinxSpeechTranscriber
 
 enum class TranscriberType(val creator: (Language) -> SpeechTranscriber) {
-    SPHINX(::BrowserSpeechTranscriber),
-    BROWSER(::SphinxSpeechTranscriber)
+    SPHINX(::SphinxSpeechTranscriber),
+    BROWSER(::BrowserSpeechTranscriber)
 }

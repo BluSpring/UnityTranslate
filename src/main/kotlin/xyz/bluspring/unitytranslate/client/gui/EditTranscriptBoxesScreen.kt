@@ -1,5 +1,6 @@
 package xyz.bluspring.unitytranslate.client.gui
 
+import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.Button
 import net.minecraft.client.gui.screens.Screen
@@ -30,6 +31,15 @@ class EditTranscriptBoxesScreen(val boxes: MutableList<TranscriptBox>) : Screen(
                 .pos(this.width / 2 - (Button.DEFAULT_WIDTH / 2), this.height - 50)
                 .build()
         )
+
+        this.addRenderableWidget(
+            Button.builder(Component.literal("+")) {
+                Minecraft.getInstance().setScreen(LanguageSelectScreen(this, true))
+            }
+                .pos(this.width / 2 - (Button.DEFAULT_WIDTH / 2) - Button.DEFAULT_HEIGHT, this.height - 50)
+                .width(Button.DEFAULT_HEIGHT)
+                .build()
+        )
     }
 
     override fun onClose() {
@@ -37,6 +47,8 @@ class EditTranscriptBoxesScreen(val boxes: MutableList<TranscriptBox>) : Screen(
 
         if (shouldDisableHudAfter)
             UnityTranslateClient.shouldRenderBoxes = false
+
+        UnityTranslate.saveConfig()
     }
 
     private var boxEditContext: BoxEditContext? = null

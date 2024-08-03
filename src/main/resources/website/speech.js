@@ -96,7 +96,7 @@ ws.onmessage = (ev) => {
                 transcriber.stop();
             }
 
-            if (!!SpeechRecognition) {
+            if (!SpeechRecognition) {
                 ws.send(JSON.stringify({
                     op: "error",
                     d: {

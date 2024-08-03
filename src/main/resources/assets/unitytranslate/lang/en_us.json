@@ -15,5 +15,14 @@
     "unitytranslate.toggle_boxes": "Show/Hide Transcript Boxes",
 
     "unitytranslate.transcript_boxes": "Transcript Boxes",
-    "unitytranslate.transcript": "Transcript"
+    "unitytranslate.transcript": "Transcript",
+
+    "unitytranslate.language.en": "English",
+    "unitytranslate.language.es": "Spanish",
+    "unitytranslate.language.pt": "Portuguese",
+    "unitytranslate.language.fr": "French",
+    "unitytranslate.language.sv": "Swedish",
+    "unitytranslate.language.ms": "Malay",
+    "unitytranslate.language.he": "Hebrew",
+    "unitytranslate.language.ar": "Arabic"
 }
