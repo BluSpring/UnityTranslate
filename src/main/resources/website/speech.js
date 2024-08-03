@@ -122,8 +122,4 @@ ws.onclose = () => {
     if (!!transcriber) {
         transcriber.stop();
     }
-
-    setTimeout(() => {
-        ws = new WebSocket('ws://0.0.0.0:%SOCKET_PORT%');
-    }, 15_000);
 }

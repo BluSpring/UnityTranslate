@@ -14,6 +14,8 @@ open class LibreTranslateInstance(val url: String, private var weight: Int) : We
     var latency: Int = -1
         private set
 
+    var currentlyTranslating = 0
+
     init {
         val startTime = System.currentTimeMillis()
         if (this.translate("Latency test for UnityTranslate", Language.ENGLISH, Language.SPANISH) == null)
@@ -69,5 +71,9 @@ open class LibreTranslateInstance(val url: String, private var weight: Int) : We
 
     override fun getWeight(): Weight {
         return Weight.of(weight)
+    }
+
+    companion object {
+        const val MAX_CONCURRENT_TRANSLATIONS = 5
     }
 }

@@ -7,18 +7,57 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.server.level.ServerPlayer
 import org.slf4j.LoggerFactory
 import xyz.bluspring.unitytranslate.compat.voicechat.UTVoiceChatCompat
 import xyz.bluspring.unitytranslate.translator.TranslatorManager
 import java.io.File
+import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedDeque
 
 class UnityTranslate : ModInitializer {
+    private fun broadcastTranslations(source: ServerPlayer, sourceLanguage: Language, updateLast: Boolean, sentTranslations: ConcurrentLinkedDeque<Language>, translations: ConcurrentHashMap<Language, String>) {
+        val buf = PacketByteBufs.create()
+        buf.writeUUID(source.uuid)
+        buf.writeEnum(sourceLanguage)
+        buf.writeBoolean(updateLast)
+
+        val toSend = translations.filter { a -> !sentTranslations.contains(a.key) }
+
+        buf.writeVarInt(toSend.size)
+
+        for ((language, translated) in toSend) {
+            buf.writeEnum(language)
+            buf.writeUtf(translated)
+            sentTranslations.add(language)
+        }
+
+        if (hasVoiceChat) {
+            val nearby = UTVoiceChatCompat.getNearbyPlayers(source)
+
+            for (player in nearby) {
+                if (UTVoiceChatCompat.isPlayerDeafened(player) && player != source)
+                    continue
+
+                ServerPlayNetworking.send(player, PacketIds.SEND_TRANSCRIPT, buf)
+            }
+        } else {
+            ServerPlayNetworking.send(source, PacketIds.SEND_TRANSCRIPT, buf)
+        }
+    }
+
     override fun onInitialize() {
         TranslatorManager.init()
         loadConfig()
+
+        val usedLanguages = ConcurrentHashMap<UUID, EnumSet<Language>>()
+
+        ServerPlayNetworking.registerGlobalReceiver(PacketIds.SET_USED_LANGUAGES) { server, player, handler, buf, sender ->
+            val languages = buf.readEnumSet(Language::class.java)
+            usedLanguages[player.uuid] = languages
+        }
 
         ServerPlayNetworking.registerGlobalReceiver(PacketIds.SEND_TRANSCRIPT) { server, player, handler, buf, sender ->
             val sourceLanguage = buf.readEnum(Language::class.java)
@@ -28,52 +67,34 @@ class UnityTranslate : ModInitializer {
             val translations = ConcurrentHashMap<Language, String>()
             val sentTranslations = ConcurrentLinkedDeque<Language>()
 
-            Language.entries.map {
+            Language.entries.filter { usedLanguages.values.any { b -> b.contains(it) } }.map {
                 if (sourceLanguage == it)
                     CompletableFuture.completedFuture(text)
                         .thenApplyAsync {
                             translations[sourceLanguage] = text
+
+                            server.execute {
+                                broadcastTranslations(player, sourceLanguage, updateLast, sentTranslations, translations)
+                            }
                         }
                 else
                     TranslatorManager.queueTranslation(text, sourceLanguage, it)
                         .thenApplyAsync { translated ->
                             translations[it] = translated
+
+                            server.execute {
+                                broadcastTranslations(player, sourceLanguage, updateLast, sentTranslations, translations)
+                            }
                         }
-            }.forEach {
-                it.thenApplyAsync {
-                    val buf2 = PacketByteBufs.create()
-                    buf2.writeUUID(player.uuid)
-                    buf2.writeEnum(sourceLanguage)
-                    buf2.writeBoolean(updateLast)
-
-                    val toSend = translations.filter { a -> !sentTranslations.contains(a.key) }
-
-                    buf2.writeVarInt(toSend.size)
-
-                    for ((language, translated) in translations) {
-                        buf2.writeEnum(language)
-                        buf2.writeUtf(translated)
-                        sentTranslations.add(language)
-                    }
-
-                    if (hasVoiceChat) {
-                        val nearby = UTVoiceChatCompat.getNearbyPlayers(player)
-
-                        for (p in nearby) {
-                            if (UTVoiceChatCompat.isPlayerDeafened(p) && p != player)
-                                continue
-
-                            ServerPlayNetworking.send(p, PacketIds.SEND_TRANSCRIPT, buf2)
-                        }
-                    } else {
-                        ServerPlayNetworking.send(player, PacketIds.SEND_TRANSCRIPT, buf2)
-                    }
-                }
             }
         }
 
         ServerPlayConnectionEvents.JOIN.register { handler, sender, server ->
             ServerPlayNetworking.send(handler.player, PacketIds.SERVER_SUPPORT, PacketByteBufs.empty())
+        }
+
+        ServerPlayConnectionEvents.DISCONNECT.register { handler, server ->
+            usedLanguages.remove(handler.player.uuid)
         }
     }
 

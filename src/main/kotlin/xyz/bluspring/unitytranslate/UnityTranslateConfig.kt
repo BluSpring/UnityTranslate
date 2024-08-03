@@ -35,8 +35,8 @@ data class UnityTranslateConfig(
         var shouldRunTranslationServer: Boolean = true,
         var offloadServers: MutableList<OffloadedLibreTranslateServer> = mutableListOf(
             OffloadedLibreTranslateServer("https://trans.zillyhuhn.com"),
-            OffloadedLibreTranslateServer("https://translate.fedilab.app", weight = 5), // this server is pretty slow, use with doubt
-            OffloadedLibreTranslateServer("https://translate.devos.one", weight = 105)
+            OffloadedLibreTranslateServer("https://translate.fedilab.app", weight = 5, maxConcurrentTranslations = 3), // this server is pretty slow, use with doubt
+            OffloadedLibreTranslateServer("https://libretranslate.devos.one", weight = 105)
         )
     )
 
@@ -44,7 +44,8 @@ data class UnityTranslateConfig(
     data class OffloadedLibreTranslateServer(
         var url: String, // follows http://127.0.0.1:5000 - the /translate endpoint will be appended at the end automatically.
         var authKey: String? = null,
-        var weight: Int = 100
+        var weight: Int = 100,
+        var maxConcurrentTranslations: Int = 8
     )
 
     enum class TranslationPriority(val usesCuda: TriState) {

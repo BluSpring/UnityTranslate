@@ -1,8 +1,6 @@
 package xyz.bluspring.unitytranslate.translator
 
 import net.minecraft.Util
-import net.minecraft.util.RandomSource
-import net.minecraft.util.random.WeightedRandomList
 import org.lwjgl.system.APIUtil
 import org.lwjgl.system.JNI
 import org.lwjgl.system.MemoryUtil
@@ -27,17 +25,21 @@ object TranslatorManager {
             return line
         }
 
-        val weighted = WeightedRandomList.create(possible)
+        var index = 0
 
-        val selected = weighted.getRandom(RandomSource.create()).orElseThrow()
+        for (instance in possible) {
+            if (instance.currentlyTranslating >= LibreTranslateInstance.MAX_CONCURRENT_TRANSLATIONS && index++ < possible.size)
+                continue
 
-        val translated = selected.translate(line, from, to)
+            instance.currentlyTranslating++
+            val translated = instance.translate(line, from, to)
+            instance.currentlyTranslating--
 
-        if (translated != null)
+            if (translated == null) {
+                continue
+            }
+
             return translated
-
-        for (instance in possible.filter { it != selected }.sortedBy { it.latency }) {
-            return instance.translate(line, from, to) ?: continue
         }
 
         UnityTranslate.logger.warn("Failed to translate $line from $from to $to!")

@@ -60,6 +60,8 @@ data class TranscriptBox(
                 guiGraphics.drawString(font, line, x + 4, currentY, 16777215)
                 currentY -= font.lineHeight
             }
+
+            currentY -= 4
         }
 
         guiGraphics.disableScissor()
@@ -71,8 +73,8 @@ data class TranscriptBox(
     }
 
     fun updateTranscript(source: Player, text: String, language: Language, updateLast: Boolean) {
-        if (updateLast) {
-            this.transcripts.remove(this.transcripts.last())
+        if (updateLast && this.transcripts.isNotEmpty() && this.transcripts.any { it.player.uuid == source.uuid }) {
+            this.transcripts.remove(this.transcripts.last { it.player.uuid == source.uuid })
         }
 
         this.transcripts.add(Transcript(source, text, language))

@@ -21,6 +21,7 @@ import xyz.bluspring.unitytranslate.client.gui.LanguageSelectScreen
 import xyz.bluspring.unitytranslate.client.gui.TranscriptBox
 import xyz.bluspring.unitytranslate.client.transcribers.SpeechTranscriber
 import xyz.bluspring.unitytranslate.translator.TranslatorManager
+import java.util.*
 import java.util.function.BiConsumer
 
 class UnityTranslateClient : ClientModInitializer {
@@ -60,10 +61,25 @@ class UnityTranslateClient : ClientModInitializer {
             if (SET_SPOKEN_LANGUAGE.consumeClick() && it.screen == null) {
                 it.setScreen(LanguageSelectScreen(null, false))
             }
+
+            if (CLEAR_TRANSCRIPTS.consumeClick()) {
+                for (box in languageBoxes) {
+                    box.transcripts.clear()
+                }
+            }
         }
 
         ClientPlayNetworking.registerGlobalReceiver(PacketIds.SERVER_SUPPORT) { client, listener, buf, sender ->
             connectedServerHasSupport = true
+        }
+
+        ClientPlayConnectionEvents.JOIN.register { _, _, client ->
+            client.execute {
+                val buf = PacketByteBufs.create()
+                buf.writeEnumSet(EnumSet.copyOf(languageBoxes.map { it.language }), Language::class.java)
+
+                ClientPlayNetworking.send(PacketIds.SET_USED_LANGUAGES, buf)
+            }
         }
 
         ClientPlayNetworking.registerGlobalReceiver(PacketIds.SEND_TRANSCRIPT) { client, listener, buf, sender ->
@@ -79,6 +95,9 @@ class UnityTranslateClient : ClientModInitializer {
             for (i in 0 until totalLanguages) {
                 val language = buf.readEnum(Language::class.java)
                 val text = buf.readUtf()
+
+                if (language == transcriber.language)
+                    continue
 
                 val box = boxes.firstOrNull { it.language == language }
                 box?.updateTranscript(source, text, sourceLanguage, updateLast)
@@ -102,6 +121,7 @@ class UnityTranslateClient : ClientModInitializer {
                 buf.writeBoolean(updateLast)
 
                 ClientPlayNetworking.send(PacketIds.SEND_TRANSCRIPT, buf)
+                languageBoxes.firstOrNull { it.language == transcriber.language }?.updateTranscript(Minecraft.getInstance().player!!, text, transcriber.language, updateLast)
             } else {
                 if (Minecraft.getInstance().player == null)
                     return@BiConsumer
@@ -139,6 +159,7 @@ class UnityTranslateClient : ClientModInitializer {
         val TOGGLE_TRANSCRIPTION = KeyBindingHelper.registerKeyBinding(KeyMapping("unitytranslate.toggle_transcription", GLFW.GLFW_KEY_KP_8, "UnityTranslate"))
         val TOGGLE_BOXES = KeyBindingHelper.registerKeyBinding(KeyMapping("unitytranslate.toggle_boxes", GLFW.GLFW_KEY_KP_9, "UnityTranslate"))
         val SET_SPOKEN_LANGUAGE = KeyBindingHelper.registerKeyBinding(KeyMapping("unitytranslate.set_spoken_language", GLFW.GLFW_KEY_KP_6, "UnityTranslate"))
+        val CLEAR_TRANSCRIPTS = KeyBindingHelper.registerKeyBinding(KeyMapping("unitytranslate.clear_transcripts", GLFW.GLFW_KEY_KP_5, "UnityTranslate"))
 
         fun displayMessage(component: Component, isError: Boolean = false) {
             val full = Component.empty()
