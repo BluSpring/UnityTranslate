@@ -29,6 +29,9 @@ class UnityTranslate : ModInitializer {
             CompletableFuture.allOf(*Language.entries.map {
                 if (sourceLanguage == it)
                     CompletableFuture.completedFuture(text)
+                        .thenApplyAsync {
+                            translations[sourceLanguage] = text
+                        }
                 else
                     TranslatorManager.queueTranslation(text, sourceLanguage, it)
                         .thenApplyAsync { translated ->
@@ -64,9 +67,7 @@ class UnityTranslate : ModInitializer {
         }
 
         ServerPlayConnectionEvents.JOIN.register { handler, sender, server ->
-            if (!server.isSingleplayer) {
-                ServerPlayNetworking.send(handler.player, PacketIds.SERVER_SUPPORT, PacketByteBufs.empty())
-            }
+            ServerPlayNetworking.send(handler.player, PacketIds.SERVER_SUPPORT, PacketByteBufs.empty())
         }
     }
 

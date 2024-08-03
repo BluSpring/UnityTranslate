@@ -13,7 +13,7 @@ import xyz.bluspring.unitytranslate.UnityTranslate
 import xyz.bluspring.unitytranslate.client.UnityTranslateClient
 import xyz.bluspring.unitytranslate.client.transcribers.TranscriberType
 
-class LanguageSelectScreen(val parent: Screen?, val isAddingBox: Boolean) : Screen(Component.empty()) {
+class LanguageSelectScreen(val parent: Screen?, val isAddingBox: Boolean) : Screen(Component.translatable("options.language")) {
     private lateinit var list: LanguageSelectionList
 
     override fun init() {

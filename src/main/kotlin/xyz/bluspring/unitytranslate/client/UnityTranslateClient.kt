@@ -17,6 +17,7 @@ import xyz.bluspring.unitytranslate.Language
 import xyz.bluspring.unitytranslate.PacketIds
 import xyz.bluspring.unitytranslate.UnityTranslate
 import xyz.bluspring.unitytranslate.client.gui.EditTranscriptBoxesScreen
+import xyz.bluspring.unitytranslate.client.gui.LanguageSelectScreen
 import xyz.bluspring.unitytranslate.client.gui.TranscriptBox
 import xyz.bluspring.unitytranslate.client.transcribers.SpeechTranscriber
 import xyz.bluspring.unitytranslate.translator.TranslatorManager
@@ -54,6 +55,10 @@ class UnityTranslateClient : ClientModInitializer {
                     .append(": ")
                     .append(if (shouldRenderBoxes) CommonComponents.OPTION_ON else CommonComponents.OPTION_OFF), true
                 )
+            }
+
+            if (SET_SPOKEN_LANGUAGE.consumeClick() && it.screen == null) {
+                it.setScreen(LanguageSelectScreen(null, false))
             }
         }
 
@@ -133,6 +138,7 @@ class UnityTranslateClient : ClientModInitializer {
         val CONFIGURE_BOXES = KeyBindingHelper.registerKeyBinding(KeyMapping("unitytranslate.configure_boxes", GLFW.GLFW_KEY_KP_7, "UnityTranslate"))
         val TOGGLE_TRANSCRIPTION = KeyBindingHelper.registerKeyBinding(KeyMapping("unitytranslate.toggle_transcription", GLFW.GLFW_KEY_KP_8, "UnityTranslate"))
         val TOGGLE_BOXES = KeyBindingHelper.registerKeyBinding(KeyMapping("unitytranslate.toggle_boxes", GLFW.GLFW_KEY_KP_9, "UnityTranslate"))
+        val SET_SPOKEN_LANGUAGE = KeyBindingHelper.registerKeyBinding(KeyMapping("unitytranslate.set_spoken_language", GLFW.GLFW_KEY_KP_6, "UnityTranslate"))
 
         fun displayMessage(component: Component, isError: Boolean = false) {
             val full = Component.empty()

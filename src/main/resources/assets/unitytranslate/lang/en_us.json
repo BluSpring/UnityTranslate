@@ -13,6 +13,7 @@
     "unitytranslate.configure_boxes": "Configure Transcript Boxes",
     "unitytranslate.toggle_transcription": "Mute/Unmute Own Transcription",
     "unitytranslate.toggle_boxes": "Show/Hide Transcript Boxes",
+    "unitytranslate.set_spoken_language": "Set Spoken Language",
 
     "unitytranslate.transcript_boxes": "Transcript Boxes",
     "unitytranslate.transcript": "Transcript",
