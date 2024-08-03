@@ -130,7 +130,7 @@ shadowJar {
     }
 
     def packageName = "xyz.bluspring.unitytranslate.shade"
-    def relocatePackages = ["com.typesafe", "io.netty", "net.suuft", "org.eclipse", "org.fusesource", "org.java_websocket"]
+    def relocatePackages = ["com.typesafe", "net.suuft", "org.eclipse", "org.fusesource", "org.java_websocket"]
     for (final def pkg in relocatePackages) {
         relocate(pkg, "${packageName}.${pkg}")
     }
