@@ -45,7 +45,7 @@ data class UnityTranslateConfig(
         var url: String, // follows http://127.0.0.1:5000 - the /translate endpoint will be appended at the end automatically.
         var authKey: String? = null,
         var weight: Int = 100,
-        var maxConcurrentTranslations: Int = 8
+        var maxConcurrentTranslations: Int = 20
     )
 
     enum class TranslationPriority(val usesCuda: TriState) {
