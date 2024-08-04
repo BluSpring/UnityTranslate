@@ -122,7 +122,7 @@ ws.onerror = e => {
 
 ws.onclose = () => {
     if (!!transcriber) {
-        hasErrored = true;
+        isErrored = true;
         transcriber.stop();
     }
 }
