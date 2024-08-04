@@ -27,5 +27,8 @@
     "unitytranslate.language.ms": "Malay",
     "unitytranslate.language.he": "Hebrew",
     "unitytranslate.language.ar": "Arabic",
-    "unitytranslate.language.de": "German"
+    "unitytranslate.language.de": "German",
+    "unitytranslate.language.ru": "Russian",
+    "unitytranslate.language.ja": "Japanese",
+    "unitytranslate.language.zh": "Chinese"
 }
