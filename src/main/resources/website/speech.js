@@ -54,6 +54,8 @@ function setupTranscriber(lang) {
                 }));
                 isErrored = true;
             }
+        } else {
+            totalResetsBelow50ms = 0;
         }
         lastReset = Date.now();
     }
@@ -120,6 +122,7 @@ ws.onerror = e => {
 
 ws.onclose = () => {
     if (!!transcriber) {
+        hasErrored = true;
         transcriber.stop();
     }
 }
