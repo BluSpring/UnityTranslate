@@ -32,7 +32,7 @@ class UTVoiceChatCompat : VoicechatPlugin {
         lateinit var voiceChatServer: VoicechatServerApi
 
         fun getNearbyPlayers(source: ServerPlayer): List<ServerPlayer> {
-            return source.serverLevel().getPlayers { it.distanceToSqr(source) <= voiceChatServer.voiceChatDistance }
+            return source.serverLevel().getPlayers { it.distanceToSqr(source) <= voiceChatServer.voiceChatDistance * voiceChatServer.voiceChatDistance }
         }
 
         fun isPlayerDeafened(player: ServerPlayer): Boolean {
