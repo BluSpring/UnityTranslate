@@ -32,7 +32,7 @@ data class UnityTranslateConfig(
             TranslationPriority.CLIENT_CPU, // worst case scenario, use client CPU.
         ),
         var shouldUseCuda: Boolean = true,
-        var shouldRunTranslationServer: Boolean = true,
+        var shouldRunTranslationServer: Boolean = false,
         var offloadServers: MutableList<OffloadedLibreTranslateServer> = mutableListOf(
             OffloadedLibreTranslateServer("https://trans.zillyhuhn.com"),
             OffloadedLibreTranslateServer("https://translate.fedilab.app", weight = 5, maxConcurrentTranslations = 3), // this server is pretty slow, use with doubt

@@ -1,5 +1,6 @@
 package xyz.bluspring.unitytranslate.translator
 
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.minecraft.Util
 import org.lwjgl.system.APIUtil
 import org.lwjgl.system.JNI
@@ -11,7 +12,8 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentLinkedDeque
 
 object TranslatorManager {
-    private var instances = ConcurrentLinkedDeque<LibreTranslateInstance>()
+    var instances = ConcurrentLinkedDeque<LibreTranslateInstance>()
+        private set
 
     fun queueTranslation(line: String, from: Language, to: Language): CompletableFuture<String> {
         return CompletableFuture.supplyAsync { translateLine(line, from, to) }
@@ -133,6 +135,19 @@ object TranslatorManager {
 
     fun init() {
         loadFromConfig()
+
+        ServerLifecycleEvents.SERVER_STARTING.register {
+            if (UnityTranslate.config.server.shouldRunTranslationServer && LocalLibreTranslateInstance.canRunLibreTranslate()) {
+                LocalLibreTranslateInstance.installLibreTranslate().thenApplyAsync {
+                    try {
+                        LocalLibreTranslateInstance.launchLibreTranslate(it, instances::add)
+                    } catch (e: Throwable) {
+                        UnityTranslate.logger.error("Failed to launch local LibreTranslate instance!")
+                        e.printStackTrace()
+                    }
+                }
+            }
+        }
     }
 
     fun loadFromConfig() {

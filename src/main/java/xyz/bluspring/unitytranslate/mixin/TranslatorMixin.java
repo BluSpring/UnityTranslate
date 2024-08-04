@@ -10,5 +10,6 @@ public class TranslatorMixin {
     // Hard disable the printStackTrace, it spams console way too much.
     @Redirect(method = "translate(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;", at = @At(value = "INVOKE", target = "Ljava/lang/Exception;printStackTrace()V"))
     private static void unitytranslate$fuckOff(Exception instance) {
+
     }
 }
