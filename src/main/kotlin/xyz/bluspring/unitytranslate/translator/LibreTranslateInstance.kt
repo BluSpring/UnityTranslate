@@ -5,9 +5,7 @@ import com.google.common.collect.Multimap
 import com.google.gson.JsonParser
 import net.minecraft.util.random.Weight
 import net.minecraft.util.random.WeightedEntry
-import net.suuft.libretranslate.exception.BadTranslatorResponseException
-import net.suuft.libretranslate.type.TranslateResponse
-import net.suuft.libretranslate.util.JsonUtil
+import org.apache.http.client.HttpResponseException
 import xyz.bluspring.unitytranslate.Language
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
@@ -15,7 +13,7 @@ import java.net.URL
 import java.net.URLEncoder
 import java.util.*
 
-open class LibreTranslateInstance(val url: String, private var weight: Int) : WeightedEntry {
+open class LibreTranslateInstance(val url: String, private var weight: Int, val authKey: String? = null) : WeightedEntry {
     private var cachedSupportedLanguages = HashMultimap.create<Language, Language>()
     var latency: Int = -1
         private set
@@ -85,24 +83,23 @@ open class LibreTranslateInstance(val url: String, private var weight: Int) : We
                 "q=" + URLEncoder.encode(
                     request,
                     "UTF-8"
-                ) + "&source=" + from + "&target=" + to + "&format=text"
+                ) + "&source=" + from + "&target=" + to + "&format=text" +
+                if (authKey?.isNotBlank() == true) "&api_key=$authKey" else ""
             )
 
             writer.flush()
             writer.close()
             httpConn.outputStream.close()
             if (httpConn.responseCode / 100 != 2) {
-                throw BadTranslatorResponseException(httpConn.responseCode, "${this.url}/translate")
+                throw HttpResponseException(httpConn.responseCode, "${this.url}/translate")
             } else {
                 val responseStream = httpConn.inputStream
                 val s = Scanner(responseStream).useDelimiter("\\A")
                 val response = if (s.hasNext()) s.next() else ""
-                return (JsonUtil.from(
-                    response,
-                    TranslateResponse::class.java
-                ) as TranslateResponse).translatedText
+
+                return JsonParser.parseString(response).asJsonObject.get("translatedText").asString
             }
-        } catch (e: java.lang.Exception) {
+        } catch (e: Throwable) {
             throw RuntimeException(e)
         }
     }

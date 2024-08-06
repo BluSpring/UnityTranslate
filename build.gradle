@@ -64,7 +64,6 @@ dependencies {
 
     //shadow(api("edu.cmu.sphinx:sphinx4-core:5prealpha-SNAPSHOT"))
     //shadow(api("edu.cmu.sphinx:sphinx4-data:5prealpha-SNAPSHOT"))
-    shadow(api("net.clojars.suuft:libretranslate-java:1.0.5"))
     shadow(api('org.java-websocket:Java-WebSocket:1.5.7'))
 
     shadow(implementation("io.ktor:ktor-server-core-jvm:2.3.11"))
