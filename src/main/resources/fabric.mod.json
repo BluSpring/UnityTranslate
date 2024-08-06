@@ -35,5 +35,8 @@
         "fabric-api": "*",
         "minecraft": "${minecraft_version}",
         "fabric-language-kotlin": ">=${fabric_kotlin_version}"
+    },
+    "suggests": {
+        "voicechat": "*"
     }
 }
