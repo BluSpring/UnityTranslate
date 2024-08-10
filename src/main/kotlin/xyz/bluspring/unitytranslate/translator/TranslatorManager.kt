@@ -111,6 +111,9 @@ object TranslatorManager {
                     UnityTranslate.logger.info("CUDA results: $PFN_cuInit $PFN_cuDeviceGetCount $PFN_cuDeviceComputeCapability")
                     return false
                 }
+            } catch (_: UnsatisfiedLinkError) {
+                UnityTranslate.logger.warn("CUDA library failed to load! Not attempting to initialize CUDA functions.")
+                return false
             } catch (e: Throwable) {
                 UnityTranslate.logger.warn("An error occurred while searching for CUDA devices! You don't have to report this, don't worry.")
                 e.printStackTrace()
