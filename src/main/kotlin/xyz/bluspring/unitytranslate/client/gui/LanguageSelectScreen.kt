@@ -87,10 +87,10 @@ class LanguageSelectScreen(val parent: Screen?, val isAddingBox: Boolean) : Scre
 
                 var x = this@LanguageSelectScreen.width / 2 + (font.width(language.text) / 2) + 4
                 for (type in language.supportedTranscribers.keys) {
-                    guiGraphics.blit(when (type) {
-                        TranscriberType.BROWSER -> BROWSER_ICON
-                        TranscriberType.SPHINX -> SPHINX_ICON
-                    },
+                    if (type == TranscriberType.SPHINX)
+                        continue
+
+                    guiGraphics.blit(BROWSER_ICON,
                         x, top - 1, 0f, 0f, 16, 16, 16, 16
                     )
 
@@ -124,6 +124,6 @@ class LanguageSelectScreen(val parent: Screen?, val isAddingBox: Boolean) : Scre
 
     companion object {
         val BROWSER_ICON = UnityTranslate.id("textures/gui/transcriber/browser.png")
-        val SPHINX_ICON = UnityTranslate.id("textures/gui/transcriber/sphinx.png")
+        //val SPHINX_ICON = UnityTranslate.id("textures/gui/transcriber/sphinx.png")
     }
 }
