@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.Util
 import net.minecraft.util.HttpUtil
+import oshi.SystemInfo
 import xyz.bluspring.unitytranslate.UnityTranslate
 import java.io.File
 import java.net.URL
@@ -37,7 +38,11 @@ class LocalLibreTranslateInstance private constructor(val process: Process, val 
         private var lastPid = -1L
 
         fun canRunLibreTranslate(): Boolean {
-            return Runtime.getRuntime().availableProcessors() >= 4 || TranslatorManager.supportsCuda
+            val systemInfo = SystemInfo()
+
+            return (Runtime.getRuntime().availableProcessors() >= 4 || TranslatorManager.supportsCuda) &&
+                    // Require a minimum of 2 GiB free for LibreTranslate
+                    ((systemInfo.hardware.memory.total - Runtime.getRuntime().maxMemory()) / 1048576L) >= 2048
         }
 
         fun launchLibreTranslate(source: File, consumer: Consumer<LibreTranslateInstance>) {
@@ -65,7 +70,9 @@ class LocalLibreTranslateInstance private constructor(val process: Process, val 
             var hasStarted = false
 
             process.onExit()
-                .thenApplyAsync {
+                .whenCompleteAsync { process, e ->
+                    e?.printStackTrace()
+
                     if (!hasStarted) {
                         timer.cancel()
                         UnityTranslate.logger.warn("LibreTranslate appears to have exited with code ${process.exitValue()}, not proceeding with local translator instance.")
