@@ -2,21 +2,41 @@ package xyz.bluspring.unitytranslate.translator
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.minecraft.Util
+import net.minecraft.world.entity.player.Player
 import org.lwjgl.system.APIUtil
 import org.lwjgl.system.JNI
 import org.lwjgl.system.MemoryUtil
 import org.lwjgl.system.SharedLibrary
 import xyz.bluspring.unitytranslate.Language
 import xyz.bluspring.unitytranslate.UnityTranslate
+import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentLinkedDeque
+import java.util.concurrent.ConcurrentLinkedQueue
 
 object TranslatorManager {
+    private var timer: Timer = Timer("UnityTranslate Batch Translate Manager")
+    private val queuedTranslations = ConcurrentLinkedQueue<Translation>()
+
     var instances = ConcurrentLinkedDeque<LibreTranslateInstance>()
         private set
 
-    fun queueTranslation(line: String, from: Language, to: Language): CompletableFuture<String> {
-        return CompletableFuture.supplyAsync { translateLine(line, from, to) }
+    fun queueTranslation(line: String, from: Language, to: Language, player: Player, index: Int): CompletableFuture<String> {
+        return CompletableFuture<String>().apply {
+            val id = "${player.stringUUID}-$index"
+
+            for (previous in queuedTranslations.filter { it.id == id && it.fromLang == from && it.toLang == to }) {
+                previous.future.completeExceptionally(Exception("Overridden"))
+                queuedTranslations.remove(previous)
+            }
+
+            queuedTranslations.add(Translation(
+                id,
+                line, from, to,
+                System.currentTimeMillis(),
+                this
+            ))
+        }
     }
 
     fun translateLine(line: String, from: Language, to: Language): String {
@@ -197,6 +217,9 @@ object TranslatorManager {
     fun loadFromConfig() {
         val list = mutableListOf<LibreTranslateInstance>()
 
+        timer.cancel()
+        timer = Timer("UnityTranslate Batch Translate Manager")
+
         for (server in UnityTranslate.config.server.offloadServers) {
             try {
                 val instance = LibreTranslateInstance(server.url, server.weight, server.authKey)
@@ -206,6 +229,17 @@ object TranslatorManager {
                 e.printStackTrace()
             }
         }
+
+        timer.scheduleAtFixedRate(object : TimerTask() {
+            override fun run() {
+                while (queuedTranslations.isNotEmpty()) {
+                    val translation = queuedTranslations.remove()
+                    translation.future.completeAsync {
+                        translateLine(translation.text, translation.fromLang, translation.toLang)
+                    }
+                }
+            }
+        }, 0L, (UnityTranslate.config.server.batchTranslateInterval * 1000.0).toLong())
 
         instances = ConcurrentLinkedDeque(list)
     }

@@ -1,7 +1,8 @@
-package xyz.bluspring.unitytranslate
+package xyz.bluspring.unitytranslate.config
 
 import kotlinx.serialization.Serializable
 import net.fabricmc.fabric.api.util.TriState
+import xyz.bluspring.unitytranslate.Language
 import xyz.bluspring.unitytranslate.client.gui.TranscriptBox
 import xyz.bluspring.unitytranslate.client.transcribers.TranscriberType
 import java.util.*
@@ -36,7 +37,13 @@ data class UnityTranslateConfig(
         var offloadServers: MutableList<OffloadedLibreTranslateServer> = mutableListOf(
             OffloadedLibreTranslateServer("https://trans.zillyhuhn.com"),
             OffloadedLibreTranslateServer("https://libretranslate.devos.gay")
-        )
+        ),
+
+        // Interval for when the batch translations will be sent.
+        // This is done so redundant translations don't go through,
+        // which puts unnecessary stress on the translation instances.
+        @Range(from = 0.5, to = 5.0)
+        var batchTranslateInterval: Double = 0.5 // 500ms
     )
 
     @Serializable

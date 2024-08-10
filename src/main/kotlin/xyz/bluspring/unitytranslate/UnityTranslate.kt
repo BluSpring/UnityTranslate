@@ -10,6 +10,7 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import org.slf4j.LoggerFactory
 import xyz.bluspring.unitytranslate.compat.voicechat.UTVoiceChatCompat
+import xyz.bluspring.unitytranslate.config.UnityTranslateConfig
 import xyz.bluspring.unitytranslate.translator.TranslatorManager
 import java.io.File
 import java.util.*
@@ -72,7 +73,10 @@ class UnityTranslate : ModInitializer {
             Language.entries.filter { usedLanguages.values.any { b -> b.contains(it) } }.map {
                 if (sourceLanguage == it)
                     CompletableFuture.completedFuture(text)
-                        .thenApplyAsync {
+                        .whenCompleteAsync { text, e ->
+                            if (e != null)
+                                return@whenCompleteAsync
+
                             translations[sourceLanguage] = text
 
                             server.execute {
@@ -80,8 +84,11 @@ class UnityTranslate : ModInitializer {
                             }
                         }
                 else
-                    TranslatorManager.queueTranslation(text, sourceLanguage, it)
-                        .thenApplyAsync { translated ->
+                    TranslatorManager.queueTranslation(text, sourceLanguage, it, player, index)
+                        .whenCompleteAsync { translated, e ->
+                            if (e != null)
+                                return@whenCompleteAsync
+
                             translations[it] = translated
 
                             server.execute {

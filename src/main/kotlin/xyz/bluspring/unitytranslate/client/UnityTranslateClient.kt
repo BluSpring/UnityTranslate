@@ -138,8 +138,11 @@ class UnityTranslateClient : ClientModInitializer {
                         continue
                     }
 
-                    TranslatorManager.queueTranslation(text, transcriber.language, box.language)
-                        .thenApplyAsync {
+                    TranslatorManager.queueTranslation(text, transcriber.language, box.language, Minecraft.getInstance().player!!, index)
+                        .whenCompleteAsync { it, e ->
+                            if (e != null)
+                                return@whenCompleteAsync
+
                             box.updateTranscript(Minecraft.getInstance().player!!, it, transcriber.language, index, updateTime)
                         }
                 }
