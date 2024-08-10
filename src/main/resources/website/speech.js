@@ -10,6 +10,7 @@ let transcriber;
 let lastReset = 0;
 let totalResetsBelow50ms = 0;
 let isErrored = false;
+let wasNoSpeech = false;
 
 ws.onopen = () => {
     console.log('Connected');
@@ -32,6 +33,8 @@ function setupTranscriber(lang) {
 
     transcriber.onerror = (ev) => {
         console.error(ev.error);
+        if (ev.error == 'no-speech')
+            wasNoSpeech = true;
     }
 
     transcriber.onend = () => {
@@ -43,6 +46,11 @@ function setupTranscriber(lang) {
             op: 'reset'
         }));
         transcriber.start();
+
+        if (wasNoSpeech) {
+            wasNoSpeech = false;
+            return;
+        }
 
         if (Date.now() - lastReset >= 50) {
             if (++totalResetsBelow50ms >= 30) {
