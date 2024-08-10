@@ -30,5 +30,33 @@
     "unitytranslate.language.de": "German",
     "unitytranslate.language.ru": "Russian",
     "unitytranslate.language.ja": "Japanese",
-    "unitytranslate.language.zh": "Chinese"
+    "unitytranslate.language.zh": "Chinese",
+
+    "gui.unitytranslate.config.client": "Client Config",
+    "config.unitytranslate.client.enabled": "Mod Enabled?",
+    "config.unitytranslate.client.enabled.desc": "Toggles whether the mod is enabled or disabled.",
+    "config.unitytranslate.client.language": "Spoken Language",
+    "config.unitytranslate.client.language.desc": "Selects the currently spoken language.",
+    "config.unitytranslate.client.muteTranscriptWhenVoiceChatMuted": "Mute Transcript when Voice Chat Muted?",
+    "config.unitytranslate.client.muteTranscriptWhenVoiceChatMuted.desc": "If Simple Voice Chat / Plasmo Voice is muted, and this option is set to True, UnityTranslate will not transcribe audio while you are muted.",
+    "config.unitytranslate.client.openBrowserWithoutPrompt": "Open Browser without Prompt?",
+    "config.unitytranslate.client.openBrowserWithoutPrompt.desc": "When you join a world for the first time in a session, UnityTranslate will automatically open the browser for you without prompting you.",
+
+    "gui.unitytranslate.config.common": "Common Config",
+    "config.unitytranslate.common.batchTranslateInterval": "Batch Translation Interval",
+    "config.unitytranslate.common.batchTranslateInterval.desc": "To avoid stressing the translation instances, UnityTranslate sends the translations at a specific interval, which also helps avoid redundant translations.",
+    "config.unitytranslate.common.offloadServers": "Offload Servers",
+    "config.unitytranslate.common.offloadServers.desc": "Additional translation servers running LibreTranslate for reducing strain on your computer.",
+    "config.unitytranslate.common.offloadServers.website_url.desc": "The URL to a LibreTranslate server.",
+    "config.unitytranslate.common.offloadServers.api_key.desc": "The API key for the LibreTranslate server. May be blank.",
+    "config.unitytranslate.common.shouldRunTranslationServer": "Should Run Translation Server?",
+    "config.unitytranslate.common.shouldRunTranslationServer.desc": "Should UnityTranslate automatically start a local LibreTranslate server?",
+    "config.unitytranslate.common.shouldUseCuda": "Should use CUDA?",
+    "config.unitytranslate.common.shouldUseCuda.desc": "Should the local LibreTranslate server utilize CUDA for accelerated translations? Only supports NVIDIA graphics cards.",
+    "config.unitytranslate.common.translatePriority": "Translation Priority",
+    "config.unitytranslate.common.translatePriority.desc": "In which order should be used for prioritizing translating.",
+
+    "unitytranslate.value.true": "True",
+    "unitytranslate.value.false": "False",
+    "unitytranslate.value.none": "(none)"
 }
