@@ -69,7 +69,7 @@ open class LibreTranslateInstance(val url: String, private var weight: Int, val 
     }
 
     // Copied from LibreTranslate-Java, there were race conditions everywhere.
-    fun translate(from: String, to: String, request: String): String {
+    open fun translate(from: String, to: String, request: String): String {
         try {
             val url = URL("$url/translate")
             val httpConn = url.openConnection() as HttpURLConnection
