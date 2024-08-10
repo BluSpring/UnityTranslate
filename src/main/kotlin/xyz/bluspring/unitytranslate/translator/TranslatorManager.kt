@@ -55,6 +55,35 @@ object TranslatorManager {
     private var PFN_cuDeviceGetCount: Long = 0L
     private var PFN_cuDeviceComputeCapability: Long = 0L
 
+    private var PFN_cuGetErrorName: Long = 0L
+    private var PFN_cuGetErrorString: Long = 0L
+
+    private fun logCudaError(code: Int, at: String) {
+        if (code == 0)
+            return
+
+        // TODO: these return ??? for some reason.
+        //       can we figure out why?
+
+        val errorCode = if (PFN_cuGetErrorName != MemoryUtil.NULL) {
+            val ptr = MemoryUtil.nmemAlloc(255)
+            JNI.callPP(code, ptr, PFN_cuGetErrorName)
+            MemoryUtil.memUTF16(ptr).apply {
+                MemoryUtil.nmemFree(ptr)
+            }
+        } else "[CUDA ERROR NAME NOT FOUND]"
+
+        val errorDesc = if (PFN_cuGetErrorString != MemoryUtil.NULL) {
+            val ptr = MemoryUtil.nmemAlloc(255)
+            JNI.callPP(code, ptr, PFN_cuGetErrorString)
+            MemoryUtil.memUTF16(ptr).apply {
+                MemoryUtil.nmemFree(ptr)
+            }
+        } else "[CUDA ERROR DESC NOT FOUND]"
+
+        UnityTranslate.logger.error("CUDA error at $at: $code $errorCode ($errorDesc)")
+    }
+
     private fun isCudaSupported(): Boolean {
         if (!UnityTranslate.config.server.shouldUseCuda) {
             UnityTranslate.logger.info("CUDA is disabled in the config, not enabling CUDA support.")
@@ -71,11 +100,15 @@ object TranslatorManager {
                     return false
                 }
 
-                PFN_cuInit = APIUtil.apiGetFunctionAddress(library, "cuInit")
-                PFN_cuDeviceGetCount = APIUtil.apiGetFunctionAddress(library, "cuDeviceGetCount")
-                PFN_cuDeviceComputeCapability = APIUtil.apiGetFunctionAddress(library, "cuDeviceComputeCapability")
+                PFN_cuInit = library.getFunctionAddress("cuInit")
+                PFN_cuDeviceGetCount = library.getFunctionAddress("cuDeviceGetCount")
+                PFN_cuDeviceComputeCapability = library.getFunctionAddress("cuDeviceComputeCapability")
+                PFN_cuGetErrorName = library.getFunctionAddress("cuGetErrorName")
+                PFN_cuGetErrorString = library.getFunctionAddress("cuGetErrorString")
 
                 if (PFN_cuInit == MemoryUtil.NULL || PFN_cuDeviceGetCount == MemoryUtil.NULL || PFN_cuDeviceComputeCapability == MemoryUtil.NULL) {
+                    // TODO: remove in prod
+                    UnityTranslate.logger.info("CUDA results: $PFN_cuInit $PFN_cuDeviceGetCount $PFN_cuDeviceComputeCapability")
                     return false
                 }
             } catch (e: Throwable) {
@@ -89,18 +122,24 @@ object TranslatorManager {
 
         val success = 0
 
-        if (JNI.callI(0, PFN_cuInit) != success) {
+        if (JNI.callI(0, PFN_cuInit).apply {
+                logCudaError(this, "init")
+            } != success) {
             return false
         }
 
         val totalPtr = MemoryUtil.nmemAlloc(Int.SIZE_BYTES.toLong())
-        if (JNI.callPI(totalPtr, PFN_cuDeviceGetCount) != success) {
+        if (JNI.callPI(totalPtr, PFN_cuDeviceGetCount).apply {
+                logCudaError(this, "get device count")
+            } != success) {
             return false
         }
 
         val totalCudaDevices = MemoryUtil.memGetInt(totalPtr)
-        if (totalCudaDevices <= 0)
+        UnityTranslate.logger.info("Total CUDA devices: $totalCudaDevices")
+        if (totalCudaDevices <= 0) {
             return false
+        }
 
         MemoryUtil.nmemFree(totalPtr)
 
@@ -108,7 +147,9 @@ object TranslatorManager {
             val minorPtr = MemoryUtil.nmemAlloc(Int.SIZE_BYTES.toLong())
             val majorPtr = MemoryUtil.nmemAlloc(Int.SIZE_BYTES.toLong())
 
-            if (JNI.callPPI(majorPtr, minorPtr, PFN_cuDeviceComputeCapability) != success) {
+            if (JNI.callPPI(majorPtr, minorPtr, i, PFN_cuDeviceComputeCapability).apply {
+                    logCudaError(this, "get device compute capability $i")
+                } != success) {
                 continue
             }
 
