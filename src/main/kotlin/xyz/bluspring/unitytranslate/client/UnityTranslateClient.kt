@@ -37,34 +37,46 @@ class UnityTranslateClient : ClientModInitializer {
             }
         }
 
-        ClientTickEvents.END_CLIENT_TICK.register {
+        ClientTickEvents.END_CLIENT_TICK.register { mc ->
             if (CONFIGURE_BOXES.consumeClick()) {
-                it.setScreen(EditTranscriptBoxesScreen(languageBoxes))
+                mc.setScreen(EditTranscriptBoxesScreen(languageBoxes))
             }
 
             if (TOGGLE_TRANSCRIPTION.consumeClick()) {
                 shouldTranscribe = !shouldTranscribe
-                it.player?.displayClientMessage(Component.translatable("unitytranslate.transcript")
-                    .append(": ")
-                    .append(if (shouldTranscribe) CommonComponents.OPTION_ON else CommonComponents.OPTION_OFF), true
+                mc.player?.displayClientMessage(
+                    Component.translatable("unitytranslate.transcript")
+                        .append(": ")
+                        .append(if (shouldTranscribe) CommonComponents.OPTION_ON else CommonComponents.OPTION_OFF), true
                 )
             }
 
-            if (TOGGLE_BOXES.consumeClick() && it.screen !is EditTranscriptBoxesScreen) {
+            if (TOGGLE_BOXES.consumeClick() && mc.screen !is EditTranscriptBoxesScreen) {
                 shouldRenderBoxes = !shouldRenderBoxes
-                it.player?.displayClientMessage(Component.translatable("unitytranslate.transcript_boxes")
-                    .append(": ")
-                    .append(if (shouldRenderBoxes) CommonComponents.OPTION_ON else CommonComponents.OPTION_OFF), true
+                mc.player?.displayClientMessage(
+                    Component.translatable("unitytranslate.transcript_boxes")
+                        .append(": ")
+                        .append(if (shouldRenderBoxes) CommonComponents.OPTION_ON else CommonComponents.OPTION_OFF),
+                    true
                 )
             }
 
-            if (SET_SPOKEN_LANGUAGE.consumeClick() && it.screen == null) {
-                it.setScreen(LanguageSelectScreen(null, false))
+            if (SET_SPOKEN_LANGUAGE.consumeClick() && mc.screen == null) {
+                mc.setScreen(LanguageSelectScreen(null, false))
             }
 
             if (CLEAR_TRANSCRIPTS.consumeClick()) {
                 for (box in languageBoxes) {
                     box.transcripts.clear()
+                }
+            }
+
+            // prune transcripts
+            for (box in languageBoxes) {
+                if (box.transcripts.size > 50) {
+                    for (i in 0..(box.transcripts.size - 50)) {
+                        box.transcripts.remove()
+                    }
                 }
             }
         }
@@ -102,8 +114,19 @@ class UnityTranslateClient : ClientModInitializer {
                     continue
 
                 val box = boxes.firstOrNull { it.language == language }
-                box?.updateTranscript(source, text, sourceLanguage, index, updateTime)
+                box?.updateTranscript(source, text, sourceLanguage, index, updateTime, false)
             }
+        }
+
+        ClientPlayNetworking.registerGlobalReceiver(PacketIds.MARK_INCOMPLETE) { client, listener, buf, sender ->
+            val from = buf.readEnum(Language::class.java)
+            val to = buf.readEnum(Language::class.java)
+            val uuid = buf.readUUID()
+            val index = buf.readVarInt()
+            val isIncomplete = buf.readBoolean()
+
+            val box = languageBoxes.firstOrNull { it.language == to } ?: return@registerGlobalReceiver
+            box.transcripts.firstOrNull { it.language == from && it.player.uuid == uuid && it.index == index }?.incomplete = isIncomplete
         }
 
         ClientPlayConnectionEvents.DISCONNECT.register { _, _ ->
@@ -126,14 +149,14 @@ class UnityTranslateClient : ClientModInitializer {
                 buf.writeVarLong(updateTime)
 
                 ClientPlayNetworking.send(PacketIds.SEND_TRANSCRIPT, buf)
-                languageBoxes.firstOrNull { it.language == transcriber.language }?.updateTranscript(Minecraft.getInstance().player!!, text, transcriber.language, index, updateTime)
+                languageBoxes.firstOrNull { it.language == transcriber.language }?.updateTranscript(Minecraft.getInstance().player!!, text, transcriber.language, index, updateTime, false)
             } else {
                 if (Minecraft.getInstance().player == null)
                     return@BiConsumer
 
                 for (box in languageBoxes) {
                     if (box.language == transcriber.language) {
-                        box.updateTranscript(Minecraft.getInstance().player!!, text, transcriber.language, index, updateTime)
+                        box.updateTranscript(Minecraft.getInstance().player!!, text, transcriber.language, index, updateTime, false)
 
                         continue
                     }
@@ -143,7 +166,7 @@ class UnityTranslateClient : ClientModInitializer {
                             if (e != null)
                                 return@whenCompleteAsync
 
-                            box.updateTranscript(Minecraft.getInstance().player!!, it, transcriber.language, index, updateTime)
+                            box.updateTranscript(Minecraft.getInstance().player!!, it, transcriber.language, index, updateTime, false)
                         }
                 }
             }

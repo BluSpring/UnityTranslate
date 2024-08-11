@@ -19,21 +19,20 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedDeque
 
 class UnityTranslate : ModInitializer {
-    private fun broadcastTranslations(source: ServerPlayer, sourceLanguage: Language, index: Int, updateTime: Long, sentTranslations: ConcurrentLinkedDeque<Language>, translations: ConcurrentHashMap<Language, String>) {
+    private fun broadcastTranslations(source: ServerPlayer, sourceLanguage: Language, index: Int, updateTime: Long, translationsToSend: ConcurrentLinkedDeque<Language>, translations: ConcurrentHashMap<Language, String>) {
         val buf = PacketByteBufs.create()
         buf.writeUUID(source.uuid)
         buf.writeEnum(sourceLanguage)
         buf.writeVarInt(index)
         buf.writeVarLong(updateTime)
 
-        val toSend = translations.filter { a -> !sentTranslations.contains(a.key) }
+        val toSend = translations.filter { a -> translationsToSend.contains(a.key) }
 
         buf.writeVarInt(toSend.size)
 
         for ((language, translated) in toSend) {
             buf.writeEnum(language)
             buf.writeUtf(translated)
-            sentTranslations.add(language)
         }
 
         if (hasVoiceChat) {
@@ -68,34 +67,31 @@ class UnityTranslate : ModInitializer {
             val updateTime = buf.readVarLong()
 
             val translations = ConcurrentHashMap<Language, String>()
-            val sentTranslations = ConcurrentLinkedDeque<Language>()
+            val translationsToSend = ConcurrentLinkedDeque<Language>()
 
             Language.entries.filter { usedLanguages.values.any { b -> b.contains(it) } }.map {
-                if (sourceLanguage == it)
+                Pair(it, if (sourceLanguage == it)
                     CompletableFuture.completedFuture(text)
-                        .whenCompleteAsync { text, e ->
-                            if (e != null)
-                                return@whenCompleteAsync
-
-                            translations[sourceLanguage] = text
-
-                            server.execute {
-                                broadcastTranslations(player, sourceLanguage, index, updateTime, sentTranslations, translations)
-                            }
-                        }
                 else
-                    TranslatorManager.queueTranslation(text, sourceLanguage, it, player, index)
-                        .whenCompleteAsync { translated, e ->
-                            if (e != null)
-                                return@whenCompleteAsync
+                    TranslatorManager.queueTranslation(text, sourceLanguage, it, player, index))
+            }
+                .forEach { (language, future) ->
+                    future.whenCompleteAsync { translated, e ->
+                        if (e != null) {
+                            return@whenCompleteAsync
+                        }
 
-                            translations[it] = translated
+                        translations[language] = translated
+                        translationsToSend.add(language)
 
-                            server.execute {
-                                broadcastTranslations(player, sourceLanguage, index, updateTime, sentTranslations, translations)
+                        server.execute {
+                            if (translationsToSend.isNotEmpty()) {
+                                broadcastTranslations(player, sourceLanguage, index, updateTime, translationsToSend, translations)
+                                translationsToSend.clear()
                             }
                         }
-            }
+                    }
+                }
         }
 
         ServerPlayConnectionEvents.JOIN.register { handler, sender, server ->

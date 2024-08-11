@@ -1,14 +1,20 @@
 package xyz.bluspring.unitytranslate.translator
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.Util
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.Player
 import org.lwjgl.system.APIUtil
 import org.lwjgl.system.JNI
 import org.lwjgl.system.MemoryUtil
 import org.lwjgl.system.SharedLibrary
 import xyz.bluspring.unitytranslate.Language
+import xyz.bluspring.unitytranslate.PacketIds
 import xyz.bluspring.unitytranslate.UnityTranslate
+import xyz.bluspring.unitytranslate.UnityTranslate.Companion.hasVoiceChat
+import xyz.bluspring.unitytranslate.compat.voicechat.UTVoiceChatCompat
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentLinkedDeque
@@ -34,12 +40,13 @@ object TranslatorManager {
                 id,
                 line, from, to,
                 System.currentTimeMillis(),
-                this
+                this,
+                player, index
             ))
         }
     }
 
-    fun translateLine(line: String, from: Language, to: Language): String {
+    fun translateLine(line: String, from: Language, to: Language): String? {
         val possible = instances.filter { it.supportsLanguage(from, to) }.sortedByDescending { it.weight.asInt() }
 
         if (possible.isEmpty()) {
@@ -50,7 +57,7 @@ object TranslatorManager {
         var index = 0
 
         for (instance in possible) {
-            if (instance.currentlyTranslating >= LibreTranslateInstance.MAX_CONCURRENT_TRANSLATIONS && index++ < possible.size)
+            if (instance.currentlyTranslating >= LibreTranslateInstance.MAX_CONCURRENT_TRANSLATIONS && index++ < possible.size - 1)
                 continue
 
             instance.currentlyTranslating++
@@ -66,7 +73,7 @@ object TranslatorManager {
 
         UnityTranslate.logger.warn("Failed to translate $line from $from to $to!")
 
-        return line
+        return null
     }
 
     private var isLibraryLoaded = false
@@ -232,15 +239,64 @@ object TranslatorManager {
 
         timer.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
+                val queueLater = ConcurrentLinkedQueue<Translation>()
+
                 while (queuedTranslations.isNotEmpty()) {
                     val translation = queuedTranslations.remove()
-                    translation.future.completeAsync {
+
+                    CompletableFuture.supplyAsync {
                         translateLine(translation.text, translation.fromLang, translation.toLang)
                     }
+                        .whenCompleteAsync { t, u ->
+                            if (t != null && u == null) {
+                                broadcastIncomplete(false, translation)
+                                translation.future.completeAsync { t }
+                            } else {
+                                if (translation.player is ServerPlayer) {
+                                    broadcastIncomplete(true, translation)
+                                }
+
+                                queueLater.add(translation)
+                            }
+                        }
+                }
+
+                for (translation in queueLater) {
+                    if (queuedTranslations.any { it.id == translation.id && it.queueTime > translation.queueTime })
+                        continue
+
+                    queuedTranslations.add(translation)
                 }
             }
         }, 0L, (UnityTranslate.config.server.batchTranslateInterval * 1000.0).toLong())
 
         instances = ConcurrentLinkedDeque(list)
+    }
+
+    private fun broadcastIncomplete(isIncomplete: Boolean, translation: Translation) {
+        if (translation.player !is ServerPlayer)
+            return
+
+        val buf = PacketByteBufs.create()
+        buf.writeEnum(translation.fromLang)
+        buf.writeEnum(translation.toLang)
+        buf.writeUUID(translation.player.uuid)
+        buf.writeVarInt(translation.index)
+        buf.writeBoolean(isIncomplete)
+
+        val source = translation.player
+
+        if (hasVoiceChat) {
+            val nearby = UTVoiceChatCompat.getNearbyPlayers(source)
+
+            for (player in nearby) {
+                if (UTVoiceChatCompat.isPlayerDeafened(player) && player != source)
+                    continue
+
+                ServerPlayNetworking.send(player, PacketIds.MARK_INCOMPLETE, buf)
+            }
+        } else {
+            ServerPlayNetworking.send(source, PacketIds.MARK_INCOMPLETE, buf)
+        }
     }
 }

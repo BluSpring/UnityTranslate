@@ -47,7 +47,14 @@ data class TranscriptBox(
                         .withStyle(ChatFormatting.GREEN)
                 )
                 .append("> ")
-                .append(it.text)
+                .append(
+                    Component.literal(it.text)
+                        .apply {
+                            if (it.incomplete) {
+                                this.withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC)
+                            }
+                        }
+                )
         }
 
         val font = Minecraft.getInstance().font
@@ -72,7 +79,7 @@ data class TranscriptBox(
         guiGraphics.pose().popPose()
     }
 
-    fun updateTranscript(source: Player, text: String, language: Language, index: Int, updateTime: Long) {
+    fun updateTranscript(source: Player, text: String, language: Language, index: Int, updateTime: Long, incomplete: Boolean) {
         if (this.transcripts.any { it.player.uuid == source.uuid && it.index == index }) {
             val transcript = this.transcripts.first { it.player.uuid == source.uuid && it.index == index }
 
@@ -82,10 +89,11 @@ data class TranscriptBox(
 
             transcript.lastUpdateTime = updateTime
             transcript.text = text
+            transcript.incomplete = incomplete
 
             return
         }
 
-        this.transcripts.add(Transcript(index, source, text, language, updateTime))
+        this.transcripts.add(Transcript(index, source, text, language, updateTime, incomplete))
     }
 }

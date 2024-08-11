@@ -8,5 +8,6 @@ data class Transcript(
     val player: Player,
     var text: String,
     val language: Language,
-    var lastUpdateTime: Long
+    var lastUpdateTime: Long,
+    var incomplete: Boolean
 )
