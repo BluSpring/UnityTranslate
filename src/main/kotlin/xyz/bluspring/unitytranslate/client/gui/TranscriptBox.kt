@@ -38,7 +38,7 @@ data class TranscriptBox(
 
         guiGraphics.enableScissor(x, y + 15, x + width, y + height)
 
-        val lines = transcripts.reversed().map {
+        val lines = transcripts.sortedByDescending { it.lastUpdateTime }.map {
             Component.empty()
                 .append("<")
                 .append(it.player.displayName)
