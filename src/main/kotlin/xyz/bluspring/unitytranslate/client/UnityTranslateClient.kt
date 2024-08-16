@@ -20,12 +20,15 @@ import xyz.bluspring.unitytranslate.client.gui.EditTranscriptBoxesScreen
 import xyz.bluspring.unitytranslate.client.gui.LanguageSelectScreen
 import xyz.bluspring.unitytranslate.client.gui.TranscriptBox
 import xyz.bluspring.unitytranslate.client.transcribers.SpeechTranscriber
+import xyz.bluspring.unitytranslate.client.transcribers.windows.sapi5.WindowsSpeechApiTranscriber
 import xyz.bluspring.unitytranslate.translator.TranslatorManager
 import java.util.*
 import java.util.function.BiConsumer
 
 class UnityTranslateClient : ClientModInitializer {
     override fun onInitializeClient() {
+        WindowsSpeechApiTranscriber.isSupported() // runs a check to load Windows Speech API. why write the code again anyway?
+
         transcriber = UnityTranslate.config.client.transcriber.creator.invoke(UnityTranslate.config.client.language)
         setupTranscriber(transcriber)
 
