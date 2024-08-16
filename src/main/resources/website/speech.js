@@ -72,8 +72,6 @@ function setupTranscriber(lang) {
         lastReset = Date.now();
     }
 
-    transcriber.grammars.addFromString('')
-
     transcriber.onresult = (ev) => {
         let results = [];
         const items = ev.results.item(ev.resultIndex);
@@ -123,7 +121,7 @@ ws.onmessage = (ev) => {
                 return;
             }
 
-            document.getElementById('transcript_lang').innerText = `Transcript (${lang})`;
+            document.getElementById('transcript_lang').innerText = `%I18N_TRANSCRIPT% (${lang})`;
 
             setupTranscriber(lang);
 
