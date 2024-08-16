@@ -2,6 +2,8 @@ let ws = new WebSocket('ws://127.0.0.1:%SOCKET_PORT%');
 
 window.SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
 
+const pause = document.getElementById('pause');
+
 /**
  * @type {SpeechRecognition}
  */
@@ -38,8 +40,10 @@ function setupTranscriber(lang) {
     }
 
     transcriber.onend = () => {
-        if (isErrored)
+        if (isErrored) {
+            pause.classList.add('visible');
             return;
+        }
 
         console.log('Transcriber resetting...');
         ws.send(JSON.stringify({
@@ -67,6 +71,8 @@ function setupTranscriber(lang) {
         }
         lastReset = Date.now();
     }
+
+    transcriber.grammars.addFromString('')
 
     transcriber.onresult = (ev) => {
         let results = [];
@@ -113,8 +119,11 @@ ws.onmessage = (ev) => {
                         type: "no_support"
                     }
                 }));
+                pause.classList.add('visible');
                 return;
             }
+
+            document.getElementById('transcript_lang').innerText = `Transcript (${lang})`;
 
             setupTranscriber(lang);
 

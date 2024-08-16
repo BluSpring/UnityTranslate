@@ -1,0 +1,58 @@
+* {
+    font-family: sans-serif;
+}
+
+.pause-screen {
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 99;
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: none;
+}
+
+.visible {
+    display: block;
+}
+
+.pause-screen h2 {
+    text-align: center;
+    color: white;
+    text-shadow: 3px 3px 4px rgba(0, 0, 0, 0.6);
+    font-size: 5em;
+}
+
+.pause-screen p {
+    text-align: center;
+    color: white;
+    text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.6);
+    font-size: 2em;
+}
+
+.info {
+    text-align: center;
+    font-size: 2em;
+}
+
+.transcript {
+    text-align: center;
+    width: 70vw;
+    margin: auto;
+}
+
+.transcript h2 {
+    font-size: 2em;
+    font-weight: bold;
+}
+
+.footer {
+    position: fixed;
+    bottom: 2rem;
+    left: 0;
+    right: 0;
+    margin: auto;
+    text-align: center;
+    font-weight: 600;
+}

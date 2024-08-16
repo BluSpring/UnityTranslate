@@ -24,5 +24,9 @@ fun Application.module() {
                 .replace("%SOCKET_PORT%", socketPort.toString())
             )
         }
+
+        get("/speech.css") {
+            call.respondText(contentType = ContentType.Text.CSS, text = this::class.java.getResource("/website/speech.css")!!.readText())
+        }
     }
 }
