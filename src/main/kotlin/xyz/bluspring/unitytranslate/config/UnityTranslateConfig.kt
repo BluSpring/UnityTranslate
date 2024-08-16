@@ -35,8 +35,8 @@ data class UnityTranslateConfig(
         var shouldUseCuda: Boolean = true,
         var shouldRunTranslationServer: Boolean = false,
         var offloadServers: MutableList<OffloadedLibreTranslateServer> = mutableListOf(
+            OffloadedLibreTranslateServer("https://libretranslate.devos.gay"),
             OffloadedLibreTranslateServer("https://trans.zillyhuhn.com"),
-            OffloadedLibreTranslateServer("https://libretranslate.devos.gay")
         ),
 
         // Interval for when the batch translations will be sent.
