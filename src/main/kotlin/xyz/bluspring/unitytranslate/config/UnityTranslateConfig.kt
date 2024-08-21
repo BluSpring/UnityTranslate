@@ -5,7 +5,6 @@ import net.fabricmc.fabric.api.util.TriState
 import xyz.bluspring.unitytranslate.Language
 import xyz.bluspring.unitytranslate.client.gui.TranscriptBox
 import xyz.bluspring.unitytranslate.client.transcribers.TranscriberType
-import java.util.*
 
 @Serializable
 data class UnityTranslateConfig(
@@ -25,7 +24,7 @@ data class UnityTranslateConfig(
 
     @Serializable
     data class CommonConfig(
-        var translatePriority: Set<TranslationPriority> = EnumSet.of(
+        var translatePriority: MutableList<TranslationPriority> = mutableListOf(
             TranslationPriority.CLIENT_GPU, // highest priority, prioritize using CUDA on the client-side.
             TranslationPriority.SERVER_GPU, // if supported, use CUDA on the server-side.
             TranslationPriority.SERVER_CPU, // otherwise, translate on the CPU.
@@ -43,7 +42,7 @@ data class UnityTranslateConfig(
         // This is done so redundant translations don't go through,
         // which puts unnecessary stress on the translation instances.
         @Range(from = 0.5, to = 5.0)
-        var batchTranslateInterval: Double = 0.5 // 500ms
+        var batchTranslateInterval: Float = 0.5f // 500ms
     )
 
     @Serializable
