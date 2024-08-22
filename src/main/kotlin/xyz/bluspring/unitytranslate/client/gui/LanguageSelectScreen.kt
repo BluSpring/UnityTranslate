@@ -8,10 +8,10 @@ import net.minecraft.client.gui.components.ObjectSelectionList
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.network.chat.CommonComponents
 import net.minecraft.network.chat.Component
+import net.minecraft.util.FormattedCharSequence
 import xyz.bluspring.unitytranslate.Language
 import xyz.bluspring.unitytranslate.UnityTranslate
 import xyz.bluspring.unitytranslate.client.UnityTranslateClient
-import xyz.bluspring.unitytranslate.client.transcribers.TranscriberType
 
 class LanguageSelectScreen(val parent: Screen?, val isAddingBox: Boolean) : Screen(Component.translatable("options.language")) {
     private lateinit var list: LanguageSelectionList
@@ -37,12 +37,24 @@ class LanguageSelectScreen(val parent: Screen?, val isAddingBox: Boolean) : Scre
     override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
         this.renderBackground(guiGraphics)
         super.render(guiGraphics, mouseX, mouseY, partialTick)
+
+        guiGraphics.drawCenteredString(font, Component.translatable(
+            if (isAddingBox)
+                "unitytranslate.select_language"
+            else
+                "unitytranslate.set_spoken_language"
+        ), this.width / 2, 15, 16777215)
     }
 
     private fun onDone() {
         val language = list.selected?.language ?: return
 
         if (isAddingBox) {
+            if (list.selected?.shouldBeDeactivated == true) {
+                onClose()
+                return
+            }
+
             Minecraft.getInstance().execute {
                 UnityTranslate.config.client.transcriptBoxes.add(TranscriptBox(0, 0, 150, 170, 120, language))
                 UnityTranslate.saveConfig()
@@ -69,7 +81,7 @@ class LanguageSelectScreen(val parent: Screen?, val isAddingBox: Boolean) : Scre
         }
 
         inner class Entry(val language: Language) : ObjectSelectionList.Entry<Entry>() {
-            private val shouldBeDeactivated = isAddingBox && UnityTranslate.config.client.transcriptBoxes.any { it.language == language }
+            internal val shouldBeDeactivated = isAddingBox && UnityTranslate.config.client.transcriptBoxes.any { it.language == language }
             private var lastClickTime: Long = 0L
 
             override fun render(
@@ -85,16 +97,38 @@ class LanguageSelectScreen(val parent: Screen?, val isAddingBox: Boolean) : Scre
 
                 guiGraphics.drawCenteredString(font, language.text, this@LanguageSelectScreen.width / 2, top + 1, color)
 
-                var x = this@LanguageSelectScreen.width / 2 + (font.width(language.text) / 2) + 4
-                for (type in language.supportedTranscribers.keys) {
-                    if (type == TranscriberType.SPHINX)
-                        continue
+                if (!isAddingBox) {
+                    var x = this@LanguageSelectScreen.width / 2 + (font.width(language.text) / 2) + 4
+                    for (type in language.supportedTranscribers.keys) {
+                        if (!type.enabled)
+                            continue
 
-                    guiGraphics.blit(BROWSER_ICON,
-                        x, top - 1, 0f, 0f, 16, 16, 16, 16
-                    )
+                        guiGraphics.blit(UnityTranslate.id("textures/gui/transcriber/${type.name.lowercase()}.png"),
+                            x, top - 1, 0f, 0f, 16, 16, 16, 16
+                        )
 
-                    x += 20
+                        if (mouseX >= x && mouseX <= x + 16 && mouseY >= top - 1 && mouseY <= top - 1 + 16) {
+                            val lines = mutableListOf<FormattedCharSequence>()
+
+                            lines.add(Component.translatable("unitytranslate.transcriber.type.${type.name.lowercase()}").visualOrderText)
+                            lines.add(Component.empty().visualOrderText)
+                            lines.addAll(font.split(Component.translatable("unitytranslate.transcriber.type.${type.name.lowercase()}.description"), (this@LanguageSelectScreen.width / 6).coerceAtLeast(150)))
+
+                            guiGraphics.renderTooltip(font, lines, mouseX, mouseY)
+                        }
+
+                        x += 20
+                    }
+                } else if (shouldBeDeactivated) {
+                    val textWidth = font.width(language.text)
+                    val halfTextWidth = textWidth / 2
+                    val centerX = this@LanguageSelectScreen.width / 2
+
+                    if (mouseX >= centerX - halfTextWidth && mouseX <= centerX + halfTextWidth && mouseY >= top + 1 && mouseY <= top + 1 + font.lineHeight) {
+                        guiGraphics.renderTooltip(font, listOf(
+                            Component.translatable("unitytranslate.select_language.already_selected").visualOrderText
+                        ), mouseX, mouseY)
+                    }
                 }
             }
 

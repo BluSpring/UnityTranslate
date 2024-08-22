@@ -13,7 +13,7 @@
     "unitytranslate.transcriber.type.sphinx": "PocketSphinx (disabled)",
     "unitytranslate.transcriber.type.sphinx.description": "Uses the PocketSphinx speech recognition engine for speech transcription. Currently disabled due to its large size requirement.",
     "unitytranslate.transcriber.type.browser": "Web Speech API",
-    "unitytranslate.transcriber.type.browser.description": "Uses the Web Speech API for speech transcription. This requires opening your web browser for using it, and may use more resources. Mostly supports Google Chrome and Microsoft Edge.",
+    "unitytranslate.transcriber.type.browser.description": "Uses the Web Speech API for speech transcription. This requires opening your web browser to use it, and may use more resources.\n\nMainly supports Google Chrome and Microsoft Edge.",
     "unitytranslate.transcriber.type.windows_sapi": "Windows Speech API (disabled)",
     "unitytranslate.transcriber.type.windows_sapi.description": "Uses the Windows Speech API for speech transcription. This is natively supported in Windows, but requires you to install the language packs for the languages you intend to speak. Currently disabled due to requiring some research to set it up properly.",
 
@@ -21,6 +21,8 @@
     "unitytranslate.toggle_transcription": "Mute/Unmute Own Transcription",
     "unitytranslate.toggle_boxes": "Show/Hide Transcript Boxes",
     "unitytranslate.set_spoken_language": "Set Spoken Language",
+    "unitytranslate.select_language": "Select Language",
+    "unitytranslate.select_language.already_selected": "This option has already been selected!",
     "unitytranslate.clear_transcripts": "Clear Transcripts",
 
     "unitytranslate.transcript_boxes": "Transcript Boxes",

@@ -10,6 +10,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.util.FastColor
 import net.minecraft.util.Mth
 import xyz.bluspring.unitytranslate.UnityTranslate
+import xyz.bluspring.unitytranslate.client.UnityTranslateClient
 import xyz.bluspring.unitytranslate.config.UnityTranslateConfig
 import xyz.bluspring.unitytranslate.duck.ScrollableWidget
 import xyz.bluspring.unitytranslate.mixin.AbstractWidgetAccessor
@@ -328,7 +329,33 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
                 y += 30
             }
 
-            maxPosition = y + 20
+            if (type == "client") { // Special case
+                addRenderableWidget(Button.builder(Component.translatable("unitytranslate.configure_boxes")) {
+                    Minecraft.getInstance().setScreen(EditTranscriptBoxesScreen(UnityTranslateClient.languageBoxes, this@UTConfigSubScreen))
+                }
+                    .pos(this.width / 2 - (Button.DEFAULT_WIDTH / 2), y)
+                    .build()
+                    .apply {
+                        (this as ScrollableWidget).updateInitialPosition()
+                    }
+                )
+
+                y += 30
+
+                addRenderableWidget(Button.builder(Component.translatable("unitytranslate.set_spoken_language")) {
+                    Minecraft.getInstance().setScreen(LanguageSelectScreen(this@UTConfigSubScreen, false))
+                }
+                    .pos(this.width / 2 - (Button.DEFAULT_WIDTH / 2), y)
+                    .build()
+                    .apply {
+                        (this as ScrollableWidget).updateInitialPosition()
+                    }
+                )
+
+                y += 30
+            }
+
+            maxPosition = y
 
             doneButton = addRenderableWidget(
                 Button.builder(CommonComponents.GUI_DONE) {
