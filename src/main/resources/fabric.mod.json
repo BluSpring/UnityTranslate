@@ -3,12 +3,13 @@
     "id": "unitytranslate",
     "version": "${version}",
     "name": "UnityTranslate",
-    "description": "A mod designed for free live translation, inspired by the QSMP.",
+    "description": "A mod designed for free live translation, inspired by the QSMP. Mainly created for the Unity Multiplayer server, and for public release towards the multilingual Minecraft community.",
     "authors": [
         "BluSpring"
     ],
     "contact": {
-        "repo": "https://github.com/BluSpring/UnityTranslate"
+        "sources": "https://github.com/BluSpring/UnityTranslate",
+        "issues": "https://github.com/BluSpring/UnityTranslate/issues"
     },
     "license": "MIT",
     "icon": "assets/unitytranslate/icon.png",
@@ -36,7 +37,7 @@
         "minecraft": "${minecraft_version}",
         "fabric-language-kotlin": ">=${fabric_kotlin_version}"
     },
-    "suggests": {
+    "recommends": {
         "voicechat": "*"
     }
 }
