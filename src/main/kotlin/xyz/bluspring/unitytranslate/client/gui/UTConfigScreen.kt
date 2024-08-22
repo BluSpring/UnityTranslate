@@ -202,6 +202,9 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
                         addArrows((this.width / 2 + 50).coerceAtMost(this.width - 10), y, index, actualValue)
                     }
                 } else if (value is Float) {
+                    val min = 0.5f
+                    val max = 5.0f
+
                     addRenderableWidget(EditBox(font, this.width - Button.SMALL_WIDTH - 20, y - (Button.DEFAULT_HEIGHT / 2) + 4, Button.SMALL_WIDTH, Button.DEFAULT_HEIGHT, Component.empty())
                         .apply {
                             this.tooltip = Tooltip.create(Component.translatable("config.unitytranslate.$type.${member.name}.desc"))
@@ -215,13 +218,13 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
                                             "${it}0"
                                         else
                                             it
-                                        ).toFloatOrNull() ?: 0.0f, 0.5f, 5.0f
+                                        ).toFloatOrNull() ?: 0.0f, min, max
                                 ))
                             }
                         })
 
                     addRenderableWidget(TextAndImageButton.builder(Component.empty(), UnityTranslate.id("textures/gui/arrow_up.png")) {
-                        member.setter.call(instance, Mth.clamp(value + 0.1f, 0.5f, 5.0f))
+                        member.setter.call(instance, Mth.clamp(value + 0.1f, min, max))
                         this.rebuildWidgets()
                     }
                         .offset(0, 2)
@@ -236,14 +239,14 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
                             (this as AbstractWidgetAccessor).setHeight(12) // :mojank:
                             (this as ScrollableWidget).updateInitialPosition()
 
-                            if (value >= 5.0) {
+                            if (value >= max) {
                                 this.active = false
                             }
                         }
                     )
 
                     addRenderableWidget(TextAndImageButton.builder(Component.empty(), UnityTranslate.id("textures/gui/arrow_down.png")) {
-                        member.setter.call(instance, Mth.clamp(value - 0.1f, 0.5f, 5.0f))
+                        member.setter.call(instance, Mth.clamp(value - 0.1f, min, max))
                         this.rebuildWidgets()
                     }
                         .offset(0, 2)
@@ -258,7 +261,64 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
                             (this as AbstractWidgetAccessor).setHeight(12) // :mojank:
                             (this as ScrollableWidget).updateInitialPosition()
 
-                            if (value <= 0.5) {
+                            if (value <= min) {
+                                this.active = false
+                            }
+                        }
+                    )
+                } else if (value is Int) {
+                    val min = 10
+                    val max = 300
+
+                    addRenderableWidget(EditBox(font, this.width - Button.SMALL_WIDTH - 20, y - (Button.DEFAULT_HEIGHT / 2) + 4, Button.SMALL_WIDTH, Button.DEFAULT_HEIGHT, Component.empty())
+                        .apply {
+                            this.tooltip = Tooltip.create(Component.translatable("config.unitytranslate.$type.${member.name}.desc"))
+                            this.value = value.toString()
+                            this.setFilter { it.toIntOrNull() != null || it.isBlank() } // TODO: make adjustable via annotation
+                            this.setResponder {
+                                member.setter.call(instance, Mth.clamp(it.toIntOrNull() ?: min, min, max))
+                            }
+                        })
+
+                    addRenderableWidget(TextAndImageButton.builder(Component.empty(), UnityTranslate.id("textures/gui/arrow_up.png")) {
+                        member.setter.call(instance, Mth.clamp(value + 10, min, max))
+                        this.rebuildWidgets()
+                    }
+                        .offset(0, 2)
+                        .texStart(0, 0)
+                        .textureSize(8, 8)
+                        .usedTextureSize(8, 8)
+                        .build()
+                        .apply {
+                            this.x = this@UTConfigSubScreen.width - 18
+                            this.y = y - 8
+                            this.width = 12
+                            (this as AbstractWidgetAccessor).setHeight(12) // :mojank:
+                            (this as ScrollableWidget).updateInitialPosition()
+
+                            if (value >= max) {
+                                this.active = false
+                            }
+                        }
+                    )
+
+                    addRenderableWidget(TextAndImageButton.builder(Component.empty(), UnityTranslate.id("textures/gui/arrow_down.png")) {
+                        member.setter.call(instance, Mth.clamp(value - 10, min, max))
+                        this.rebuildWidgets()
+                    }
+                        .offset(0, 2)
+                        .texStart(0, 0)
+                        .textureSize(8, 8)
+                        .usedTextureSize(8, 8)
+                        .build()
+                        .apply {
+                            this.x = this@UTConfigSubScreen.width - 18
+                            this.y = y + 4
+                            this.width = 12
+                            (this as AbstractWidgetAccessor).setHeight(12) // :mojank:
+                            (this as ScrollableWidget).updateInitialPosition()
+
+                            if (value <= min) {
                                 this.active = false
                             }
                         }

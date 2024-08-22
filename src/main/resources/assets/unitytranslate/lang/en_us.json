@@ -48,6 +48,8 @@
     "config.unitytranslate.client.muteTranscriptWhenVoiceChatMuted.desc": "If Simple Voice Chat / Plasmo Voice is muted, and this option is set to True, UnityTranslate will not transcribe audio while you are muted.",
     "config.unitytranslate.client.openBrowserWithoutPrompt": "Open Browser without Prompt?",
     "config.unitytranslate.client.openBrowserWithoutPrompt.desc": "When you join a world for the first time in a session, UnityTranslate will automatically open the browser for you without prompting you.",
+    "config.unitytranslate.client.textScale": "Text Scale (%)",
+    "config.unitytranslate.client.textScale.desc": "The scale of the text inside the transcript boxes.",
 
     "gui.unitytranslate.config.common": "Common Config",
     "config.unitytranslate.common.batchTranslateInterval": "Batch Translation Interval (in seconds)",

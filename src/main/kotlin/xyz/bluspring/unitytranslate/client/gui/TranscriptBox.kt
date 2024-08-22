@@ -9,6 +9,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.util.FastColor
 import net.minecraft.world.entity.player.Player
 import xyz.bluspring.unitytranslate.Language
+import xyz.bluspring.unitytranslate.UnityTranslate
 import xyz.bluspring.unitytranslate.transcript.Transcript
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -58,14 +59,21 @@ data class TranscriptBox(
         }
 
         val font = Minecraft.getInstance().font
+        val scale = UnityTranslate.config.client.textScale / 100f
+        val invScale = if (scale == 0f) 0f else 1f / scale
 
         var currentY = y + height - font.lineHeight
+
         for (component in lines) {
-            val split = font.split(component, width - 5).reversed()
+            val split = font.split(component, ((width - 5) * invScale).toInt()).reversed()
 
             for (line in split) {
-                guiGraphics.drawString(font, line, x + 4, currentY, 16777215)
-                currentY -= font.lineHeight
+                guiGraphics.pose().pushPose()
+                guiGraphics.pose().translate(x.toFloat(), currentY.toFloat(), 0f)
+                guiGraphics.pose().scale(scale, scale, scale)
+                guiGraphics.drawString(font, line, 4, 0, 16777215)
+                currentY -= (font.lineHeight * scale).toInt()
+                guiGraphics.pose().popPose()
             }
 
             currentY -= 4

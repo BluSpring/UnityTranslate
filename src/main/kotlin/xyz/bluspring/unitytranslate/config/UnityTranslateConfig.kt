@@ -17,6 +17,9 @@ data class UnityTranslateConfig(
         var openBrowserWithoutPrompt: Boolean = false,
         var muteTranscriptWhenVoiceChatMuted: Boolean = false,
 
+        //@Range(from = 10, to = 300)
+        var textScale: Int = 100,
+
         val transcriptBoxes: MutableList<TranscriptBox> = mutableListOf(),
         val transcriber: TranscriberType = TranscriberType.BROWSER,
         var language: Language = Language.ENGLISH
