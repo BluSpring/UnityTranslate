@@ -24,7 +24,7 @@ data class UnityTranslateConfig(
         val transcriber: TranscriberType = TranscriberType.BROWSER,
         var language: Language = Language.ENGLISH,
 
-        var disappearingText: Boolean = false,
+        var disappearingText: Boolean = true,
         @get:DependsOn("disappearingText")
         @get:FloatRange(from = 0.2f, to = 60.0f, increment = 0.1f)
         var disappearingTextDelay: Float = 20.0f,
