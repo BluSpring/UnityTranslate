@@ -5,7 +5,6 @@ import com.google.common.collect.Multimap
 import com.google.gson.JsonParser
 import net.minecraft.util.random.Weight
 import net.minecraft.util.random.WeightedEntry
-import org.apache.http.client.HttpResponseException
 import xyz.bluspring.unitytranslate.Language
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
@@ -91,7 +90,7 @@ open class LibreTranslateInstance(val url: String, private var weight: Int, val 
             writer.close()
             httpConn.outputStream.close()
             if (httpConn.responseCode / 100 != 2) {
-                throw HttpResponseException(httpConn.responseCode, "${this.url}/translate")
+                throw Exception("Failed to load ${this.url}/translate (code ${httpConn.responseCode})")
             } else {
                 val responseStream = httpConn.inputStream
                 val s = Scanner(responseStream).useDelimiter("\\A")
