@@ -16,14 +16,51 @@ import java.util.concurrent.ConcurrentLinkedQueue
 
 @Serializable
 data class TranscriptBox(
-    var x: Int,
-    var y: Int,
+    var offsetX: Int,
+    var offsetY: Int,
     var width: Int,
     var height: Int,
     var opacity: Int,
 
-    var language: Language
+    var language: Language,
+
+    var offsetXEdge: Boolean = false,
+    var offsetYEdge: Boolean = false
 ) {
+    var x: Int
+        get() {
+            return if (offsetXEdge)
+                Minecraft.getInstance().window.guiScaledWidth - offsetX
+            else
+                offsetX
+        }
+        set(value) {
+            if (value > Minecraft.getInstance().window.guiScaledWidth / 2 - (width / 2)) {
+                offsetXEdge = true
+                offsetX = Minecraft.getInstance().window.guiScaledWidth - value
+            } else {
+                offsetXEdge = false
+                offsetX = value
+            }
+        }
+
+    var y: Int
+        get() {
+            return if (offsetYEdge)
+                Minecraft.getInstance().window.guiScaledHeight - offsetY
+            else
+                offsetY
+        }
+        set(value) {
+            if (value > Minecraft.getInstance().window.guiScaledHeight / 2 - (height / 2)) {
+                offsetYEdge = true
+                offsetY = Minecraft.getInstance().window.guiScaledHeight - value
+            } else {
+                offsetYEdge = false
+                offsetY = value
+            }
+        }
+
     @Transient
     val transcripts = ConcurrentLinkedQueue<Transcript>()
 
