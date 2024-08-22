@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.fabricmc.loader.api.FabricLoader
+import net.fabricmc.loader.api.ModContainer
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import org.slf4j.LoggerFactory
@@ -105,6 +106,9 @@ class UnityTranslate : ModInitializer {
 
     companion object {
         const val MOD_ID = "unitytranslate"
+
+        val modContainer: ModContainer
+            get() = FabricLoader.getInstance().getModContainer(MOD_ID).orElseThrow()
 
         val configFile = File(FabricLoader.getInstance().configDir.toFile(), "unitytranslate.json")
         var config = UnityTranslateConfig()

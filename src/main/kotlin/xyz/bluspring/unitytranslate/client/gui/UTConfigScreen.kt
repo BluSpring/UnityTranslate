@@ -62,6 +62,8 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
         guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 20, 16777215)
 
         super.render(guiGraphics, mouseX, mouseY, partialTick)
+
+        UnityTranslateClient.renderCreditText(guiGraphics)
     }
 
     override fun onClose() {
@@ -455,6 +457,8 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
             }
 
             doneButton.render(guiGraphics, mouseX, mouseY, partialTick)
+
+            UnityTranslateClient.renderCreditText(guiGraphics)
         }
 
         fun updateScroll() {

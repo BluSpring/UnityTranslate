@@ -44,10 +44,17 @@ class LanguageSelectScreen(val parent: Screen?, val isAddingBox: Boolean) : Scre
             else
                 "unitytranslate.set_spoken_language"
         ), this.width / 2, 15, 16777215)
+
+        UnityTranslateClient.renderCreditText(guiGraphics)
     }
 
     private fun onDone() {
-        val language = list.selected?.language ?: return
+        val language = list.selected?.language
+
+        if (language == null) {
+            onClose()
+            return
+        }
 
         if (isAddingBox) {
             if (list.selected?.shouldBeDeactivated == true) {
@@ -154,10 +161,5 @@ class LanguageSelectScreen(val parent: Screen?, val isAddingBox: Boolean) : Scre
                 return Component.translatable("narrator.select", this.language.text)
             }
         }
-    }
-
-    companion object {
-        val BROWSER_ICON = UnityTranslate.id("textures/gui/transcriber/browser.png")
-        //val SPHINX_ICON = UnityTranslate.id("textures/gui/transcriber/sphinx.png")
     }
 }

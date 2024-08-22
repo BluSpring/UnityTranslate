@@ -1,4 +1,6 @@
 {
+    "unitytranslate.credit.author": "by BluSpring",
+
     "unitytranslate.open_browser.prompt": "For UnityTranslate to transcribe your speech in Browser Transcription mode, your browser must be left opened to a website running locally. You may close your browser once you are no longer using UnityTranslate.",
     "unitytranslate.do_not_show_again": "Don't show me again",
     "unitytranslate.open_browser.open_in_browser": "Open in Browser",

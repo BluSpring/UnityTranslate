@@ -10,6 +10,7 @@ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
 import net.minecraft.ChatFormatting
 import net.minecraft.client.KeyMapping
 import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.network.chat.CommonComponents
 import net.minecraft.network.chat.Component
 import org.lwjgl.glfw.GLFW
@@ -214,6 +215,14 @@ class UnityTranslateClient : ClientModInitializer {
                 .append(component)
 
             Minecraft.getInstance().gui.chat.addMessage(full)
+        }
+
+        fun renderCreditText(guiGraphics: GuiGraphics) {
+            val version = UnityTranslate.modContainer.metadata.version.friendlyString
+            val font = Minecraft.getInstance().font
+
+            guiGraphics.drawString(font, "UnityTranslate v$version", 2, Minecraft.getInstance().window.guiScaledHeight - (font.lineHeight * 2) - 4, 0xAAAAAA)
+            guiGraphics.drawString(font, Component.translatable("unitytranslate.credit.author"), 2, Minecraft.getInstance().window.guiScaledHeight - font.lineHeight - 2, 0xAAAAAA)
         }
     }
 }

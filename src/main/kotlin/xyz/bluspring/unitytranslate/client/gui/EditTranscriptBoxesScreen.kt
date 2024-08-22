@@ -157,6 +157,8 @@ class EditTranscriptBoxesScreen(val boxes: MutableList<TranscriptBox>, val paren
         }
 
         super.render(guiGraphics, mouseX, mouseY, partialTick)
+
+        UnityTranslateClient.renderCreditText(guiGraphics)
     }
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
