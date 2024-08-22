@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.network.chat.Component
 import net.minecraft.util.FastColor
+import net.minecraft.util.Mth
 import net.minecraft.world.entity.player.Player
 import xyz.bluspring.unitytranslate.Language
 import xyz.bluspring.unitytranslate.UnityTranslate
@@ -64,7 +65,7 @@ data class TranscriptBox(
     @Transient
     val transcripts = ConcurrentLinkedQueue<Transcript>()
 
-    fun render(guiGraphics: GuiGraphics) {
+    fun render(guiGraphics: GuiGraphics, partialTick: Float) {
         guiGraphics.pose().pushPose()
 
         guiGraphics.pose().translate(0.0, 0.0, -255.0)
@@ -76,24 +77,7 @@ data class TranscriptBox(
 
         guiGraphics.enableScissor(x, y + 15, x + width, y + height)
 
-        val lines = transcripts.sortedByDescending { it.lastUpdateTime }.map {
-            Component.empty()
-                .append("<")
-                .append(it.player.displayName)
-                .append(
-                    Component.literal(" (${it.language.code.uppercase(Locale.ENGLISH)})")
-                        .withStyle(ChatFormatting.GREEN)
-                )
-                .append("> ")
-                .append(
-                    Component.literal(it.text)
-                        .apply {
-                            if (it.incomplete) {
-                                this.withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC)
-                            }
-                        }
-                )
-        }
+        val lines = transcripts.sortedByDescending { it.lastUpdateTime }
 
         val font = Minecraft.getInstance().font
         val scale = UnityTranslate.config.client.textScale / 100f
@@ -101,7 +85,37 @@ data class TranscriptBox(
 
         var currentY = y + height - font.lineHeight
 
-        for (component in lines) {
+        for (transcript in lines) {
+            val component = Component.empty()
+                .append("<")
+                .append(transcript.player.displayName)
+                .append(
+                    Component.literal(" (${transcript.language.code.uppercase(Locale.ENGLISH)})")
+                        .withStyle(ChatFormatting.GREEN)
+                )
+                .append("> ")
+                .append(
+                    Component.literal(transcript.text)
+                        .apply {
+                            if (transcript.incomplete) {
+                                this.withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC)
+                            }
+                        }
+                )
+
+            val currentTime = System.currentTimeMillis()
+            val delay = (UnityTranslate.config.client.disappearingTextDelay * 1000L).toLong()
+            if (UnityTranslate.config.client.disappearingText && currentTime >= transcript.arrivalTime + delay) {
+                val fadeTime = (UnityTranslate.config.client.disappearingTextFade * 1000L).toLong()
+
+                val fadeStart = transcript.arrivalTime + delay
+                val fadeEnd = fadeStart + fadeTime
+                val fadeAmount = ((currentTime - fadeEnd).toFloat() / fadeTime.toFloat())
+
+                val alpha = Mth.clamp(1f - fadeAmount, 0f, 1f)
+                guiGraphics.setColor(1f, 1f, 1f, alpha)
+            }
+
             val split = font.split(component, ((width - 5) * invScale).toInt()).reversed()
 
             for (line in split) {
@@ -112,6 +126,8 @@ data class TranscriptBox(
                 currentY -= (font.lineHeight * scale).toInt()
                 guiGraphics.pose().popPose()
             }
+
+            guiGraphics.setColor(1f, 1f, 1f, 1f)
 
             currentY -= 4
         }
@@ -135,6 +151,7 @@ data class TranscriptBox(
             transcript.lastUpdateTime = updateTime
             transcript.text = text
             transcript.incomplete = incomplete
+            transcript.arrivalTime = System.currentTimeMillis()
 
             return
         }

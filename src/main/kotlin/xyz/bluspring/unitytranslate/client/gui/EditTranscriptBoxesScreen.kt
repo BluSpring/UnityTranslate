@@ -95,7 +95,7 @@ class EditTranscriptBoxesScreen(val boxes: MutableList<TranscriptBox>, val paren
             this.renderBackground(guiGraphics)
 
             for (box in boxes) {
-                box.render(guiGraphics)
+                box.render(guiGraphics, partialTick)
             }
         }
 

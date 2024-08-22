@@ -9,5 +9,7 @@ data class Transcript(
     var text: String,
     val language: Language,
     var lastUpdateTime: Long,
-    var incomplete: Boolean
+    var incomplete: Boolean,
+
+    var arrivalTime: Long = System.currentTimeMillis()
 )

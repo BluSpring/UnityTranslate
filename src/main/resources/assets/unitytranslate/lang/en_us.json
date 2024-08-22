@@ -52,6 +52,12 @@
     "config.unitytranslate.client.openBrowserWithoutPrompt.desc": "When you join a world for the first time in a session, UnityTranslate will automatically open the browser for you without prompting you.",
     "config.unitytranslate.client.textScale": "Text Scale (%)",
     "config.unitytranslate.client.textScale.desc": "The scale of the text inside the transcript boxes.",
+    "config.unitytranslate.client.disappearingText": "Enable Disappearing Text?",
+    "config.unitytranslate.client.disappearingText.desc": "When this is enabled, transcripts will disappear after they are finished being spoken, following the text delay.",
+    "config.unitytranslate.client.disappearingTextDelay": "Disappearing Text Delay (seconds)",
+    "config.unitytranslate.client.disappearingTextDelay.desc": "The amount of time after a transcript is spoken until the text disappears.",
+    "config.unitytranslate.client.disappearingTextFade": "Disappearing Text Fade (seconds)",
+    "config.unitytranslate.client.disappearingTextFade.desc": "The fade-out time of a disappearing transcript text.",
 
     "gui.unitytranslate.config.common": "Common Config",
     "config.unitytranslate.common.batchTranslateInterval": "Batch Translation Interval (in seconds)",

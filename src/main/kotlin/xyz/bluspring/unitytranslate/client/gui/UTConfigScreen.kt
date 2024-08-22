@@ -11,6 +11,9 @@ import net.minecraft.util.FastColor
 import net.minecraft.util.Mth
 import xyz.bluspring.unitytranslate.UnityTranslate
 import xyz.bluspring.unitytranslate.client.UnityTranslateClient
+import xyz.bluspring.unitytranslate.config.DependsOn
+import xyz.bluspring.unitytranslate.config.FloatRange
+import xyz.bluspring.unitytranslate.config.IntRange
 import xyz.bluspring.unitytranslate.config.UnityTranslateConfig
 import xyz.bluspring.unitytranslate.duck.ScrollableWidget
 import xyz.bluspring.unitytranslate.mixin.AbstractWidgetAccessor
@@ -19,6 +22,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KVisibility
 import kotlin.reflect.full.declaredMembers
+import kotlin.reflect.full.findAnnotation
 
 class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("UnityTranslate")) {
     override fun init() {
@@ -90,6 +94,11 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
                 if (member !is KMutableProperty<*> || member.visibility != KVisibility.PUBLIC)
                     continue
 
+                val dependent = member.getter.findAnnotation<DependsOn>()
+                if (dependent != null && (configClass.declaredMembers.first { it.name == dependent.configName } as KMutableProperty<*>).getter.call(instance) != true) {
+                    continue
+                }
+
                 val name = StringWidget(Component.translatable("config.unitytranslate.$type.${member.name}"), font)
                 name.x = 35
                 name.y = y
@@ -109,6 +118,7 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
                     ) { btn ->
                         current = !current
                         member.setter.call(instance, current)
+                        rebuildWidgets()
 
                         btn.message = Component.translatable("unitytranslate.value.$current")
                             .withStyle(if (current) ChatFormatting.GREEN else ChatFormatting.RED)
@@ -203,8 +213,10 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
                         addArrows((this.width / 2 + 50).coerceAtMost(this.width - 10), y, index, actualValue)
                     }
                 } else if (value is Float) {
-                    val min = 0.5f
-                    val max = 5.0f
+                    val range = member.getter.findAnnotation<FloatRange>() ?: throw IllegalStateException("Missing range!")
+
+                    val min = range.from
+                    val max = range.to
 
                     addRenderableWidget(EditBox(font, this.width - Button.SMALL_WIDTH - 20, y - (Button.DEFAULT_HEIGHT / 2) + 4, Button.SMALL_WIDTH, Button.DEFAULT_HEIGHT, Component.empty())
                         .apply {
@@ -225,7 +237,7 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
                         })
 
                     addRenderableWidget(TextAndImageButton.builder(Component.empty(), UnityTranslate.id("textures/gui/arrow_up.png")) {
-                        member.setter.call(instance, Mth.clamp(value + 0.1f, min, max))
+                        member.setter.call(instance, Mth.clamp(value + range.increment, min, max))
                         this.rebuildWidgets()
                     }
                         .offset(0, 2)
@@ -247,7 +259,7 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
                     )
 
                     addRenderableWidget(TextAndImageButton.builder(Component.empty(), UnityTranslate.id("textures/gui/arrow_down.png")) {
-                        member.setter.call(instance, Mth.clamp(value - 0.1f, min, max))
+                        member.setter.call(instance, Mth.clamp(value - range.increment, min, max))
                         this.rebuildWidgets()
                     }
                         .offset(0, 2)
@@ -268,8 +280,10 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
                         }
                     )
                 } else if (value is Int) {
-                    val min = 10
-                    val max = 300
+                    val range = member.getter.findAnnotation<IntRange>() ?: throw IllegalStateException("Missing range!")
+
+                    val min = range.from
+                    val max = range.to
 
                     addRenderableWidget(EditBox(font, this.width - Button.SMALL_WIDTH - 20, y - (Button.DEFAULT_HEIGHT / 2) + 4, Button.SMALL_WIDTH, Button.DEFAULT_HEIGHT, Component.empty())
                         .apply {
@@ -282,7 +296,7 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
                         })
 
                     addRenderableWidget(TextAndImageButton.builder(Component.empty(), UnityTranslate.id("textures/gui/arrow_up.png")) {
-                        member.setter.call(instance, Mth.clamp(value + 10, min, max))
+                        member.setter.call(instance, Mth.clamp(value + range.increment, min, max))
                         this.rebuildWidgets()
                     }
                         .offset(0, 2)
@@ -304,7 +318,7 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
                     )
 
                     addRenderableWidget(TextAndImageButton.builder(Component.empty(), UnityTranslate.id("textures/gui/arrow_down.png")) {
-                        member.setter.call(instance, Mth.clamp(value - 10, min, max))
+                        member.setter.call(instance, Mth.clamp(value - range.increment, min, max))
                         this.rebuildWidgets()
                     }
                         .offset(0, 2)

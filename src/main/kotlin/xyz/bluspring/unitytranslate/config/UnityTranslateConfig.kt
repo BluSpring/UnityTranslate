@@ -17,12 +17,20 @@ data class UnityTranslateConfig(
         var openBrowserWithoutPrompt: Boolean = false,
         var muteTranscriptWhenVoiceChatMuted: Boolean = false,
 
-        //@Range(from = 10, to = 300)
+        @get:IntRange(from = 10, to = 300, increment = 10)
         var textScale: Int = 100,
 
         val transcriptBoxes: MutableList<TranscriptBox> = mutableListOf(),
         val transcriber: TranscriberType = TranscriberType.BROWSER,
-        var language: Language = Language.ENGLISH
+        var language: Language = Language.ENGLISH,
+
+        var disappearingText: Boolean = false,
+        @get:DependsOn("disappearingText")
+        @get:FloatRange(from = 0.2f, to = 60.0f, increment = 0.1f)
+        var disappearingTextDelay: Float = 20.0f,
+        @get:DependsOn("disappearingText")
+        @get:FloatRange(from = 0.0f, to = 5.0f, increment = 0.1f)
+        var disappearingTextFade: Float = 0.5f
     )
 
     @Serializable
@@ -44,7 +52,7 @@ data class UnityTranslateConfig(
         // Interval for when the batch translations will be sent.
         // This is done so redundant translations don't go through,
         // which puts unnecessary stress on the translation instances.
-        @Range(from = 0.5, to = 5.0)
+        @get:FloatRange(from = 0.5f, to = 5.0f, increment = 0.1f)
         var batchTranslateInterval: Float = 0.5f // 500ms
     )
 

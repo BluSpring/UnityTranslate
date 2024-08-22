@@ -35,7 +35,7 @@ class UnityTranslateClient : ClientModInitializer {
         HudRenderCallback.EVENT.register { guiGraphics, delta ->
             if (shouldRenderBoxes) {
                 for (languageBox in languageBoxes) {
-                    languageBox.render(guiGraphics)
+                    languageBox.render(guiGraphics, delta)
                 }
             }
         }
