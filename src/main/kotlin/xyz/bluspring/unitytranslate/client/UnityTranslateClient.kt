@@ -75,10 +75,21 @@ class UnityTranslateClient : ClientModInitializer {
             }
 
             // prune transcripts
+            val currentTime = System.currentTimeMillis()
             for (box in languageBoxes) {
                 if (box.transcripts.size > 50) {
                     for (i in 0..(box.transcripts.size - 50)) {
                         box.transcripts.remove()
+                    }
+                }
+
+                val clientConfig = UnityTranslate.config.client
+
+                if (clientConfig.disappearingText) {
+                    for (transcript in box.transcripts) {
+                        if (currentTime >= (transcript.arrivalTime + (clientConfig.disappearingTextDelay * 1000L).toLong() + (clientConfig.disappearingTextFade * 1000L).toLong())) {
+                            box.transcripts.remove(transcript)
+                        }
                     }
                 }
             }
