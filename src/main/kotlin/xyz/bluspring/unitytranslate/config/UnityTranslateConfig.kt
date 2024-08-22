@@ -37,7 +37,7 @@ data class UnityTranslateConfig(
     data class CommonConfig(
         var translatePriority: MutableList<TranslationPriority> = mutableListOf(
             TranslationPriority.CLIENT_GPU, // highest priority, prioritize using CUDA on the client-side.
-            TranslationPriority.SERVER_GPU, // if supported, use CUDA on the server-side.
+            //TranslationPriority.SERVER_GPU, // if supported, use CUDA on the server-side. // TODO: make this not fucking require LWJGL
             TranslationPriority.SERVER_CPU, // otherwise, translate on the CPU.
             TranslationPriority.OFFLOADED,  // use alternative servers if available
             TranslationPriority.CLIENT_CPU, // worst case scenario, use client CPU.
