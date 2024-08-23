@@ -93,7 +93,7 @@ open class LibreTranslateInstance(val url: String, private var weight: Int, val 
                 throw Exception("Failed to load ${this.url}/translate (code ${httpConn.responseCode})")
             } else {
                 val responseStream = httpConn.inputStream
-                val s = Scanner(responseStream).useDelimiter("\\A")
+                val s = Scanner(responseStream, "UTF-8").useDelimiter("\\A")
                 val response = if (s.hasNext()) s.next() else ""
 
                 return JsonParser.parseString(response).asJsonObject.get("translatedText").asString
