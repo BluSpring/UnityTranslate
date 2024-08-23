@@ -24,6 +24,8 @@ object TranslatorManager {
     private var timer: Timer = Timer("UnityTranslate Batch Translate Manager")
     private val queuedTranslations = ConcurrentLinkedQueue<Translation>()
 
+    private val MULTI_ASTERISK_REGEX = Regex("\\*+")
+
     var instances = ConcurrentLinkedDeque<LibreTranslateInstance>()
         private set
 
@@ -68,7 +70,7 @@ object TranslatorManager {
                 continue
             }
 
-            return translated
+            return translated.replace(MULTI_ASTERISK_REGEX, "**")
         }
 
         UnityTranslate.logger.warn("Failed to translate $line from $from to $to!")
