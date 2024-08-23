@@ -2,12 +2,14 @@ package xyz.bluspring.unitytranslate
 
 import kotlinx.serialization.json.Json
 import net.fabricmc.api.ModInitializer
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.ModContainer
 import net.minecraft.resources.ResourceLocation
 import org.slf4j.LoggerFactory
 import xyz.bluspring.unitytranslate.config.UnityTranslateConfig
 import xyz.bluspring.unitytranslate.network.UTServerNetworking
+import xyz.bluspring.unitytranslate.translator.LocalLibreTranslateInstance
 import xyz.bluspring.unitytranslate.translator.TranslatorManager
 import java.io.File
 
@@ -15,6 +17,10 @@ class UnityTranslate : ModInitializer {
     override fun onInitialize() {
         TranslatorManager.init()
         loadConfig()
+
+        ServerLifecycleEvents.SERVER_STOPPING.register {
+            LocalLibreTranslateInstance.killOpenInstances()
+        }
 
         UTServerNetworking.init()
     }

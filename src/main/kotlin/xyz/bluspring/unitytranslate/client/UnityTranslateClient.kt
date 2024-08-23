@@ -1,6 +1,7 @@
 package xyz.bluspring.unitytranslate.client
 
 import net.fabricmc.api.ClientModInitializer
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
@@ -22,6 +23,7 @@ import xyz.bluspring.unitytranslate.client.transcribers.SpeechTranscriber
 import xyz.bluspring.unitytranslate.client.transcribers.windows.sapi5.WindowsSpeechApiTranscriber
 import xyz.bluspring.unitytranslate.compat.talkballoons.TalkBalloonsCompat
 import xyz.bluspring.unitytranslate.network.UTClientNetworking
+import xyz.bluspring.unitytranslate.translator.LocalLibreTranslateInstance
 import xyz.bluspring.unitytranslate.translator.TranslatorManager
 import java.util.function.BiConsumer
 
@@ -94,6 +96,10 @@ class UnityTranslateClient : ClientModInitializer {
                     }
                 }
             }
+        }
+
+        ClientLifecycleEvents.CLIENT_STOPPING.register {
+            LocalLibreTranslateInstance.killOpenInstances()
         }
 
         UTClientNetworking.init()

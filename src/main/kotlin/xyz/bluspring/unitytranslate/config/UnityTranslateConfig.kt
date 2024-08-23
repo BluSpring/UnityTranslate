@@ -43,7 +43,12 @@ data class UnityTranslateConfig(
             TranslationPriority.CLIENT_CPU, // worst case scenario, use client CPU.
         ),
         var shouldUseCuda: Boolean = true,
+
         var shouldRunTranslationServer: Boolean = false,
+        @get:DependsOn("shouldRunTranslationServer")
+        @get:IntRange(from = 1, to = 8, increment = 1)
+        var libreTranslateThreads: Int = 4,
+
         var offloadServers: MutableList<OffloadedLibreTranslateServer> = mutableListOf(
             OffloadedLibreTranslateServer("https://libretranslate.devos.gay"),
             OffloadedLibreTranslateServer("https://trans.zillyhuhn.com"),

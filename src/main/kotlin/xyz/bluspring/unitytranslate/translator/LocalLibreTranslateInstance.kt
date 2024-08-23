@@ -34,8 +34,10 @@ class LocalLibreTranslateInstance private constructor(val process: Process, val 
     }
 
     companion object {
-        const val DOWNLOAD_URL = "https://nightly.link/BluSpring/LibreTranslate/workflows/build/main/{PLATFORM}%20Artifacts%20%28{TYPE}%29.zip"
+        const val DOWNLOAD_URL = "https://nightly.link/BluSpring/LibreTranslate/workflows/build/main/{PLATFORM}%20Artifacts%20%28{TYPE}%29.zip?completed=true"
         private var lastPid = -1L
+
+        val libreTranslateDir = File(FabricLoader.getInstance().gameDir.toFile(), ".unitytranslate")
 
         fun canRunLibreTranslate(): Boolean {
             val systemInfo = SystemInfo()
@@ -45,23 +47,62 @@ class LocalLibreTranslateInstance private constructor(val process: Process, val 
                     ((systemInfo.hardware.memory.total - Runtime.getRuntime().maxMemory()) / 1048576L) >= 2048
         }
 
+        fun killOpenInstances() {
+            if (lastPid == -1L)
+                return
+
+            ProcessHandle.of(lastPid)
+                .ifPresent {
+                    UnityTranslate.logger.info("Detected LibreTranslate instance ${lastPid}, killing.")
+                    it.destroyForcibly()
+
+                    lastPid = -1L
+                }
+        }
+
+        private fun clearDeadDirectories() {
+            val files = libreTranslateDir.listFiles()
+
+            if (files != null) {
+                for (file in files) {
+                    if (!file.isDirectory)
+                        continue
+
+                    if (file.name.startsWith("_MEI")) {
+                        if (!file.deleteRecursively()) {
+                            UnityTranslate.logger.warn("Failed to delete unused LibreTranslate directories, this may mean a dead LibreTranslate instance is running on your computer!")
+                            UnityTranslate.logger.warn("Please try to terminate any \"libretranslate.exe\" processes that you see running, then restart your game.")
+                        }
+                    }
+                }
+            }
+        }
+
         fun launchLibreTranslate(source: File, consumer: Consumer<LibreTranslateInstance>) {
             val port = if (HttpUtil.isPortAvailable(5000)) 5000 else HttpUtil.getAvailablePort()
 
             if (lastPid != -1L) {
-                ProcessHandle.of(lastPid)
-                    .ifPresent {
-                        UnityTranslate.logger.info("Detected LibreTranslate instance ${lastPid}, killing.")
-                        it.destroy()
-                    }
+                killOpenInstances()
             }
+
+            clearDeadDirectories()
 
             val processBuilder = ProcessBuilder(listOf(
                 source.absolutePath,
                 "--update-models",
                 "--port",
-                "$port"
+                "$port",
+                "--threads",
+                "${UnityTranslate.config.server.libreTranslateThreads}",
+                "--disable-web-ui",
+                "--disable-files-translation"
             ))
+
+            processBuilder.directory(libreTranslateDir)
+
+            processBuilder
+                .redirectOutput(ProcessBuilder.Redirect.INHERIT)
+                .redirectError(ProcessBuilder.Redirect.INHERIT)
 
             val process = processBuilder.start()
             lastPid = process.pid()
@@ -100,7 +141,7 @@ class LocalLibreTranslateInstance private constructor(val process: Process, val 
                 throw IllegalStateException("Unsupported platform! (Detected platform: $platform)")
             }
 
-            val file = File(FabricLoader.getInstance().gameDir.toFile(), ".unitytranslate/libretranslate${if (supportsCuda) "_cuda" else ""}${if (platform == Util.OS.WINDOWS) ".exe" else ""}")
+            val file = File(libreTranslateDir, "libretranslate/libretranslate${if (supportsCuda) "_cuda" else ""}${if (platform == Util.OS.WINDOWS) ".exe" else ""}")
             if (!file.parentFile.exists())
                 file.parentFile.mkdirs()
 
@@ -123,7 +164,7 @@ class LocalLibreTranslateInstance private constructor(val process: Process, val 
                         .replace("{TYPE}", if (supportsCuda) "CUDA" else "CPU")
                     )
 
-                    val archive = File(file.parentFile, "LibreTranslate_temp.zip")
+                    val archive = File(file.parentFile.parentFile, "LibreTranslate_temp.zip")
                     val fileStream = archive.outputStream()
                     val downloadStream = download.openStream()
                     downloadStream.transferTo(fileStream)
@@ -134,12 +175,21 @@ class LocalLibreTranslateInstance private constructor(val process: Process, val 
                     UnityTranslate.logger.info("Extracting LibreTranslate instance...")
 
                     val zip = ZipFile(archive)
-                    val extracted = zip.getInputStream(zip.getEntry(file.name))
-                    val extractStream = file.outputStream()
+                    for (entry in zip.entries()) {
+                        val extracted = File(file.parentFile, entry.name)
+                        if (entry.isDirectory)
+                            extracted.mkdirs()
+                        else {
+                            extracted.parentFile.mkdirs()
 
-                    extracted.transferTo(extractStream)
-                    extractStream.close()
-                    extracted.close()
+                            val stream = zip.getInputStream(entry)
+                            val extractStream = extracted.outputStream()
+
+                            stream.transferTo(extractStream)
+                            extractStream.close()
+                            stream.close()
+                        }
+                    }
 
                     zip.close()
 

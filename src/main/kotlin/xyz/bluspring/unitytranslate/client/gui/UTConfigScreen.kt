@@ -285,7 +285,11 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
                     val range = member.getter.findAnnotation<IntRange>() ?: throw IllegalStateException("Missing range!")
 
                     val min = range.from
-                    val max = range.to
+                    val max = range.to.run {
+                        if (member.name == "libreTranslateThreads") {
+                            Mth.clamp(this, 1, Runtime.getRuntime().availableProcessors() - 2)
+                        } else this
+                    }
 
                     addRenderableWidget(EditBox(font, this.width - Button.SMALL_WIDTH - 20, y - (Button.DEFAULT_HEIGHT / 2) + 4, Button.SMALL_WIDTH, Button.DEFAULT_HEIGHT, Component.empty())
                         .apply {
