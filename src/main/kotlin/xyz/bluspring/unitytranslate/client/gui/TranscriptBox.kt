@@ -11,6 +11,7 @@ import net.minecraft.util.Mth
 import net.minecraft.world.entity.player.Player
 import xyz.bluspring.unitytranslate.Language
 import xyz.bluspring.unitytranslate.UnityTranslate
+import xyz.bluspring.unitytranslate.events.TranscriptEvents
 import xyz.bluspring.unitytranslate.transcript.Transcript
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -153,9 +154,13 @@ data class TranscriptBox(
             transcript.incomplete = incomplete
             transcript.arrivalTime = System.currentTimeMillis()
 
+            TranscriptEvents.UPDATE.invoker().onTranscriptUpdate(transcript, this@TranscriptBox.language)
+
             return
         }
 
-        this.transcripts.add(Transcript(index, source, text, language, updateTime, incomplete))
+        this.transcripts.add(Transcript(index, source, text, language, updateTime, incomplete).apply {
+            TranscriptEvents.UPDATE.invoker().onTranscriptUpdate(this, this@TranscriptBox.language)
+        })
     }
 }

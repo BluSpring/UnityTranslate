@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
+import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.ChatFormatting
 import net.minecraft.client.KeyMapping
 import net.minecraft.client.Minecraft
@@ -19,6 +20,7 @@ import xyz.bluspring.unitytranslate.client.gui.LanguageSelectScreen
 import xyz.bluspring.unitytranslate.client.gui.TranscriptBox
 import xyz.bluspring.unitytranslate.client.transcribers.SpeechTranscriber
 import xyz.bluspring.unitytranslate.client.transcribers.windows.sapi5.WindowsSpeechApiTranscriber
+import xyz.bluspring.unitytranslate.compat.talkballoons.TalkBalloonsCompat
 import xyz.bluspring.unitytranslate.network.UTClientNetworking
 import xyz.bluspring.unitytranslate.translator.TranslatorManager
 import java.util.function.BiConsumer
@@ -26,6 +28,7 @@ import java.util.function.BiConsumer
 class UnityTranslateClient : ClientModInitializer {
     override fun onInitializeClient() {
         WindowsSpeechApiTranscriber.isSupported() // runs a check to load Windows Speech API. why write the code again anyway?
+        setupCompat()
 
         transcriber = UnityTranslate.config.client.transcriber.creator.invoke(UnityTranslate.config.client.language)
         setupTranscriber(transcriber)
@@ -132,6 +135,12 @@ class UnityTranslateClient : ClientModInitializer {
                         }
                 }
             }
+        }
+    }
+
+    private fun setupCompat() {
+        if (FabricLoader.getInstance().isModLoaded("talk_balloons")) {
+            TalkBalloonsCompat.init()
         }
     }
 

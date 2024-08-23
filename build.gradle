@@ -71,6 +71,13 @@ dependencies {
 
     implementation "de.maxhenkel.voicechat:voicechat-api:${voicechat_api_version}"
     modRuntimeOnly "maven.modrinth:simple-voice-chat:fabric-${voicechat_version}"
+
+    include(implementation("com.moulberry:mixinconstraints:1.0.1"))
+
+    modImplementation("maven.modrinth:talk-balloons:1.0.0")
+    // don't use anything from here. this is only for Talk Balloons compat.
+    modImplementation("maven.modrinth:cloth-config:11.1.118+fabric")
+    modCompileOnly("maven.modrinth:cerbons-api:1.1.0")
 }
 
 processResources {
