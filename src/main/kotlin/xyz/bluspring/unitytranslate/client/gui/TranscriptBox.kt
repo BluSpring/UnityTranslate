@@ -110,9 +110,9 @@ data class TranscriptBox(
 
                 val fadeStart = transcript.arrivalTime + delay
                 val fadeEnd = fadeStart + fadeTime
-                val fadeAmount = ((currentTime - fadeEnd).toFloat() / fadeTime.toFloat())
+                val fadeAmount = ((fadeEnd - currentTime).toFloat() / fadeTime.toFloat())
 
-                val alpha = Mth.clamp(1f - fadeAmount, 0f, 1f)
+                val alpha = Mth.clamp(fadeAmount, 0f, 1f)
                 guiGraphics.setColor(1f, 1f, 1f, alpha)
             }
 
