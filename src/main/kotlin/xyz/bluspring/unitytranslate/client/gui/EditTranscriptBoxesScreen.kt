@@ -60,8 +60,15 @@ class EditTranscriptBoxesScreen(val boxes: MutableList<TranscriptBox>, val paren
 
         if (UnityTranslateClient.languageBoxes.isNotEmpty()) {
             val buf = PacketByteBufs.create()
+
+            val languages = UnityTranslateClient.languageBoxes.map { it.language }.toMutableList()
+
+            if (!languages.contains(UnityTranslate.config.client.language)) {
+                languages.add(UnityTranslate.config.client.language)
+            }
+
             buf.writeEnumSet(
-                EnumSet.copyOf(UnityTranslateClient.languageBoxes.map { it.language }),
+                EnumSet.copyOf(languages),
                 Language::class.java
             )
 

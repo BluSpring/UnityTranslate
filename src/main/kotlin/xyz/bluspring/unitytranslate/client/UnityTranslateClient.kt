@@ -145,7 +145,7 @@ class UnityTranslateClient : ClientModInitializer {
     }
 
     private fun setupCompat() {
-        if (FabricLoader.getInstance().isModLoaded("talk_balloons")) {
+        if (isTalkBalloonsInstalled) {
             TalkBalloonsCompat.init()
         }
     }
@@ -168,6 +168,8 @@ class UnityTranslateClient : ClientModInitializer {
         val TOGGLE_BOXES = KeyBindingHelper.registerKeyBinding(KeyMapping("unitytranslate.toggle_boxes", -1, "UnityTranslate"))
         val SET_SPOKEN_LANGUAGE = KeyBindingHelper.registerKeyBinding(KeyMapping("unitytranslate.set_spoken_language", -1, "UnityTranslate"))
         val CLEAR_TRANSCRIPTS = KeyBindingHelper.registerKeyBinding(KeyMapping("unitytranslate.clear_transcripts", -1, "UnityTranslate"))
+
+        val isTalkBalloonsInstalled = FabricLoader.getInstance().isModLoaded("talk_balloons")
 
         fun displayMessage(component: Component, isError: Boolean = false) {
             val full = Component.empty()

@@ -5,9 +5,13 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
 import xyz.bluspring.unitytranslate.Language
 import xyz.bluspring.unitytranslate.PacketIds
+import xyz.bluspring.unitytranslate.UnityTranslate
+import xyz.bluspring.unitytranslate.client.UnityTranslateClient
 import xyz.bluspring.unitytranslate.client.UnityTranslateClient.Companion.connectedServerHasSupport
 import xyz.bluspring.unitytranslate.client.UnityTranslateClient.Companion.languageBoxes
 import xyz.bluspring.unitytranslate.client.UnityTranslateClient.Companion.transcriber
+import xyz.bluspring.unitytranslate.events.TranscriptEvents
+import xyz.bluspring.unitytranslate.transcript.Transcript
 import java.util.*
 
 object UTClientNetworking {
@@ -50,6 +54,10 @@ object UTClientNetworking {
 
                 val box = boxes.firstOrNull { it.language == language }
                 box?.updateTranscript(source, text, sourceLanguage, index, updateTime, false)
+
+                if (box == null) {
+                    TranscriptEvents.UPDATE.invoker().onTranscriptUpdate(Transcript(index, source, text, language, updateTime, false), language)
+                }
             }
         }
 
