@@ -44,7 +44,7 @@ data class UnityTranslateConfig(
         ),
         var shouldUseCuda: Boolean = true,
 
-        var shouldRunTranslationServer: Boolean = false,
+        var shouldRunTranslationServer: Boolean = true,
         @get:DependsOn("shouldRunTranslationServer")
         @get:IntRange(from = 1, to = 128, increment = 1)
         var libreTranslateThreads: Int = 4,
