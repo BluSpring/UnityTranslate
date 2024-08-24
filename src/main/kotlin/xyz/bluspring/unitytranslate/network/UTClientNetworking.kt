@@ -45,7 +45,7 @@ object UTClientNetworking {
                 val language = buf.readEnum(Language::class.java)
                 val text = buf.readUtf()
 
-                if (language == transcriber.language)
+                if (language == transcriber.language && sourceId == client.player?.uuid)
                     continue
 
                 val box = boxes.firstOrNull { it.language == language }

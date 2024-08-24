@@ -2,6 +2,8 @@ package xyz.bluspring.unitytranslate.translator
 
 import com.google.common.collect.HashMultimap
 import com.google.common.collect.Multimap
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import net.minecraft.util.random.Weight
 import net.minecraft.util.random.WeightedEntry
@@ -56,6 +58,56 @@ open class LibreTranslateInstance(val url: String, private var weight: Int, val 
         return supportedTargets.contains(to)
     }
 
+    fun batchTranslate(texts: List<String>, from: Language, to: Language): List<String>? {
+        if (!supportsLanguage(from, to))
+            return null
+
+        return try {
+            batchTranslate(from.code, to.code, texts)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    open fun batchTranslate(from: String, to: String, request: List<String>): List<String> {
+        val url = URL("$url/translate")
+        val httpConn = url.openConnection() as HttpURLConnection
+        httpConn.requestMethod = "POST"
+        httpConn.setRequestProperty("accept", "application/json")
+        httpConn.setRequestProperty("Content-Type", "application/json")
+        httpConn.doOutput = true
+
+        val writer = OutputStreamWriter(httpConn.outputStream)
+
+        writer.write(JsonObject().apply {
+            addProperty("source", from)
+            addProperty("target", to)
+            add("q", JsonArray().apply {
+                for (s in request) {
+                    this.add(s)
+                }
+            })
+
+            if (authKey?.isNotBlank() == true)
+                addProperty("api_key", authKey)
+        }.toString())
+
+        writer.flush()
+        writer.close()
+        httpConn.outputStream.close()
+        if (httpConn.responseCode / 100 != 2) {
+            throw Exception("Failed to load ${this.url}/translate (code ${httpConn.responseCode})")
+        } else {
+            val responseStream = httpConn.inputStream
+            val s = Scanner(responseStream, "UTF-8").useDelimiter("\\A")
+            val response = if (s.hasNext()) s.next() else ""
+
+            val translated = JsonParser.parseString(response).asJsonObject.get("translatedText").asJsonArray
+            
+            return translated.map { it.asString }
+        }
+    }
+
     fun translate(text: String, from: Language, to: Language): String? {
         if (!supportsLanguage(from, to))
             return null
@@ -69,37 +121,33 @@ open class LibreTranslateInstance(val url: String, private var weight: Int, val 
 
     // Copied from LibreTranslate-Java, there were race conditions everywhere.
     open fun translate(from: String, to: String, request: String): String {
-        try {
-            val url = URL("$url/translate")
-            val httpConn = url.openConnection() as HttpURLConnection
-            httpConn.requestMethod = "POST"
-            httpConn.setRequestProperty("accept", "application/json")
-            httpConn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
-            httpConn.doOutput = true
+        val url = URL("$url/translate")
+        val httpConn = url.openConnection() as HttpURLConnection
+        httpConn.requestMethod = "POST"
+        httpConn.setRequestProperty("accept", "application/json")
+        httpConn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
+        httpConn.doOutput = true
 
-            val writer = OutputStreamWriter(httpConn.outputStream)
-            writer.write(
-                "q=" + URLEncoder.encode(
-                    request,
-                    "UTF-8"
-                ) + "&source=" + from + "&target=" + to + "&format=text" +
-                if (authKey?.isNotBlank() == true) "&api_key=$authKey" else ""
-            )
+        val writer = OutputStreamWriter(httpConn.outputStream)
+        writer.write(
+            "q=" + URLEncoder.encode(
+                request,
+                "UTF-8"
+            ) + "&source=" + from + "&target=" + to + "&format=text" +
+                    if (authKey?.isNotBlank() == true) "&api_key=$authKey" else ""
+        )
 
-            writer.flush()
-            writer.close()
-            httpConn.outputStream.close()
-            if (httpConn.responseCode / 100 != 2) {
-                throw Exception("Failed to load ${this.url}/translate (code ${httpConn.responseCode})")
-            } else {
-                val responseStream = httpConn.inputStream
-                val s = Scanner(responseStream, "UTF-8").useDelimiter("\\A")
-                val response = if (s.hasNext()) s.next() else ""
+        writer.flush()
+        writer.close()
+        httpConn.outputStream.close()
+        if (httpConn.responseCode / 100 != 2) {
+            throw Exception("Failed to load ${this.url}/translate (code ${httpConn.responseCode})")
+        } else {
+            val responseStream = httpConn.inputStream
+            val s = Scanner(responseStream, "UTF-8").useDelimiter("\\A")
+            val response = if (s.hasNext()) s.next() else ""
 
-                return JsonParser.parseString(response).asJsonObject.get("translatedText").asString
-            }
-        } catch (e: Throwable) {
-            throw RuntimeException(e)
+            return JsonParser.parseString(response).asJsonObject.get("translatedText").asString
         }
     }
 

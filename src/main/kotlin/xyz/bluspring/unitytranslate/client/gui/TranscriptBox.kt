@@ -78,7 +78,7 @@ data class TranscriptBox(
 
         guiGraphics.enableScissor(x, y + 15, x + width, y + height)
 
-        val lines = transcripts.sortedByDescending { it.lastUpdateTime }
+        val lines = transcripts.sortedByDescending { it.arrivalTime }
 
         val font = Minecraft.getInstance().font
         val scale = UnityTranslate.config.client.textScale / 100f

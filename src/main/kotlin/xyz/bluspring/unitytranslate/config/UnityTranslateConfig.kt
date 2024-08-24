@@ -46,7 +46,7 @@ data class UnityTranslateConfig(
 
         var shouldRunTranslationServer: Boolean = false,
         @get:DependsOn("shouldRunTranslationServer")
-        @get:IntRange(from = 1, to = 8, increment = 1)
+        @get:IntRange(from = 1, to = 128, increment = 1)
         var libreTranslateThreads: Int = 4,
 
         var offloadServers: MutableList<OffloadedLibreTranslateServer> = mutableListOf(
