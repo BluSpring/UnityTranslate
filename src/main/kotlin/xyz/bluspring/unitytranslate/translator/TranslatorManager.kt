@@ -296,7 +296,13 @@ object TranslatorManager {
                         .add(translation)
                 }
 
-                toTranslate.forEach { (from, to), translations ->
+                toTranslate.forEach { (from, to), allTranslations ->
+                    val translations = allTranslations.filter {
+                        if (it.player is ServerPlayer)
+                            !it.player.hasDisconnected()
+                        else true
+                    }
+
                     CompletableFuture.supplyAsync {
                         batchTranslateLines(translations.map { it.text }, from, to)
                     }
