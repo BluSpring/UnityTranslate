@@ -70,6 +70,8 @@
     "config.unitytranslate.common.offloadServers.api_key.desc": "The API key for the LibreTranslate server. May be blank.",
     "config.unitytranslate.common.shouldRunTranslationServer": "Should Run Translation Server?",
     "config.unitytranslate.common.shouldRunTranslationServer.desc": "Should UnityTranslate automatically start a local LibreTranslate server?",
+    "config.unitytranslate.common.libreTranslateThreads": "Translation Server Threads",
+    "config.unitytranslate.common.libreTranslateThreads.desc": "Defines how many threads should be used for the local LibreTranslate server. You'd want to set this to be as high as possible, however you'd also want to leave enough for your operating system and your programs.\n\nDo not modify this if you don't understand what it means.",
     "config.unitytranslate.common.shouldUseCuda": "Should use CUDA?",
     "config.unitytranslate.common.shouldUseCuda.desc": "Should the local LibreTranslate server utilize CUDA for accelerated translations? Only supports NVIDIA GTX 900 graphics cards or newer, any older graphics cards or different vendors may not be supported.",
     "config.unitytranslate.common.translatePriority": "Translation Priority",
