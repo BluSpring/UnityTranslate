@@ -165,6 +165,12 @@ class LocalLibreTranslateInstance private constructor(val process: Process, val 
                     )
 
                     val archive = File(file.parentFile.parentFile, "LibreTranslate_temp.zip")
+
+                    if (archive.exists()) {
+                        archive.delete()
+                    }
+
+                    archive.deleteOnExit()
                     val fileStream = archive.outputStream()
                     val downloadStream = download.openStream()
                     downloadStream.transferTo(fileStream)
