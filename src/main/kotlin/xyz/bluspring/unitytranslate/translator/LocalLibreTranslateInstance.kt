@@ -100,6 +100,10 @@ class LocalLibreTranslateInstance private constructor(val process: Process, val 
 
             processBuilder.directory(libreTranslateDir)
 
+            val environment = processBuilder.environment()
+            environment["PYTHONIOENCODING"] = "utf-8"
+            environment["PYTHONLEGACYWINDOWSSTDIO"] = "utf-8"
+
             processBuilder
                 .redirectOutput(ProcessBuilder.Redirect.INHERIT)
                 .redirectError(ProcessBuilder.Redirect.INHERIT)
