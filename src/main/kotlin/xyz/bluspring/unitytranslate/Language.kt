@@ -99,6 +99,51 @@ enum class Language(
     )),
     UKRAINIAN("uk", mapOf(
         TranscriberType.BROWSER to "uk"
+    )),
+    BULGARIAN("bg", mapOf(
+        TranscriberType.BROWSER to "bg"
+    )),
+    ALBANIAN("sq", mapOf(
+        TranscriberType.BROWSER to "sq"
+    )),
+    AZERBAIJANI("az", mapOf(
+        TranscriberType.BROWSER to "az"
+    )),
+    BENGALI("bn", mapOf(
+        TranscriberType.BROWSER to "bn"
+    )),
+    CATALAN("ca", mapOf(
+        TranscriberType.BROWSER to "ca"
+    )),
+    ESPERANTO("eo", mapOf(
+        TranscriberType.BROWSER to "eo"
+    )),
+    ESTONIAN("et", mapOf(
+        TranscriberType.BROWSER to "et"
+    )),
+    IRISH("ga", mapOf(
+        TranscriberType.BROWSER to "ga"
+    )),
+    LATVIAN("lv", mapOf(
+        TranscriberType.BROWSER to "lv"
+    )),
+    LITHUANIAN("lt", mapOf(
+        TranscriberType.BROWSER to "lt"
+    )),
+    PERSIAN("fa", mapOf(
+        TranscriberType.BROWSER to "fa"
+    )),
+    ROMANIAN("ro", mapOf(
+        TranscriberType.BROWSER to "ro"
+    )),
+    SLOVAK("sk", mapOf(
+        TranscriberType.BROWSER to "sk"
+    )),
+    SLOVENIAN("sl", mapOf(
+        TranscriberType.BROWSER to "sl"
+    )),
+    URDU("ur", mapOf(
+        TranscriberType.BROWSER to "ur"
     ));
 
     override fun toString(): String {
