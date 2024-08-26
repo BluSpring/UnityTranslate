@@ -15,7 +15,7 @@ data class UnityTranslateConfig(
     data class ClientConfig(
         var enabled: Boolean = true,
         var openBrowserWithoutPrompt: Boolean = false,
-        var muteTranscriptWhenVoiceChatMuted: Boolean = false,
+        var muteTranscriptWhenVoiceChatMuted: Boolean = true,
 
         @get:IntRange(from = 10, to = 300, increment = 10)
         var textScale: Int = 100,
