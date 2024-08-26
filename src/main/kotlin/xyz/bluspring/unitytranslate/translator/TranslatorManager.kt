@@ -277,7 +277,7 @@ object TranslatorManager {
         for (server in UnityTranslate.config.server.offloadServers) {
             try {
                 val instance = LibreTranslateInstance(server.url, server.weight, server.authKey)
-                list.add(instance)
+                list.add(0, instance)
             } catch (e: Exception) {
                 UnityTranslate.logger.error("Failed to load an offloaded server instance!")
                 e.printStackTrace()
