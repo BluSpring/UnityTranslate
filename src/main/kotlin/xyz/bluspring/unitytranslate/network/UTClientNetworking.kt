@@ -38,10 +38,12 @@ object UTClientNetworking {
                 if (transcriber is BrowserSpeechTranscriber && transcriber.socket.totalConnections <= 0) {
                     val serverPort = transcriber.serverPort
 
-                    if (UnityTranslate.config.client.openBrowserWithoutPrompt) {
-                        Util.getPlatform().openUri("http://127.0.0.1:$serverPort")
-                    } else {
-                        client.setScreen(OpenBrowserScreen("http://127.0.0.1:$serverPort"))
+                    client.execute {
+                        if (UnityTranslate.config.client.openBrowserWithoutPrompt) {
+                            Util.getPlatform().openUri("http://127.0.0.1:$serverPort")
+                        } else {
+                            client.setScreen(OpenBrowserScreen("http://127.0.0.1:$serverPort"))
+                        }
                     }
                 }
             }
