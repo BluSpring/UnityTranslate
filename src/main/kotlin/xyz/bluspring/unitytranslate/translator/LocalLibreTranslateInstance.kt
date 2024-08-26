@@ -104,9 +104,11 @@ class LocalLibreTranslateInstance private constructor(val process: Process, val 
             environment["PYTHONIOENCODING"] = "utf-8"
             environment["PYTHONLEGACYWINDOWSSTDIO"] = "utf-8"
 
-            processBuilder
-                .redirectOutput(ProcessBuilder.Redirect.INHERIT)
-                .redirectError(ProcessBuilder.Redirect.INHERIT)
+            if (FabricLoader.getInstance().isDevelopmentEnvironment || System.getenv("unitytranslate.enableLogging") == "true") {
+                processBuilder
+                    .redirectOutput(ProcessBuilder.Redirect.INHERIT)
+                    .redirectError(ProcessBuilder.Redirect.INHERIT)
+            }
 
             val process = processBuilder.start()
             lastPid = process.pid()
