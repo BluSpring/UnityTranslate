@@ -257,7 +257,7 @@ class EditTranscriptBoxesScreen(val boxes: MutableList<TranscriptBox>, val paren
 
                 if (!mode.contains(MoveMode.END_X)) {
                     ctx.newWidth -= mouseX - ctx.lastMouseX
-                    ctx.newWidth = Mth.clamp(ctx.newWidth, 2.0, this.minecraft!!.window.guiScaledWidth.toDouble())
+                    ctx.newWidth = Mth.clamp(ctx.newWidth, 12.0, this.minecraft!!.window.guiScaledWidth.toDouble())
                 }
 
                 ctx.box.x = ctx.newX.toInt()
@@ -266,7 +266,7 @@ class EditTranscriptBoxesScreen(val boxes: MutableList<TranscriptBox>, val paren
 
             if (mode.contains(MoveMode.END_X) && !mode.contains(MoveMode.START_X)) {
                 ctx.newWidth += mouseX - ctx.lastMouseX
-                ctx.newWidth = Mth.clamp(ctx.newWidth, 2.0, this.minecraft!!.window.guiScaledWidth.toDouble())
+                ctx.newWidth = Mth.clamp(ctx.newWidth, 12.0, this.minecraft!!.window.guiScaledWidth.toDouble())
                 ctx.box.width = ctx.newWidth.toInt()
             }
 
@@ -276,7 +276,7 @@ class EditTranscriptBoxesScreen(val boxes: MutableList<TranscriptBox>, val paren
 
                 if (!mode.contains(MoveMode.END_Y)) {
                     ctx.newHeight -= mouseY - ctx.lastMouseY
-                    ctx.newHeight = Mth.clamp(ctx.newHeight, 2.0, this.minecraft!!.window.guiScaledHeight.toDouble())
+                    ctx.newHeight = Mth.clamp(ctx.newHeight, 12.0, this.minecraft!!.window.guiScaledHeight.toDouble())
                 }
 
                 ctx.box.y = ctx.newY.toInt()
@@ -285,7 +285,7 @@ class EditTranscriptBoxesScreen(val boxes: MutableList<TranscriptBox>, val paren
 
             if (mode.contains(MoveMode.END_Y) && !mode.contains(MoveMode.START_Y)) {
                 ctx.newHeight += mouseY - ctx.lastMouseY
-                ctx.newHeight = Mth.clamp(ctx.newHeight, 2.0, this.minecraft!!.window.guiScaledHeight.toDouble())
+                ctx.newHeight = Mth.clamp(ctx.newHeight, 12.0, this.minecraft!!.window.guiScaledHeight.toDouble())
                 ctx.box.height = ctx.newHeight.toInt()
             }
 
