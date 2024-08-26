@@ -77,7 +77,7 @@ open class LibreTranslateInstance(val url: String, private var weight: Int, val 
         httpConn.setRequestProperty("Content-Type", "application/json")
         httpConn.doOutput = true
 
-        val writer = OutputStreamWriter(httpConn.outputStream)
+        val writer = OutputStreamWriter(httpConn.outputStream, "UTF-8")
 
         writer.write(JsonObject().apply {
             addProperty("source", from)
