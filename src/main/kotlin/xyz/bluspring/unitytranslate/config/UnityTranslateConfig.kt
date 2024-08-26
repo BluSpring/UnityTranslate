@@ -13,7 +13,7 @@ data class UnityTranslateConfig(
 ) {
     @Serializable
     data class ClientConfig(
-        var enabled: Boolean = true,
+        var enabled: Boolean = false,
         var openBrowserWithoutPrompt: Boolean = false,
         var muteTranscriptWhenVoiceChatMuted: Boolean = true,
 
@@ -58,7 +58,10 @@ data class UnityTranslateConfig(
         // This is done so redundant translations don't go through,
         // which puts unnecessary stress on the translation instances.
         @get:FloatRange(from = 0.5f, to = 5.0f, increment = 0.1f)
-        var batchTranslateInterval: Float = 0.5f // 500ms
+        var batchTranslateInterval: Float = 0.5f, // 500ms
+
+        // TODO: Unity MP exclusive, remove later
+        var enabled: Boolean = false,
     )
 
     @Serializable

@@ -36,6 +36,7 @@ class LocalLibreTranslateInstance private constructor(val process: Process, val 
     companion object {
         const val DOWNLOAD_URL = "https://nightly.link/BluSpring/LibreTranslate/workflows/build/main/{PLATFORM}%20Artifacts%20%28{TYPE}%29.zip?completed=true"
         private var lastPid = -1L
+        var hasStarted = false
 
         val libreTranslateDir = File(FabricLoader.getInstance().gameDir.toFile(), ".unitytranslate")
 
@@ -114,7 +115,6 @@ class LocalLibreTranslateInstance private constructor(val process: Process, val 
             lastPid = process.pid()
 
             val timer = Timer()
-            var hasStarted = false
 
             process.onExit()
                 .whenCompleteAsync { process, e ->
@@ -124,6 +124,8 @@ class LocalLibreTranslateInstance private constructor(val process: Process, val 
                         timer.cancel()
                         UnityTranslate.logger.warn("LibreTranslate appears to have exited with code ${process.exitValue()}, not proceeding with local translator instance.")
                     }
+
+                    hasStarted = false
                 }
 
             var attempts = 0

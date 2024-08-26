@@ -14,7 +14,7 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.network.chat.CommonComponents
 import net.minecraft.network.chat.Component
-import xyz.bluspring.unitytranslate.PacketIds
+import xyz.bluspring.unitytranslate.network.PacketIds
 import xyz.bluspring.unitytranslate.UnityTranslate
 import xyz.bluspring.unitytranslate.client.gui.EditTranscriptBoxesScreen
 import xyz.bluspring.unitytranslate.client.gui.LanguageSelectScreen
@@ -36,7 +36,7 @@ class UnityTranslateClient : ClientModInitializer {
         setupTranscriber(transcriber)
 
         HudRenderCallback.EVENT.register { guiGraphics, delta ->
-            if (shouldRenderBoxes) {
+            if (shouldRenderBoxes && UnityTranslate.config.client.enabled) {
                 for (languageBox in languageBoxes) {
                     languageBox.render(guiGraphics, delta)
                 }

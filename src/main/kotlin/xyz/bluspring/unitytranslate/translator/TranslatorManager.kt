@@ -1,8 +1,5 @@
 package xyz.bluspring.unitytranslate.translator
 
-import com.google.common.collect.HashMultimap
-import com.google.common.collect.Multimap
-import com.google.common.collect.Multimaps
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
@@ -15,7 +12,7 @@ import org.lwjgl.system.JNI
 import org.lwjgl.system.MemoryUtil
 import org.lwjgl.system.SharedLibrary
 import xyz.bluspring.unitytranslate.Language
-import xyz.bluspring.unitytranslate.PacketIds
+import xyz.bluspring.unitytranslate.network.PacketIds
 import xyz.bluspring.unitytranslate.UnityTranslate
 import xyz.bluspring.unitytranslate.UnityTranslate.Companion.hasVoiceChat
 import xyz.bluspring.unitytranslate.compat.voicechat.UTVoiceChatCompat
@@ -26,7 +23,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 
 object TranslatorManager {
     private var timer: Timer = Timer("UnityTranslate Batch Translate Manager")
-    private val queuedTranslations = ConcurrentLinkedQueue<Translation>()
+    internal val queuedTranslations = ConcurrentLinkedQueue<Translation>()
 
     private val MULTI_ASTERISK_REGEX = Regex("\\*+")
 

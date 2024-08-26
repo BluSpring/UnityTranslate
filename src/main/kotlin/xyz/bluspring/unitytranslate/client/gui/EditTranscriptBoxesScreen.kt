@@ -13,7 +13,7 @@ import net.minecraft.util.FastColor
 import net.minecraft.util.Mth
 import org.lwjgl.glfw.GLFW
 import xyz.bluspring.unitytranslate.Language
-import xyz.bluspring.unitytranslate.PacketIds
+import xyz.bluspring.unitytranslate.network.PacketIds
 import xyz.bluspring.unitytranslate.UnityTranslate
 import xyz.bluspring.unitytranslate.client.UnityTranslateClient
 import java.util.*
