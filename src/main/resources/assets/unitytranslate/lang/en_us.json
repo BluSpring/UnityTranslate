@@ -126,5 +126,5 @@
     "unitytranslate.transcriber.browser.title": "UnityTranslate Browser Transcription",
     "unitytranslate.transcriber.browser.info": "This webpage is used to recognize words uttered in speech without requiring to pay for the cloud service. This typically allows for better results and wider language support, however it may also utilize more resources.",
     "unitytranslate.transcriber.browser.paused": "Transcription paused",
-    "unitytranslate.transcriber.browser.paused.desc": "This usually means the transcription crashed, or the game has been closed.%BR%If you are still currently using the Browser Transcription mode in UnityTranslate, please refresh the page.%BR%If this problem persists, please report the issue on %GITHUB%."
+    "unitytranslate.transcriber.browser.paused.desc": "This usually means the transcription crashed, or the game has been closed.$BR$If you are still currently using the Browser Transcription mode in UnityTranslate, please refresh the page.$BR$If this problem persists, please report the issue on $GITHUB$."
 }

@@ -43,8 +43,8 @@ private fun applyTranslations(text: String): String {
         }
 
         current = current.replace("%I18N_$id%", translated)
-            .replace("%GITHUB%", "<a href=\"https://github.com/BluSpring/UnityTranslate/issues\">GitHub</a>")
-            .replace("%BR%", "<br>")
+            .replace("\$GITHUB$", "<a href=\"https://github.com/BluSpring/UnityTranslate/issues\">GitHub</a>")
+            .replace("\$BR$", "<br>")
     }
 
     return current
