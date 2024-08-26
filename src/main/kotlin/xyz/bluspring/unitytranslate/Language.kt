@@ -48,6 +48,57 @@ enum class Language(
     )),
     CHINESE("zh", mapOf(
         TranscriberType.BROWSER to "zh"
+    )),
+    ITALIAN("it", mapOf(
+        TranscriberType.BROWSER to "it"
+    )),
+    CHINESE_TRADITIONAL("zt", mapOf(
+        TranscriberType.BROWSER to "zh" // TODO: ???
+    )),
+    CZECH("cs", mapOf(
+        TranscriberType.BROWSER to "cs"
+    )),
+    DANISH("da", mapOf(
+        TranscriberType.BROWSER to "da"
+    )),
+    DUTCH("nl", mapOf(
+        TranscriberType.BROWSER to "nl"
+    )),
+    FINNISH("fi", mapOf(
+        TranscriberType.BROWSER to "fi"
+    )),
+    GREEK("el", mapOf(
+        TranscriberType.BROWSER to "el"
+    )),
+    HINDI("hi", mapOf(
+        TranscriberType.BROWSER to "hi"
+    )),
+    HUNGARIAN("hu", mapOf(
+        TranscriberType.BROWSER to "hu"
+    )),
+    INDONESIAN("id", mapOf(
+        TranscriberType.BROWSER to "id"
+    )),
+    KOREAN("ko", mapOf(
+        TranscriberType.BROWSER to "ko"
+    )),
+    NORWEGIAN("nb", mapOf(
+        TranscriberType.BROWSER to "nb"
+    )),
+    POLISH("pl", mapOf(
+        TranscriberType.BROWSER to "pl"
+    )),
+    TAGALOG("tl", mapOf(
+        TranscriberType.BROWSER to "tl"
+    )),
+    THAI("th", mapOf(
+        TranscriberType.BROWSER to "th"
+    )),
+    TURKISH("tr", mapOf(
+        TranscriberType.BROWSER to "tr"
+    )),
+    UKRAINIAN("uk", mapOf(
+        TranscriberType.BROWSER to "uk"
     ));
 
     override fun toString(): String {
