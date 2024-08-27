@@ -5,9 +5,12 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.Util
+import net.minecraft.network.chat.Component
 import net.minecraft.util.HttpUtil
+import net.minecraft.util.Mth
 import oshi.SystemInfo
 import xyz.bluspring.unitytranslate.UnityTranslate
+import xyz.bluspring.unitytranslate.client.UnityTranslateClient
 import java.io.File
 import java.net.URL
 import java.util.*
@@ -17,7 +20,7 @@ import java.util.zip.ZipFile
 
 class LocalLibreTranslateInstance private constructor(val process: Process, val port: Int) : LibreTranslateInstance("http://127.0.0.1:$port", 150) {
     init {
-        UnityTranslate.logger.info("Started local LibreTranslate instance on port $port.")
+        info("Started local LibreTranslate instance on port $port.")
 
         ServerLifecycleEvents.SERVER_STOPPING.register {
             process.destroy()
@@ -43,9 +46,26 @@ class LocalLibreTranslateInstance private constructor(val process: Process, val 
         fun canRunLibreTranslate(): Boolean {
             val systemInfo = SystemInfo()
 
-            return (Runtime.getRuntime().availableProcessors() >= 4 || TranslatorManager.supportsCuda) &&
+            return (Runtime.getRuntime().availableProcessors() >= 2 || TranslatorManager.supportsCuda) &&
                     // Require a minimum of 2 GiB free for LibreTranslate
                     ((systemInfo.hardware.memory.total - Runtime.getRuntime().maxMemory()) / 1048576L) >= 2048
+        }
+
+        // TODO: make translatable
+        private fun warn(text: String) {
+            if (FabricLoader.getInstance().environmentType == EnvType.CLIENT) {
+                UnityTranslateClient.displayMessage(Component.literal(text), true)
+            } else {
+                UnityTranslate.logger.warn(text)
+            }
+        }
+
+        private fun info(text: String) {
+            if (FabricLoader.getInstance().environmentType == EnvType.CLIENT) {
+                UnityTranslateClient.displayMessage(Component.literal(text), false)
+            } else {
+                UnityTranslate.logger.info(text)
+            }
         }
 
         fun killOpenInstances() {
@@ -54,7 +74,7 @@ class LocalLibreTranslateInstance private constructor(val process: Process, val 
 
             ProcessHandle.of(lastPid)
                 .ifPresent {
-                    UnityTranslate.logger.info("Detected LibreTranslate instance ${lastPid}, killing.")
+                    info("Detected LibreTranslate instance ${lastPid}, killing.")
                     it.destroyForcibly()
 
                     lastPid = -1L
@@ -71,8 +91,8 @@ class LocalLibreTranslateInstance private constructor(val process: Process, val 
 
                     if (file.name.startsWith("_MEI")) {
                         if (!file.deleteRecursively()) {
-                            UnityTranslate.logger.warn("Failed to delete unused LibreTranslate directories, this may mean a dead LibreTranslate instance is running on your computer!")
-                            UnityTranslate.logger.warn("Please try to terminate any \"libretranslate.exe\" processes that you see running, then restart your game.")
+                            warn("Failed to delete unused LibreTranslate directories, this may mean a dead LibreTranslate instance is running on your computer!")
+                            warn("Please try to terminate any \"libretranslate.exe\" processes that you see running, then restart your game.")
                         }
                     }
                 }
@@ -94,7 +114,7 @@ class LocalLibreTranslateInstance private constructor(val process: Process, val 
                 "--port",
                 "$port",
                 "--threads",
-                "${UnityTranslate.config.server.libreTranslateThreads}",
+                "${Mth.clamp(UnityTranslate.config.server.libreTranslateThreads, 1, Runtime.getRuntime().availableProcessors())}",
                 "--disable-web-ui",
                 "--disable-files-translation"
             ))
@@ -122,7 +142,7 @@ class LocalLibreTranslateInstance private constructor(val process: Process, val 
 
                     if (!hasStarted) {
                         timer.cancel()
-                        UnityTranslate.logger.warn("LibreTranslate appears to have exited with code ${process.exitValue()}, not proceeding with local translator instance.")
+                        warn("LibreTranslate appears to have exited with code ${process.exitValue()}, not proceeding with local translator instance.")
                     }
 
                     hasStarted = false
@@ -141,6 +161,18 @@ class LocalLibreTranslateInstance private constructor(val process: Process, val 
             }, 2500L, 2500L)
         }
 
+        fun isLibreTranslateInstalled(): Boolean {
+            val supportsCuda = TranslatorManager.supportsCuda
+            val platform = Util.getPlatform()
+
+            if (platform != Util.OS.WINDOWS && platform != Util.OS.OSX && platform != Util.OS.LINUX) {
+                return false
+            }
+
+            val file = File(libreTranslateDir, "libretranslate/libretranslate${if (supportsCuda) "_cuda" else ""}${if (platform == Util.OS.WINDOWS) ".exe" else ""}")
+            return file.exists()
+        }
+
         fun installLibreTranslate(): CompletableFuture<File> {
             val supportsCuda = TranslatorManager.supportsCuda
             val platform = Util.getPlatform()
@@ -156,11 +188,11 @@ class LocalLibreTranslateInstance private constructor(val process: Process, val 
             return CompletableFuture.supplyAsync {
                 if (!file.exists()) {
                     if (file.parentFile.usableSpace <= 4L * 1024L * 1024L * 1024L) {
-                        UnityTranslate.logger.warn("Current drive doesn't have enough space for local LibreTranslate instance! Not installing LibreTranslate.")
+                        warn("Current drive doesn't have enough space for local LibreTranslate instance! Not installing LibreTranslate.")
                         throw IndexOutOfBoundsException()
                     }
 
-                    UnityTranslate.logger.info("Downloading LibreTranslate instance for platform ${platform.name} (CUDA: $supportsCuda)")
+                    info("Downloading LibreTranslate instance for platform ${platform.name} (CUDA: $supportsCuda)")
 
                     val download = URL(DOWNLOAD_URL
                         .replace("{PLATFORM}", when (platform) {
@@ -190,7 +222,7 @@ class LocalLibreTranslateInstance private constructor(val process: Process, val 
                     fileStream.close()
                     downloadStream.close()
 
-                    UnityTranslate.logger.info("Extracting LibreTranslate instance...")
+                    info("Extracting LibreTranslate instance...")
 
                     val zip = ZipFile(archive)
                     for (entry in zip.entries()) {
@@ -211,10 +243,10 @@ class LocalLibreTranslateInstance private constructor(val process: Process, val 
 
                     zip.close()
 
-                    UnityTranslate.logger.info("Deleting temporary file...")
+                    info("Deleting temporary file...")
                     archive.delete()
 
-                    UnityTranslate.logger.info("LibreTranslate instance successfully installed!")
+                    info("LibreTranslate instance successfully installed!")
                 }
 
                 file

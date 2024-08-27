@@ -4,6 +4,10 @@
     "unitytranslate.open_browser.prompt": "For UnityTranslate to transcribe your speech in Browser Transcription mode, your browser must be left opened to a website running locally. You may close your browser once you are no longer using UnityTranslate.",
     "unitytranslate.do_not_show_again": "Don't show me again",
     "unitytranslate.open_browser.open_in_browser": "Open in Browser",
+    "unitytranslate.request_download": "UnityTranslate is requesting to download a LibreTranslate instance to run locally on your computer. This download will run in the background so you can continue playing, but it may disrupt your internet bandwidth.\n\nThis download will only occur §lonce§r, and §lno LibreTranslate software updates will be installed§r unless you delete the .unitytranslate folder in your Minecraft folder.\n\nAdditionally, the LibreTranslate instance will only run when Minecraft is running. If it doesn't close when Minecraft is closed, please report it on our GitHub.\n\nThis local LibreTranslate instance will be able to assist in reducing translation latency as much as possible for your optimal experience.\n\nIf you wish to disable the local instance, you may turn it off in the UnityTranslate config.",
+    "unitytranslate.request_download.allow": "Allow",
+    "unitytranslate.request_download.deny": "Deny",
+    "unitytranslate.request_download.deny.desc": "If you deny the download, the \"Should Run Translation Server\" config option will be disabled automatically. To turn it back on again, you may access the UnityTranslate config menu, which will bring you this screen again.",
 
     "unitytranslate.transcriber.connected": "Connected to Browser Transcription.",
     "unitytranslate.transcriber.disconnected": "Disconnected from Browser Transcription, please click here to reconnect.",

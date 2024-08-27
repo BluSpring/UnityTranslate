@@ -17,6 +17,7 @@ import xyz.bluspring.unitytranslate.Language
 import xyz.bluspring.unitytranslate.UnityTranslate
 import xyz.bluspring.unitytranslate.client.UnityTranslateClient
 import xyz.bluspring.unitytranslate.client.gui.OpenBrowserScreen
+import xyz.bluspring.unitytranslate.client.gui.RequestDownloadScreen
 import xyz.bluspring.unitytranslate.client.transcribers.SpeechTranscriber
 import xyz.bluspring.unitytranslate.client.transcribers.TranscriberType
 import java.net.InetSocketAddress
@@ -45,7 +46,11 @@ class BrowserSpeechTranscriber(language: Language) : SpeechTranscriber(language)
                 if (UnityTranslate.config.client.openBrowserWithoutPrompt) {
                     Util.getPlatform().openUri("http://127.0.0.1:$serverPort")
                 } else {
-                    mc.setScreen(OpenBrowserScreen("http://127.0.0.1:$serverPort"))
+                    if (mc.screen is RequestDownloadScreen) {
+                        (mc.screen as RequestDownloadScreen).parent = OpenBrowserScreen("http://127.0.0.1:$serverPort")
+                    } else {
+                        mc.setScreen(OpenBrowserScreen("http://127.0.0.1:$serverPort"))
+                    }
                 }
             }
         }

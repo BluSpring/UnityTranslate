@@ -1,9 +1,11 @@
 package xyz.bluspring.unitytranslate.translator
 
+import net.fabricmc.api.EnvType
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
+import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.Util
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.Player
@@ -15,6 +17,7 @@ import xyz.bluspring.unitytranslate.Language
 import xyz.bluspring.unitytranslate.network.PacketIds
 import xyz.bluspring.unitytranslate.UnityTranslate
 import xyz.bluspring.unitytranslate.UnityTranslate.Companion.hasVoiceChat
+import xyz.bluspring.unitytranslate.client.UnityTranslateClient
 import xyz.bluspring.unitytranslate.compat.voicechat.UTVoiceChatCompat
 import java.util.*
 import java.util.concurrent.CompletableFuture
@@ -240,18 +243,26 @@ object TranslatorManager {
             UnityTranslate.logger.info("CUDA is not supported, using CPU for translations.")
     }
 
+    fun installLibreTranslate() {
+        LocalLibreTranslateInstance.installLibreTranslate().thenApplyAsync {
+            try {
+                LocalLibreTranslateInstance.launchLibreTranslate(it, instances::add)
+            } catch (e: Throwable) {
+                UnityTranslate.logger.error("Failed to launch local LibreTranslate instance!")
+                e.printStackTrace()
+            }
+        }
+    }
+
     fun init() {
         loadFromConfig()
 
         ServerLifecycleEvents.SERVER_STARTING.register {
             if (UnityTranslate.config.server.shouldRunTranslationServer && LocalLibreTranslateInstance.canRunLibreTranslate()) {
-                LocalLibreTranslateInstance.installLibreTranslate().thenApplyAsync {
-                    try {
-                        LocalLibreTranslateInstance.launchLibreTranslate(it, instances::add)
-                    } catch (e: Throwable) {
-                        UnityTranslate.logger.error("Failed to launch local LibreTranslate instance!")
-                        e.printStackTrace()
-                    }
+                if (FabricLoader.getInstance().environmentType == EnvType.CLIENT && !LocalLibreTranslateInstance.isLibreTranslateInstalled()) {
+                    UnityTranslateClient.openDownloadRequest()
+                } else {
+                    installLibreTranslate()
                 }
             }
         }

@@ -42,6 +42,8 @@ data class UnityTranslateConfig(
             TranslationPriority.OFFLOADED,  // use alternative servers if available
             TranslationPriority.CLIENT_CPU, // worst case scenario, use client CPU.
         ),
+
+        @get:DependsOn("shouldRunTranslationServer")
         var shouldUseCuda: Boolean = true,
 
         var shouldRunTranslationServer: Boolean = true,
