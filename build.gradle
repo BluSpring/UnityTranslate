@@ -29,8 +29,8 @@ subprojects {
 
         api(shadow('org.java-websocket:Java-WebSocket:1.5.7'))
 
-        implementation(shadow("io.ktor:ktor-server-core-jvm:2.3.11"))
-        implementation(shadow("io.ktor:ktor-server-netty-jvm:2.3.11"))
+        implementation(shadow("io.ktor:ktor-server-core-jvm:${rootProject.ktor_version}"))
+        implementation(shadow("io.ktor:ktor-server-netty-jvm:${rootProject.ktor_version}"))
 
         implementation "de.maxhenkel.voicechat:voicechat-api:${rootProject.voicechat_api_version}"
         annotationProcessor(implementation("com.moulberry:mixinconstraints:1.0.1"))

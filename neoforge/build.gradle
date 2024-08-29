@@ -9,7 +9,6 @@ configurations {
     compileClasspath.extendsFrom common
     runtimeClasspath.extendsFrom common
     developmentForge.extendsFrom common
-    fuckYou.extendsFrom include
 }
 
 repositories {
@@ -45,15 +44,13 @@ dependencies {
 
     // the fact that I need to fucking do this bullshit for Forge to work is fucking ridiculous
     // Forge, why the fuck are you like this
-    include(forgeRuntimeLibrary("io.ktor:ktor-server-core-jvm:2.3.11") {
-        transitive = false
-    })
-    include(forgeRuntimeLibrary("io.ktor:ktor-server-host-common-jvm:2.3.11") {
-        transitive = false
-    })
-    include(forgeRuntimeLibrary("io.ktor:ktor-server-netty-jvm:2.3.11") {
-        transitive = false
-    })
+    def ktorLibs = ["events", "http-cio", "http", "io", "network", "serialization", "server-core", "server-host-common", "server-netty", "utils", "websockets"]
+
+    for (final def lib in ktorLibs) {
+        include(forgeRuntimeLibrary("io.ktor:ktor-$lib-jvm:${rootProject.ktor_version}") {
+            transitive = false
+        })
+    }
 }
 
 processResources {
@@ -74,86 +71,6 @@ shadowJar {
     configurations = [project.configurations.shadowCommon]
     archiveClassifier.set("dev-shadow")
 }
-/*
-processIncludeJars {
-    finalizedBy("generateNeoData")
-}
-
-
-InputStream getOriginalFileData(java.nio.file.Path path, String file) {
-    try (def zipFile = new ZipFile(path.toFile())) {
-        def entry = zipFile.getEntry(file)
-
-        if (entry == null)
-            return null
-
-        return new ByteArrayInputStream(zipFile.getInputStream(entry).readAllBytes())
-    }
-}
-
-java.nio.file.Path addFileToZip(java.nio.file.Path path, String file, byte[] bytes) {
-    def tempFile = path.resolveSibling(String.valueOf(path.getFileName()) + ".tmp")
-
-    try (def zipFile = new ZipFile(path.toFile())) {
-        try (OutputStream fileOutputStream = Files.newOutputStream(tempFile)) {
-            try (ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
-                {
-                    ZipEntry entry = new ZipEntry(file)
-                    InputStream inputStream = new ByteArrayInputStream(bytes)
-
-                    zipOutputStream.putNextEntry(entry)
-                    byte[] buf = new byte[1024]
-
-                    int length;
-                    while ((length = inputStream.read(buf)) > 0) {
-                        zipOutputStream.write(buf, 0, length)
-                    }
-
-                    zipOutputStream.closeEntry()
-                }
-
-                zipFile.entries().iterator().forEachRemaining { entry ->
-                    if (entry.getName() != file) {
-                        InputStream inputStream = zipFile.getInputStream(entry)
-
-                        zipOutputStream.putNextEntry(entry)
-                        zipOutputStream.write(inputStream.readAllBytes())
-                        zipOutputStream.closeEntry()
-                    }
-                }
-            }
-        }
-    }
-
-    return tempFile
-}
-
-tasks.register("generateNeoData") {
-    dependsOn("processIncludeJars")
-    def configurations = [project.configurations.fuckYou]
-
-    doLast {
-        configurations.files.forEach(fileSet -> {
-            fileSet.forEach(file -> {
-                def path = file.toPath()
-                def originalManifestStream = getOriginalFileData(path, "META-INF/MANIFEST.MF")
-                def manifest = new java.util.jar.Manifest()
-
-                if (originalManifestStream != null) {
-                    manifest.read(originalManifestStream)
-                }
-
-                manifest.mainAttributes.putValue("Automatic-Module-Name", "xyz.bluspring.unitytranslate")
-                manifest.mainAttributes.putValue("FMLModType", "LIBRARY")
-
-                def stream = new ByteArrayOutputStream()
-                manifest.write(stream)
-
-                addFileToZip(path, "META-INF/MANIFEST.MF", stream.toByteArray())
-            })
-        })
-    }
-}*/
 
 remapJar {
     inputFile.set shadowJar.archiveFile
