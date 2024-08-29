@@ -1,8 +1,7 @@
 package xyz.bluspring.unitytranslate.network
 
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
+import dev.architectury.event.events.common.PlayerEvent
+import dev.architectury.networking.NetworkManager
 import net.minecraft.server.level.ServerPlayer
 import xyz.bluspring.unitytranslate.Language
 import xyz.bluspring.unitytranslate.UnityTranslate
@@ -15,15 +14,17 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedDeque
 
 object UTServerNetworking {
+    val proxy = UnityTranslate.instance.proxy
+
     fun init() {
         val usedLanguages = ConcurrentHashMap<UUID, EnumSet<Language>>()
 
-        ServerPlayNetworking.registerGlobalReceiver(PacketIds.SET_USED_LANGUAGES) { server, player, handler, buf, sender ->
+        NetworkManager.registerReceiver(NetworkManager.Side.C2S, PacketIds.SET_USED_LANGUAGES) { buf, ctx ->
             val languages = buf.readEnumSet(Language::class.java)
-            usedLanguages[player.uuid] = languages
+            usedLanguages[ctx.player.uuid] = languages
         }
 
-        ServerPlayNetworking.registerGlobalReceiver(PacketIds.SEND_TRANSCRIPT) { server, player, handler, buf, sender ->
+        NetworkManager.registerReceiver(NetworkManager.Side.C2S, PacketIds.SEND_TRANSCRIPT) { buf, ctx ->
             val sourceLanguage = buf.readEnum(Language::class.java)
             val text = buf.readUtf()
             val index = buf.readVarInt()
@@ -36,7 +37,7 @@ object UTServerNetworking {
                 Pair(it, if (sourceLanguage == it)
                     CompletableFuture.completedFuture(text)
                 else
-                    TranslatorManager.queueTranslation(text, sourceLanguage, it, player, index))
+                    TranslatorManager.queueTranslation(text, sourceLanguage, it, ctx.player, index))
             }
                 .forEach { (language, future) ->
                     future.whenCompleteAsync { translated, e ->
@@ -47,9 +48,9 @@ object UTServerNetworking {
                         translations[language] = translated
                         translationsToSend.add(language)
 
-                        server.execute {
+                        ctx.queue {
                             if (translationsToSend.isNotEmpty()) {
-                                broadcastTranslations(player, sourceLanguage, index, updateTime, translationsToSend, translations)
+                                broadcastTranslations(ctx.player as ServerPlayer, sourceLanguage, index, updateTime, translationsToSend, translations)
                                 translationsToSend.clear()
                             }
                         }
@@ -57,23 +58,23 @@ object UTServerNetworking {
                 }
         }
 
-        ServerPlayConnectionEvents.JOIN.register { handler, sender, server ->
-            ServerPlayNetworking.send(handler.player, PacketIds.SERVER_SUPPORT, PacketByteBufs.empty())
+        PlayerEvent.PLAYER_JOIN.register { player ->
+            proxy.sendPacketServer(player, PacketIds.SERVER_SUPPORT, proxy.createByteBuf())
 
             if (UnityTranslate.IS_UNITY_SERVER) {
-                val buf = PacketByteBufs.create()
+                val buf = proxy.createByteBuf()
                 buf.writeBoolean(UnityTranslate.config.server.enabled)
-                ServerPlayNetworking.send(handler.player, PacketIds.TOGGLE_MOD, buf)
+                proxy.sendPacketServer(player, PacketIds.TOGGLE_MOD, buf)
             }
         }
 
-        ServerPlayConnectionEvents.DISCONNECT.register { handler, server ->
-            usedLanguages.remove(handler.player.uuid)
+        PlayerEvent.PLAYER_QUIT.register { player ->
+            usedLanguages.remove(player.uuid)
         }
     }
 
     private fun broadcastTranslations(source: ServerPlayer, sourceLanguage: Language, index: Int, updateTime: Long, translationsToSend: ConcurrentLinkedDeque<Language>, translations: ConcurrentHashMap<Language, String>) {
-        val buf = PacketByteBufs.create()
+        val buf = proxy.createByteBuf()
         buf.writeUUID(source.uuid)
         buf.writeEnum(sourceLanguage)
         buf.writeVarInt(index)
@@ -95,10 +96,10 @@ object UTServerNetworking {
                 if (UTVoiceChatCompat.isPlayerDeafened(player) && player != source)
                     continue
 
-                ServerPlayNetworking.send(player, PacketIds.SEND_TRANSCRIPT, buf)
+                proxy.sendPacketServer(player, PacketIds.SEND_TRANSCRIPT, buf)
             }
         } else {
-            ServerPlayNetworking.send(source, PacketIds.SEND_TRANSCRIPT, buf)
+            proxy.sendPacketServer(source, PacketIds.SEND_TRANSCRIPT, buf)
         }
     }
 }

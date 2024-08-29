@@ -1,9 +1,9 @@
 package xyz.bluspring.unitytranslate.network
 
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
+import dev.architectury.event.events.client.ClientPlayerEvent
+import dev.architectury.networking.NetworkManager
 import net.minecraft.Util
+import net.minecraft.client.Minecraft
 import xyz.bluspring.unitytranslate.Language
 import xyz.bluspring.unitytranslate.UnityTranslate
 import xyz.bluspring.unitytranslate.client.UnityTranslateClient
@@ -15,20 +15,22 @@ import java.util.*
 
 object UTClientNetworking {
     fun init() {
-        ClientPlayNetworking.registerGlobalReceiver(PacketIds.SERVER_SUPPORT) { client, listener, buf, sender ->
+        val proxy = UnityTranslate.instance.proxy
+
+        NetworkManager.registerReceiver(NetworkManager.Side.S2C, PacketIds.SERVER_SUPPORT) { buf, ctx ->
             UnityTranslateClient.connectedServerHasSupport = true
         }
 
-        ClientPlayConnectionEvents.JOIN.register { _, _, client ->
-            client.execute {
-                val buf = PacketByteBufs.create()
+        ClientPlayerEvent.CLIENT_PLAYER_JOIN.register { player ->
+            Minecraft.getInstance().execute {
+                val buf = proxy.createByteBuf()
                 buf.writeEnumSet(EnumSet.copyOf(UnityTranslateClient.languageBoxes.map { it.language }), Language::class.java)
 
-                ClientPlayNetworking.send(PacketIds.SET_USED_LANGUAGES, buf)
+                proxy.sendPacketClient(PacketIds.SET_USED_LANGUAGES, buf)
             }
         }
 
-        ClientPlayNetworking.registerGlobalReceiver(PacketIds.TOGGLE_MOD) { client, listener, buf, sender ->
+        NetworkManager.registerReceiver(NetworkManager.Side.S2C, PacketIds.TOGGLE_MOD) { buf, ctx ->
             val isEnabled = buf.readBoolean()
             UnityTranslate.config.client.enabled = isEnabled
 
@@ -38,24 +40,24 @@ object UTClientNetworking {
                 if (transcriber is BrowserSpeechTranscriber && transcriber.socket.totalConnections <= 0) {
                     val serverPort = transcriber.serverPort
 
-                    client.execute {
+                    ctx.queue {
                         if (UnityTranslate.config.client.openBrowserWithoutPrompt) {
                             Util.getPlatform().openUri("http://127.0.0.1:$serverPort")
                         } else {
-                            client.setScreen(OpenBrowserScreen("http://127.0.0.1:$serverPort"))
+                            Minecraft.getInstance().setScreen(OpenBrowserScreen("http://127.0.0.1:$serverPort"))
                         }
                     }
                 }
             }
         }
 
-        ClientPlayConnectionEvents.DISCONNECT.register { _, _ ->
+        ClientPlayerEvent.CLIENT_PLAYER_QUIT.register { _ ->
             UnityTranslateClient.connectedServerHasSupport = false
         }
 
-        ClientPlayNetworking.registerGlobalReceiver(PacketIds.SEND_TRANSCRIPT) { client, listener, buf, sender ->
+        NetworkManager.registerReceiver(NetworkManager.Side.S2C, PacketIds.SEND_TRANSCRIPT) { buf, ctx ->
             val sourceId = buf.readUUID()
-            val source = client.level!!.getPlayerByUUID(sourceId) ?: return@registerGlobalReceiver
+            val source = ctx.player.level().getPlayerByUUID(sourceId) ?: return@registerReceiver
 
             val sourceLanguage = buf.readEnum(Language::class.java)
             val index = buf.readVarInt()
@@ -69,7 +71,7 @@ object UTClientNetworking {
                 val language = buf.readEnum(Language::class.java)
                 val text = buf.readUtf()
 
-                if (language == UnityTranslateClient.transcriber.language && sourceId == client.player?.uuid)
+                if (language == UnityTranslateClient.transcriber.language && sourceId == ctx.player?.uuid)
                     continue
 
                 val box = boxes.firstOrNull { it.language == language }
@@ -81,14 +83,14 @@ object UTClientNetworking {
             }
         }
 
-        ClientPlayNetworking.registerGlobalReceiver(PacketIds.MARK_INCOMPLETE) { client, listener, buf, sender ->
+        NetworkManager.registerReceiver(NetworkManager.Side.S2C, PacketIds.MARK_INCOMPLETE) { buf, ctx ->
             val from = buf.readEnum(Language::class.java)
             val to = buf.readEnum(Language::class.java)
             val uuid = buf.readUUID()
             val index = buf.readVarInt()
             val isIncomplete = buf.readBoolean()
 
-            val box = UnityTranslateClient.languageBoxes.firstOrNull { it.language == to } ?: return@registerGlobalReceiver
+            val box = UnityTranslateClient.languageBoxes.firstOrNull { it.language == to } ?: return@registerReceiver
             box.transcripts.firstOrNull { it.language == from && it.player.uuid == uuid && it.index == index }?.incomplete = isIncomplete
         }
     }

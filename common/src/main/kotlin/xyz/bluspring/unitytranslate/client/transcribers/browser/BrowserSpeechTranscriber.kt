@@ -2,11 +2,12 @@ package xyz.bluspring.unitytranslate.client.transcribers.browser
 
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
+import dev.architectury.event.events.client.ClientPlayerEvent
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents
 import net.minecraft.Util
+import net.minecraft.client.Minecraft
 import net.minecraft.network.chat.ClickEvent
 import net.minecraft.network.chat.Component
 import net.minecraft.util.HttpUtil
@@ -41,7 +42,9 @@ class BrowserSpeechTranscriber(language: Language) : SpeechTranscriber(language)
         socket.isDaemon = true
         socket.start()
 
-        ClientPlayConnectionEvents.JOIN.register { listener, sender, mc ->
+        ClientPlayerEvent.CLIENT_PLAYER_JOIN.register { _ ->
+            val mc = Minecraft.getInstance()
+
             if (socket.totalConnections <= 0 && UnityTranslate.config.client.enabled) {
                 if (UnityTranslate.config.client.openBrowserWithoutPrompt) {
                     Util.getPlatform().openUri("http://127.0.0.1:$serverPort")

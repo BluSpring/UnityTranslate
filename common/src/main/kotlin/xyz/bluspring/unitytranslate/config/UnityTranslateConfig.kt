@@ -1,7 +1,6 @@
 package xyz.bluspring.unitytranslate.config
 
 import kotlinx.serialization.Serializable
-import net.fabricmc.fabric.api.util.TriState
 import xyz.bluspring.unitytranslate.Language
 import xyz.bluspring.unitytranslate.client.gui.TranscriptBox
 import xyz.bluspring.unitytranslate.client.transcribers.TranscriberType
@@ -73,6 +72,10 @@ data class UnityTranslateConfig(
         var weight: Int = 100,
         var maxConcurrentTranslations: Int = 20
     )
+
+    enum class TriState {
+        TRUE, FALSE, DEFAULT
+    }
 
     enum class TranslationPriority(val usesCuda: TriState) {
         SERVER_GPU(TriState.TRUE),

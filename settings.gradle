@@ -8,7 +8,7 @@ pluginManagement {
             url "https://maven.architectury.dev/"
         }
         maven {
-            url "https://maven.minecraftforge.net/"
+            url "https://maven.neoforged.net/releases"
         }
         gradlePluginPortal()
     }

@@ -1,11 +1,8 @@
 package xyz.bluspring.unitytranslate.translator
 
+import dev.architectury.event.events.common.LifecycleEvent
+import dev.architectury.event.events.common.PlayerEvent
 import net.fabricmc.api.EnvType
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
-import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.Util
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.Player
@@ -16,7 +13,6 @@ import org.lwjgl.system.SharedLibrary
 import xyz.bluspring.unitytranslate.Language
 import xyz.bluspring.unitytranslate.network.PacketIds
 import xyz.bluspring.unitytranslate.UnityTranslate
-import xyz.bluspring.unitytranslate.UnityTranslate.Companion.hasVoiceChat
 import xyz.bluspring.unitytranslate.client.UnityTranslateClient
 import xyz.bluspring.unitytranslate.compat.voicechat.UTVoiceChatCompat
 import java.util.*
@@ -257,9 +253,9 @@ object TranslatorManager {
     fun init() {
         loadFromConfig()
 
-        ServerLifecycleEvents.SERVER_STARTING.register {
+        LifecycleEvent.SERVER_STARTING.register {
             if (UnityTranslate.config.server.shouldRunTranslationServer && LocalLibreTranslateInstance.canRunLibreTranslate()) {
-                if (FabricLoader.getInstance().environmentType == EnvType.CLIENT && !LocalLibreTranslateInstance.isLibreTranslateInstalled()) {
+                if (UnityTranslate.instance.proxy.isClient() && !LocalLibreTranslateInstance.isLibreTranslateInstalled()) {
                     UnityTranslateClient.openDownloadRequest()
                 } else {
                     installLibreTranslate()
@@ -267,12 +263,12 @@ object TranslatorManager {
             }
         }
 
-        ServerLifecycleEvents.SERVER_STOPPING.register {
+        LifecycleEvent.SERVER_STOPPING.register {
             timer.cancel()
         }
 
-        ServerPlayConnectionEvents.DISCONNECT.register { handler, server ->
-            queuedTranslations.removeIf { it.player.uuid == handler.player.uuid }
+        PlayerEvent.PLAYER_QUIT.register { player ->
+            queuedTranslations.removeIf { it.player.uuid == player.uuid }
         }
     }
 
@@ -347,7 +343,7 @@ object TranslatorManager {
         if (translation.player !is ServerPlayer)
             return
 
-        val buf = PacketByteBufs.create()
+        val buf = UnityTranslate.instance.proxy.createByteBuf()
         buf.writeEnum(translation.fromLang)
         buf.writeEnum(translation.toLang)
         buf.writeUUID(translation.player.uuid)
@@ -356,17 +352,17 @@ object TranslatorManager {
 
         val source = translation.player
 
-        if (hasVoiceChat) {
+        if (UnityTranslate.hasVoiceChat) {
             val nearby = UTVoiceChatCompat.getNearbyPlayers(source)
 
             for (player in nearby) {
                 if (UTVoiceChatCompat.isPlayerDeafened(player) && player != source)
                     continue
 
-                ServerPlayNetworking.send(player, PacketIds.MARK_INCOMPLETE, buf)
+                UnityTranslate.instance.proxy.sendPacketServer(player, PacketIds.MARK_INCOMPLETE, buf)
             }
         } else {
-            ServerPlayNetworking.send(source, PacketIds.MARK_INCOMPLETE, buf)
+            UnityTranslate.instance.proxy.sendPacketServer(source, PacketIds.MARK_INCOMPLETE, buf)
         }
     }
 }

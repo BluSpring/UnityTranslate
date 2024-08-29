@@ -1,12 +1,8 @@
 package xyz.bluspring.unitytranslate
 
+import dev.architectury.event.events.common.CommandRegistrationEvent
+import dev.architectury.event.events.common.LifecycleEvent
 import kotlinx.serialization.json.Json
-import net.fabricmc.api.ModInitializer
-import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
-import net.fabricmc.loader.api.FabricLoader
-import net.fabricmc.loader.api.ModContainer
-import net.minecraft.commands.Commands
 import net.minecraft.resources.ResourceLocation
 import org.slf4j.LoggerFactory
 import xyz.bluspring.unitytranslate.commands.UnityTranslateCommands
@@ -16,16 +12,21 @@ import xyz.bluspring.unitytranslate.translator.LocalLibreTranslateInstance
 import xyz.bluspring.unitytranslate.translator.TranslatorManager
 import java.io.File
 
-class UnityTranslate : ModInitializer {
-    override fun onInitialize() {
+class UnityTranslate(val proxy: PlatformProxy) {
+    init {
+        instance = this
+        configFile = File(proxy.configDir.toFile(), "unitytranslate.json")
+        version = proxy.modVersion
+        hasVoiceChat = proxy.isModLoaded("voicechat")
+
         TranslatorManager.init()
         loadConfig()
 
-        ServerLifecycleEvents.SERVER_STOPPING.register {
+        LifecycleEvent.SERVER_STOPPING.register {
             LocalLibreTranslateInstance.killOpenInstances()
         }
 
-        CommandRegistrationCallback.EVENT.register { dispatcher, _, _ ->
+        CommandRegistrationEvent.EVENT.register { dispatcher, _, _ ->
             dispatcher.register(UnityTranslateCommands.ROOT)
         }
 
@@ -36,14 +37,13 @@ class UnityTranslate : ModInitializer {
         const val MOD_ID = "unitytranslate"
         const val IS_UNITY_SERVER = true // TODO: remove this on launch
 
-        val modContainer: ModContainer
-            get() = FabricLoader.getInstance().getModContainer(MOD_ID).orElseThrow()
+        lateinit var instance: UnityTranslate
+        lateinit var configFile: File
+        lateinit var version: String
+        var hasVoiceChat: Boolean = false
 
-        val configFile = File(FabricLoader.getInstance().configDir.toFile(), "unitytranslate.json")
         var config = UnityTranslateConfig()
         val logger = LoggerFactory.getLogger("UnityTranslate")
-
-        val hasVoiceChat = FabricLoader.getInstance().isModLoaded("voicechat")
 
         @JvmStatic
         fun id(path: String): ResourceLocation {

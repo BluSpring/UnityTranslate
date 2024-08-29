@@ -1,9 +1,8 @@
 plugins {
     id "architectury-plugin" version "3.4-SNAPSHOT"
     id "dev.architectury.loom" version "1.7-SNAPSHOT" apply false
-    id 'maven-publish' apply false
-    id 'org.jetbrains.kotlin.jvm' version '2.0.0' apply false
-    id 'org.jetbrains.kotlin.plugin.serialization' version '2.0.0' apply false
+    id 'org.jetbrains.kotlin.jvm' version '2.0.20' apply false
+    id 'org.jetbrains.kotlin.plugin.serialization' version '2.0.20' apply false
     id "com.gradleup.shadow" version "8.3.0" apply false
     id 'io.ktor.plugin' version '2.3.11' apply false
 }
@@ -13,9 +12,9 @@ architectury {
 }
 
 subprojects {
-    apply plugin: "org.jetbrains.kotlin.jvm"
-    apply plugin: "org.jetbrains.kotlin.plugin.serialization"
     apply plugin: "dev.architectury.loom"
+    apply plugin: "com.gradleup.shadow"
+    apply plugin: "io.ktor.plugin"
 
     loom {
         silentMojangMappingsLicense()
@@ -25,17 +24,37 @@ subprojects {
         minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
         mappings loom.layered() {
             officialMojangMappings()
-            parchment("org.parchmentmc.data:parchment-1.20.1:${rootProject.parchment_release}@zip")
+            parchment("org.parchmentmc.data:parchment-1.20.1:${rootProject.parchment_snapshot}@zip")
+        }
+
+        api(shadow('org.java-websocket:Java-WebSocket:1.5.7'))
+
+        implementation(shadow("io.ktor:ktor-server-core-jvm:2.3.11"))
+        implementation(shadow("io.ktor:ktor-server-netty-jvm:2.3.11"))
+
+        implementation "de.maxhenkel.voicechat:voicechat-api:${rootProject.voicechat_api_version}"
+        annotationProcessor(implementation("com.moulberry:mixinconstraints:1.0.1"))
+    }
+
+    shadowJar {
+        configurations = [project.configurations.shadow]
+        archiveClassifier.set("dev-shadow")
+
+        exclude "kotlin/**/*", "kotlinx/**/*", "org/intellij/**/*", "org/jetbrains/**/*", "com/google/**/*", "org/slf4j/**/*", "io/netty/channel/unix/**/*"
+
+        // required cuz otherwise it just breaks
+        application {
+            mainClass.set("ThisDoesNotFuckingExist")
         }
     }
 }
 
 allprojects {
     apply plugin: "java"
+    apply plugin: "org.jetbrains.kotlin.jvm"
+    apply plugin: "org.jetbrains.kotlin.plugin.serialization"
     apply plugin: "architectury-plugin"
     apply plugin: "maven-publish"
-    apply plugin: "io.ktor.plugin"
-    apply plugin: "com.gradleup.shadow"
 
     archivesBaseName = rootProject.archives_base_name
     version = rootProject.mod_version
@@ -71,6 +90,9 @@ allprojects {
         maven {
             url = 'https://maven.maxhenkel.de/repository/public'
         }
+        maven {
+            url = "https://maven.neoforged.net/releases/"
+        }
     }
 
     tasks.withType(JavaCompile) {
@@ -80,64 +102,5 @@ allprojects {
 
     java {
         withSourcesJar()
-    }
-
-    shadowJar {
-        configurations = [project.configurations.shadow]
-        archiveClassifier.set("dev-shadow")
-
-        exclude "kotlin/**/*", "kotlinx/**/*", "org/intellij/**/*", "org/jetbrains/**/*", "com/google/**/*", "org/slf4j/**/*", "io/netty/channel/unix/**/*"
-
-        // required cuz otherwise it just breaks
-        application {
-            mainClass.set("ThisDoesNotFuckingExist")
-        }
-    }
-}
-
-dependencies {
-    // To change the versions see the gradle.properties file
-    minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings loom.layered() {
-        officialMojangMappings()
-        parchment("org.parchmentmc.data:parchment-${project.minecraft_version}:${project.parchment_snapshot}@zip")
-    }
-
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-
-    // Fabric API. This is technically optional, but you probably want it anyway.
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-    modImplementation "net.fabricmc:fabric-language-kotlin:${project.fabric_kotlin_version}"
-
-    modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
-
-    shadow(api('org.java-websocket:Java-WebSocket:1.5.7'))
-
-    shadow(implementation("io.ktor:ktor-server-core-jvm:2.3.11"))
-    shadow(implementation("io.ktor:ktor-server-netty-jvm:2.3.11"))
-
-    implementation "de.maxhenkel.voicechat:voicechat-api:${voicechat_api_version}"
-    modRuntimeOnly "maven.modrinth:simple-voice-chat:fabric-${voicechat_version}"
-
-    include(implementation("com.moulberry:mixinconstraints:1.0.1"))
-
-    modImplementation("maven.modrinth:talk-balloons:1.0.0")
-    // don't use anything from here. this is only for Talk Balloons compat.
-    modImplementation("maven.modrinth:cloth-config:11.1.118+fabric")
-    modCompileOnly("maven.modrinth:cerbons-api:1.1.0")
-}
-
-processResources {
-    inputs.property "version", project.version
-    inputs.property "minecraft_version", project.minecraft_version
-    inputs.property "loader_version", project.loader_version
-    inputs.property "fabric_kotlin_version", project.fabric_kotlin_version
-    filteringCharset "UTF-8"
-
-    filesMatching("fabric.mod.json") {
-        expand "version": project.version,
-                "minecraft_version": project.minecraft_version,
-                "loader_version": project.loader_version,
-                "fabric_kotlin_version": project.fabric_kotlin_version
     }
 }

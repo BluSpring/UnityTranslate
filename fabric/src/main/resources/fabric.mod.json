@@ -12,17 +12,17 @@
         "issues": "https://github.com/BluSpring/UnityTranslate/issues"
     },
     "license": "MIT",
-    "icon": "assets/unitytranslate/icon.png",
+    "icon": "icon.png",
     "environment": "*",
     "entrypoints": {
         "client": [
-            "xyz.bluspring.unitytranslate.client.UnityTranslateClient"
+            "xyz.bluspring.unitytranslate.fabric.client.UnityTranslateFabricClient"
         ],
         "main": [
-            "xyz.bluspring.unitytranslate.UnityTranslate"
+            "xyz.bluspring.unitytranslate.fabric.UnityTranslateFabric"
         ],
         "modmenu": [
-            "xyz.bluspring.unitytranslate.compat.modmenu.UTModMenuIntegration"
+            "xyz.bluspring.unitytranslate.fabric.compat.modmenu.UTModMenuIntegration"
         ],
         "voicechat": [
             "xyz.bluspring.unitytranslate.compat.voicechat.UTVoiceChatCompat"
@@ -35,7 +35,8 @@
         "fabricloader": ">=${loader_version}",
         "fabric-api": "*",
         "minecraft": "${minecraft_version}",
-        "fabric-language-kotlin": ">=${fabric_kotlin_version}"
+        "fabric-language-kotlin": ">=${fabric_kotlin_version}",
+        "architectury": ">=${architectury_version}"
     },
     "recommends": {
         "voicechat": "*"

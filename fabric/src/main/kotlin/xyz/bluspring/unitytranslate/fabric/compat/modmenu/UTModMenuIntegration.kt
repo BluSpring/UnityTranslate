@@ -1,4 +1,4 @@
-package xyz.bluspring.unitytranslate.compat.modmenu
+package xyz.bluspring.unitytranslate.fabric.compat.modmenu
 
 import com.terraformersmc.modmenu.api.ConfigScreenFactory
 import com.terraformersmc.modmenu.api.ModMenuApi

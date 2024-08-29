@@ -1,7 +1,5 @@
 package xyz.bluspring.unitytranslate.commands
 
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.commands.Commands
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.ComponentUtils
@@ -14,7 +12,7 @@ object UnityTranslateCommands {
     val INFO = Commands.literal("info")
         .executes { ctx ->
             ctx.source.sendSystemMessage(ComponentUtils.formatList(listOf(
-                Component.literal("UnityTranslate v${UnityTranslate.modContainer.metadata.version.friendlyString}"),
+                Component.literal("UnityTranslate v${UnityTranslate.instance.proxy.modVersion}"),
                 Component.literal("- Total instances loaded: ${TranslatorManager.instances.size}"),
                 Component.literal("- Queued translations: ${TranslatorManager.queuedTranslations.size}"),
                 Component.empty(),
@@ -41,11 +39,11 @@ object UnityTranslateCommands {
             UnityTranslate.config.server.enabled = !UnityTranslate.config.server.enabled
             UnityTranslate.saveConfig()
 
-            val buf = PacketByteBufs.create()
+            val buf = UnityTranslate.instance.proxy.createByteBuf()
             buf.writeBoolean(UnityTranslate.config.server.enabled)
 
             for (player in ctx.source.server.playerList.players) {
-                ServerPlayNetworking.send(player, PacketIds.TOGGLE_MOD, buf)
+                UnityTranslate.instance.proxy.sendPacketServer(player, PacketIds.TOGGLE_MOD, buf)
             }
 
             ctx.source.sendSystemMessage(Component.literal("Toggled UnityTranslate for all players: ${UnityTranslate.config.server.enabled}"))

@@ -1,0 +1,192 @@
+architectury {
+    platformSetupLoomIde()
+    forge()
+}
+
+configurations {
+    common
+    shadowCommon // Don't use shadow from the shadow plugin because we don't want IDEA to index this.
+    compileClasspath.extendsFrom common
+    runtimeClasspath.extendsFrom common
+    developmentForge.extendsFrom common
+    fuckYou.extendsFrom include
+}
+
+repositories {
+    maven {
+        name = 'Kotlin for Forge'
+        url = 'https://thedarkcolour.github.io/KotlinForForge/'
+    }
+}
+
+loom {
+    forge {
+        mixinConfig "unitytranslate.mixins.json"
+    }
+}
+
+dependencies {
+    forge "net.neoforged:forge:${rootProject.forge_version}"
+    // Remove the next line if you don't want to depend on the API
+    modApi "dev.architectury:architectury-forge:${rootProject.architectury_version}"
+    api("thedarkcolour:kotlinforforge:${rootProject.forge_kotlin_version}")
+
+    common(project(path: ":common", configuration: "namedElements")) { transitive false }
+    shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
+
+    modRuntimeOnly "maven.modrinth:simple-voice-chat:forge-${rootProject.voicechat_version}"
+
+    modImplementation("maven.modrinth:talk-balloons:kN8kdQ22") // 1.0.0
+    // don't use anything from here. this is only for Talk Balloons compat.
+    modImplementation("maven.modrinth:cloth-config:${rootProject.cloth_config_version}+forge")
+    modImplementation("maven.modrinth:cerbons-api:XWZQbKsr") // 1.1.0
+
+    include(forgeRuntimeLibrary('org.java-websocket:Java-WebSocket:1.5.7'))
+
+    // the fact that I need to fucking do this bullshit for Forge to work is fucking ridiculous
+    // Forge, why the fuck are you like this
+    include(forgeRuntimeLibrary("io.ktor:ktor-server-core-jvm:2.3.11") {
+        transitive = false
+    })
+    include(forgeRuntimeLibrary("io.ktor:ktor-server-host-common-jvm:2.3.11") {
+        transitive = false
+    })
+    include(forgeRuntimeLibrary("io.ktor:ktor-server-netty-jvm:2.3.11") {
+        transitive = false
+    })
+}
+
+processResources {
+    inputs.property "version", rootProject.version
+    inputs.property "architectury_version", rootProject.architectury_version
+    inputs.property "forge_kotlin_version", rootProject.forge_kotlin_version
+
+    filesMatching("META-INF/mods.toml") {
+        expand "version": rootProject.version,
+               "architectury_version": rootProject.architectury_version,
+               "forge_kotlin_version": rootProject.forge_kotlin_version
+    }
+}
+
+shadowJar {
+    exclude "fabric.mod.json"
+
+    configurations = [project.configurations.shadowCommon]
+    archiveClassifier.set("dev-shadow")
+}
+/*
+processIncludeJars {
+    finalizedBy("generateNeoData")
+}
+
+
+InputStream getOriginalFileData(java.nio.file.Path path, String file) {
+    try (def zipFile = new ZipFile(path.toFile())) {
+        def entry = zipFile.getEntry(file)
+
+        if (entry == null)
+            return null
+
+        return new ByteArrayInputStream(zipFile.getInputStream(entry).readAllBytes())
+    }
+}
+
+java.nio.file.Path addFileToZip(java.nio.file.Path path, String file, byte[] bytes) {
+    def tempFile = path.resolveSibling(String.valueOf(path.getFileName()) + ".tmp")
+
+    try (def zipFile = new ZipFile(path.toFile())) {
+        try (OutputStream fileOutputStream = Files.newOutputStream(tempFile)) {
+            try (ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
+                {
+                    ZipEntry entry = new ZipEntry(file)
+                    InputStream inputStream = new ByteArrayInputStream(bytes)
+
+                    zipOutputStream.putNextEntry(entry)
+                    byte[] buf = new byte[1024]
+
+                    int length;
+                    while ((length = inputStream.read(buf)) > 0) {
+                        zipOutputStream.write(buf, 0, length)
+                    }
+
+                    zipOutputStream.closeEntry()
+                }
+
+                zipFile.entries().iterator().forEachRemaining { entry ->
+                    if (entry.getName() != file) {
+                        InputStream inputStream = zipFile.getInputStream(entry)
+
+                        zipOutputStream.putNextEntry(entry)
+                        zipOutputStream.write(inputStream.readAllBytes())
+                        zipOutputStream.closeEntry()
+                    }
+                }
+            }
+        }
+    }
+
+    return tempFile
+}
+
+tasks.register("generateNeoData") {
+    dependsOn("processIncludeJars")
+    def configurations = [project.configurations.fuckYou]
+
+    doLast {
+        configurations.files.forEach(fileSet -> {
+            fileSet.forEach(file -> {
+                def path = file.toPath()
+                def originalManifestStream = getOriginalFileData(path, "META-INF/MANIFEST.MF")
+                def manifest = new java.util.jar.Manifest()
+
+                if (originalManifestStream != null) {
+                    manifest.read(originalManifestStream)
+                }
+
+                manifest.mainAttributes.putValue("Automatic-Module-Name", "xyz.bluspring.unitytranslate")
+                manifest.mainAttributes.putValue("FMLModType", "LIBRARY")
+
+                def stream = new ByteArrayOutputStream()
+                manifest.write(stream)
+
+                addFileToZip(path, "META-INF/MANIFEST.MF", stream.toByteArray())
+            })
+        })
+    }
+}*/
+
+remapJar {
+    inputFile.set shadowJar.archiveFile
+    dependsOn shadowJar
+    archiveClassifier.set(null)
+}
+
+jar {
+    archiveClassifier.set("dev")
+}
+
+sourcesJar {
+    def commonSources = project(":common").sourcesJar
+    dependsOn commonSources
+    from commonSources.archiveFile.map { zipTree(it) }
+}
+
+components.java {
+    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
+        skip()
+    }
+}
+
+publishing {
+    publications {
+        mavenForge(MavenPublication) {
+            artifactId = rootProject.archives_base_name + "-" + project.name
+            from components.java
+        }
+    }
+
+    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+    repositories {
+        // Add repositories to publish to here.
+    }
+}

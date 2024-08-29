@@ -1,7 +1,5 @@
 package xyz.bluspring.unitytranslate.client.gui
 
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.Button
@@ -59,7 +57,7 @@ class EditTranscriptBoxesScreen(val boxes: MutableList<TranscriptBox>, val paren
         UnityTranslate.saveConfig()
 
         if (UnityTranslateClient.languageBoxes.isNotEmpty()) {
-            val buf = PacketByteBufs.create()
+            val buf = UnityTranslate.instance.proxy.createByteBuf()
 
             val languages = UnityTranslateClient.languageBoxes.map { it.language }.toMutableList()
 
@@ -73,7 +71,7 @@ class EditTranscriptBoxesScreen(val boxes: MutableList<TranscriptBox>, val paren
             )
 
             if (Minecraft.getInstance().player != null) {
-                ClientPlayNetworking.send(PacketIds.SET_USED_LANGUAGES, buf)
+                UnityTranslate.instance.proxy.sendPacketClient(PacketIds.SET_USED_LANGUAGES, buf)
             }
         }
 

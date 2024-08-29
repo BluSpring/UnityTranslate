@@ -1,9 +1,8 @@
 package xyz.bluspring.unitytranslate.translator
 
+import dev.architectury.event.events.client.ClientLifecycleEvent
+import dev.architectury.event.events.common.LifecycleEvent
 import net.fabricmc.api.EnvType
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
-import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.Util
 import net.minecraft.network.chat.Component
 import net.minecraft.util.HttpUtil
@@ -22,16 +21,16 @@ class LocalLibreTranslateInstance private constructor(val process: Process, val 
     init {
         info("Started local LibreTranslate instance on port $port.")
 
-        ServerLifecycleEvents.SERVER_STOPPING.register {
+        LifecycleEvent.SERVER_STOPPING.register {
             process.destroy()
         }
 
-        if (FabricLoader.getInstance().environmentType == EnvType.CLIENT)
+        if (UnityTranslate.instance.proxy.isClient())
             registerEventsClient()
     }
 
     private fun registerEventsClient() {
-        ClientLifecycleEvents.CLIENT_STOPPING.register {
+        ClientLifecycleEvent.CLIENT_STOPPING.register {
             process.destroy()
         }
     }
@@ -41,7 +40,7 @@ class LocalLibreTranslateInstance private constructor(val process: Process, val 
         private var lastPid = -1L
         var hasStarted = false
 
-        val libreTranslateDir = File(FabricLoader.getInstance().gameDir.toFile(), ".unitytranslate")
+        val libreTranslateDir = File(UnityTranslate.instance.proxy.gameDir.toFile(), ".unitytranslate")
 
         fun canRunLibreTranslate(): Boolean {
             val systemInfo = SystemInfo()
@@ -53,7 +52,7 @@ class LocalLibreTranslateInstance private constructor(val process: Process, val 
 
         // TODO: make translatable
         private fun warn(text: String) {
-            if (FabricLoader.getInstance().environmentType == EnvType.CLIENT) {
+            if (UnityTranslate.instance.proxy.isClient()) {
                 UnityTranslateClient.displayMessage(Component.literal(text), true)
             } else {
                 UnityTranslate.logger.warn(text)
@@ -61,7 +60,7 @@ class LocalLibreTranslateInstance private constructor(val process: Process, val 
         }
 
         private fun info(text: String) {
-            if (FabricLoader.getInstance().environmentType == EnvType.CLIENT) {
+            if (UnityTranslate.instance.proxy.isClient()) {
                 UnityTranslateClient.displayMessage(Component.literal(text), false)
             } else {
                 UnityTranslate.logger.info(text)
@@ -125,7 +124,7 @@ class LocalLibreTranslateInstance private constructor(val process: Process, val 
             environment["PYTHONIOENCODING"] = "utf-8"
             environment["PYTHONLEGACYWINDOWSSTDIO"] = "utf-8"
 
-            if (FabricLoader.getInstance().isDevelopmentEnvironment || System.getenv("unitytranslate.enableLogging") == "true") {
+            if (UnityTranslate.instance.proxy.isDev || System.getenv("unitytranslate.enableLogging") == "true") {
                 processBuilder
                     .redirectOutput(ProcessBuilder.Redirect.INHERIT)
                     .redirectError(ProcessBuilder.Redirect.INHERIT)

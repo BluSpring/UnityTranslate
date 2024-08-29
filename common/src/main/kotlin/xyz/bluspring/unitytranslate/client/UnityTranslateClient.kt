@@ -1,14 +1,10 @@
 package xyz.bluspring.unitytranslate.client
 
-import net.fabricmc.api.ClientModInitializer
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
-import net.fabricmc.loader.api.FabricLoader
+import dev.architectury.event.events.client.ClientGuiEvent
+import dev.architectury.event.events.client.ClientLifecycleEvent
+import dev.architectury.event.events.client.ClientPlayerEvent
+import dev.architectury.event.events.client.ClientTickEvent
+import dev.architectury.registry.client.keymappings.KeyMappingRegistry
 import net.minecraft.ChatFormatting
 import net.minecraft.client.KeyMapping
 import net.minecraft.client.Minecraft
@@ -28,15 +24,15 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.function.BiConsumer
 import java.util.function.Consumer
 
-class UnityTranslateClient : ClientModInitializer {
-    override fun onInitializeClient() {
+class UnityTranslateClient {
+    init {
         WindowsSpeechApiTranscriber.isSupported() // runs a check to load Windows Speech API. why write the code again anyway?
         setupCompat()
 
         transcriber = UnityTranslate.config.client.transcriber.creator.invoke(UnityTranslate.config.client.language)
         setupTranscriber(transcriber)
 
-        HudRenderCallback.EVENT.register { guiGraphics, delta ->
+        ClientGuiEvent.RENDER_HUD.register { guiGraphics, delta ->
             if (shouldRenderBoxes && UnityTranslate.config.client.enabled) {
                 for (languageBox in languageBoxes) {
                     languageBox.render(guiGraphics, delta)
@@ -44,7 +40,7 @@ class UnityTranslateClient : ClientModInitializer {
             }
         }
 
-        ClientTickEvents.END_CLIENT_TICK.register { mc ->
+        ClientTickEvent.CLIENT_POST.register { mc ->
             if (CONFIGURE_BOXES.consumeClick()) {
                 mc.setScreen(EditTranscriptBoxesScreen(languageBoxes))
             }
@@ -99,7 +95,7 @@ class UnityTranslateClient : ClientModInitializer {
             }
         }
 
-        ClientLifecycleEvents.CLIENT_STOPPING.register {
+        ClientLifecycleEvent.CLIENT_STOPPING.register {
             LocalLibreTranslateInstance.killOpenInstances()
         }
 
@@ -114,13 +110,13 @@ class UnityTranslateClient : ClientModInitializer {
             val updateTime = System.currentTimeMillis()
 
             if (connectedServerHasSupport) {
-                val buf = PacketByteBufs.create()
+                val buf = UnityTranslate.instance.proxy.createByteBuf()
                 buf.writeEnum(transcriber.language)
                 buf.writeUtf(text)
                 buf.writeVarInt(index)
                 buf.writeVarLong(updateTime)
 
-                ClientPlayNetworking.send(PacketIds.SEND_TRANSCRIPT, buf)
+                UnityTranslate.instance.proxy.sendPacketClient(PacketIds.SEND_TRANSCRIPT, buf)
                 languageBoxes.firstOrNull { it.language == transcriber.language }?.updateTranscript(Minecraft.getInstance().player!!, text, transcriber.language, index, updateTime, false)
             } else {
                 if (Minecraft.getInstance().player == null)
@@ -164,13 +160,22 @@ class UnityTranslateClient : ClientModInitializer {
                 return UnityTranslate.config.client.transcriptBoxes
             }
 
-        val CONFIGURE_BOXES = KeyBindingHelper.registerKeyBinding(KeyMapping("unitytranslate.configure_boxes", -1, "UnityTranslate"))
-        val TOGGLE_TRANSCRIPTION = KeyBindingHelper.registerKeyBinding(KeyMapping("unitytranslate.toggle_transcription", -1, "UnityTranslate"))
-        val TOGGLE_BOXES = KeyBindingHelper.registerKeyBinding(KeyMapping("unitytranslate.toggle_boxes", -1, "UnityTranslate"))
-        val SET_SPOKEN_LANGUAGE = KeyBindingHelper.registerKeyBinding(KeyMapping("unitytranslate.set_spoken_language", -1, "UnityTranslate"))
-        val CLEAR_TRANSCRIPTS = KeyBindingHelper.registerKeyBinding(KeyMapping("unitytranslate.clear_transcripts", -1, "UnityTranslate"))
+        val CONFIGURE_BOXES = (KeyMapping("unitytranslate.configure_boxes", -1, "UnityTranslate"))
+        val TOGGLE_TRANSCRIPTION = (KeyMapping("unitytranslate.toggle_transcription", -1, "UnityTranslate"))
+        val TOGGLE_BOXES = (KeyMapping("unitytranslate.toggle_boxes", -1, "UnityTranslate"))
+        val SET_SPOKEN_LANGUAGE = (KeyMapping("unitytranslate.set_spoken_language", -1, "UnityTranslate"))
+        val CLEAR_TRANSCRIPTS = (KeyMapping("unitytranslate.clear_transcripts", -1, "UnityTranslate"))
 
-        val isTalkBalloonsInstalled = FabricLoader.getInstance().isModLoaded("talk_balloons")
+        @JvmStatic
+        fun registerKeys() {
+            KeyMappingRegistry.register(CONFIGURE_BOXES)
+            KeyMappingRegistry.register(TOGGLE_TRANSCRIPTION)
+            KeyMappingRegistry.register(TOGGLE_BOXES)
+            KeyMappingRegistry.register(SET_SPOKEN_LANGUAGE)
+            KeyMappingRegistry.register(CLEAR_TRANSCRIPTS)
+        }
+
+        val isTalkBalloonsInstalled = UnityTranslate.instance.proxy.isModLoaded("talk_balloons")
 
         fun displayMessage(component: Component, isError: Boolean = false) {
             val full = Component.empty()
@@ -183,7 +188,7 @@ class UnityTranslateClient : ClientModInitializer {
         }
 
         fun renderCreditText(guiGraphics: GuiGraphics) {
-            val version = UnityTranslate.modContainer.metadata.version.friendlyString
+            val version = UnityTranslate.instance.proxy.modVersion
             val font = Minecraft.getInstance().font
 
             guiGraphics.drawString(font, "UnityTranslate v$version", 2, Minecraft.getInstance().window.guiScaledHeight - (font.lineHeight * 2) - 4, 0xAAAAAA)
@@ -193,9 +198,9 @@ class UnityTranslateClient : ClientModInitializer {
         private val queuedForJoin = ConcurrentLinkedQueue<Consumer<Minecraft>>()
 
         init {
-            ClientPlayConnectionEvents.JOIN.register { _, _, mc ->
+            ClientPlayerEvent.CLIENT_PLAYER_JOIN.register { _ ->
                 for (consumer in queuedForJoin) {
-                    consumer.accept(mc)
+                    consumer.accept(Minecraft.getInstance())
                 }
                 queuedForJoin.clear()
             }
