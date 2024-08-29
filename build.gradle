@@ -33,7 +33,11 @@ subprojects {
         implementation(shadow("io.ktor:ktor-server-netty-jvm:${rootProject.ktor_version}"))
 
         implementation "de.maxhenkel.voicechat:voicechat-api:${rootProject.voicechat_api_version}"
-        include(annotationProcessor(implementation("com.moulberry:mixinconstraints:1.0.1")))
+
+        // WHATEVER YOU DO
+        // DO NOT INCLUDE THIS
+        // IT BREAKS GRADLE
+        annotationProcessor(implementation("com.moulberry:mixinconstraints:1.0.1"))
     }
 
     shadowJar {
@@ -57,7 +61,7 @@ allprojects {
     apply plugin: "maven-publish"
 
     archivesBaseName = rootProject.archives_base_name
-    version = rootProject.mod_version
+    version = "${rootProject.mod_version}+mc${rootProject.minecraft_version}"
     group = rootProject.maven_group
 
     repositories {
