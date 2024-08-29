@@ -13,7 +13,7 @@ import net.minecraft.util.FastColor
 import net.minecraft.util.Mth
 import org.lwjgl.glfw.GLFW
 import xyz.bluspring.unitytranslate.Language
-import xyz.bluspring.unitytranslate.PacketIds
+import xyz.bluspring.unitytranslate.network.PacketIds
 import xyz.bluspring.unitytranslate.UnityTranslate
 import xyz.bluspring.unitytranslate.client.UnityTranslateClient
 import java.util.*
@@ -58,11 +58,23 @@ class EditTranscriptBoxesScreen(val boxes: MutableList<TranscriptBox>, val paren
 
         UnityTranslate.saveConfig()
 
-        val buf = PacketByteBufs.create()
-        buf.writeEnumSet(EnumSet.copyOf(UnityTranslateClient.languageBoxes.map { it.language }), Language::class.java)
+        if (UnityTranslateClient.languageBoxes.isNotEmpty()) {
+            val buf = PacketByteBufs.create()
 
-        if (Minecraft.getInstance().player != null) {
-            ClientPlayNetworking.send(PacketIds.SET_USED_LANGUAGES, buf)
+            val languages = UnityTranslateClient.languageBoxes.map { it.language }.toMutableList()
+
+            if (!languages.contains(UnityTranslate.config.client.language)) {
+                languages.add(UnityTranslate.config.client.language)
+            }
+
+            buf.writeEnumSet(
+                EnumSet.copyOf(languages),
+                Language::class.java
+            )
+
+            if (Minecraft.getInstance().player != null) {
+                ClientPlayNetworking.send(PacketIds.SET_USED_LANGUAGES, buf)
+            }
         }
 
         // make sure that the cursor is reset
@@ -245,6 +257,7 @@ class EditTranscriptBoxesScreen(val boxes: MutableList<TranscriptBox>, val paren
 
                 if (!mode.contains(MoveMode.END_X)) {
                     ctx.newWidth -= mouseX - ctx.lastMouseX
+                    ctx.newWidth = Mth.clamp(ctx.newWidth, 12.0, this.minecraft!!.window.guiScaledWidth.toDouble())
                 }
 
                 ctx.box.x = ctx.newX.toInt()
@@ -253,6 +266,7 @@ class EditTranscriptBoxesScreen(val boxes: MutableList<TranscriptBox>, val paren
 
             if (mode.contains(MoveMode.END_X) && !mode.contains(MoveMode.START_X)) {
                 ctx.newWidth += mouseX - ctx.lastMouseX
+                ctx.newWidth = Mth.clamp(ctx.newWidth, 12.0, this.minecraft!!.window.guiScaledWidth.toDouble())
                 ctx.box.width = ctx.newWidth.toInt()
             }
 
@@ -262,6 +276,7 @@ class EditTranscriptBoxesScreen(val boxes: MutableList<TranscriptBox>, val paren
 
                 if (!mode.contains(MoveMode.END_Y)) {
                     ctx.newHeight -= mouseY - ctx.lastMouseY
+                    ctx.newHeight = Mth.clamp(ctx.newHeight, 12.0, this.minecraft!!.window.guiScaledHeight.toDouble())
                 }
 
                 ctx.box.y = ctx.newY.toInt()
@@ -270,6 +285,7 @@ class EditTranscriptBoxesScreen(val boxes: MutableList<TranscriptBox>, val paren
 
             if (mode.contains(MoveMode.END_Y) && !mode.contains(MoveMode.START_Y)) {
                 ctx.newHeight += mouseY - ctx.lastMouseY
+                ctx.newHeight = Mth.clamp(ctx.newHeight, 12.0, this.minecraft!!.window.guiScaledHeight.toDouble())
                 ctx.box.height = ctx.newHeight.toInt()
             }
 

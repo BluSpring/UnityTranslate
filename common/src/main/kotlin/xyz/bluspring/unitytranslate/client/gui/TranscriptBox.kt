@@ -11,6 +11,7 @@ import net.minecraft.util.Mth
 import net.minecraft.world.entity.player.Player
 import xyz.bluspring.unitytranslate.Language
 import xyz.bluspring.unitytranslate.UnityTranslate
+import xyz.bluspring.unitytranslate.client.UnityTranslateClient
 import xyz.bluspring.unitytranslate.events.TranscriptEvents
 import xyz.bluspring.unitytranslate.transcript.Transcript
 import java.util.*
@@ -76,9 +77,13 @@ data class TranscriptBox(
         guiGraphics.drawCenteredString(Minecraft.getInstance().font, Component.translatable("unitytranslate.transcript").append(" (${language.code.uppercase()})")
             .withStyle(ChatFormatting.UNDERLINE, ChatFormatting.BOLD), x + (width / 2), y + 5, 16777215)
 
+        if (!UnityTranslateClient.shouldTranscribe) {
+            guiGraphics.blit(TRANSCRIPT_MUTED, x + width - 20, y + 2, 0f, 0f, 16, 16, 16, 16)
+        }
+
         guiGraphics.enableScissor(x, y + 15, x + width, y + height)
 
-        val lines = transcripts.sortedByDescending { it.lastUpdateTime }
+        val lines = transcripts.sortedByDescending { it.arrivalTime }
 
         val font = Minecraft.getInstance().font
         val scale = UnityTranslate.config.client.textScale / 100f
@@ -162,5 +167,9 @@ data class TranscriptBox(
         this.transcripts.add(Transcript(index, source, text, language, updateTime, incomplete).apply {
             TranscriptEvents.UPDATE.invoker().onTranscriptUpdate(this, this@TranscriptBox.language)
         })
+    }
+
+    companion object {
+        val TRANSCRIPT_MUTED = UnityTranslate.id("textures/gui/transcription_muted.png")
     }
 }

@@ -13,9 +13,9 @@ data class UnityTranslateConfig(
 ) {
     @Serializable
     data class ClientConfig(
-        var enabled: Boolean = true,
+        var enabled: Boolean = false,
         var openBrowserWithoutPrompt: Boolean = false,
-        var muteTranscriptWhenVoiceChatMuted: Boolean = false,
+        var muteTranscriptWhenVoiceChatMuted: Boolean = true,
 
         @get:IntRange(from = 10, to = 300, increment = 10)
         var textScale: Int = 100,
@@ -42,11 +42,13 @@ data class UnityTranslateConfig(
             TranslationPriority.OFFLOADED,  // use alternative servers if available
             TranslationPriority.CLIENT_CPU, // worst case scenario, use client CPU.
         ),
+
+        @get:DependsOn("shouldRunTranslationServer")
         var shouldUseCuda: Boolean = true,
 
-        var shouldRunTranslationServer: Boolean = false,
+        var shouldRunTranslationServer: Boolean = true,
         @get:DependsOn("shouldRunTranslationServer")
-        @get:IntRange(from = 1, to = 8, increment = 1)
+        @get:IntRange(from = 1, to = 128, increment = 1)
         var libreTranslateThreads: Int = 4,
 
         var offloadServers: MutableList<OffloadedLibreTranslateServer> = mutableListOf(
@@ -58,7 +60,10 @@ data class UnityTranslateConfig(
         // This is done so redundant translations don't go through,
         // which puts unnecessary stress on the translation instances.
         @get:FloatRange(from = 0.5f, to = 5.0f, increment = 0.1f)
-        var batchTranslateInterval: Float = 0.5f // 500ms
+        var batchTranslateInterval: Float = 0.5f, // 500ms
+
+        // TODO: Unity MP exclusive, remove later
+        var enabled: Boolean = false,
     )
 
     @Serializable

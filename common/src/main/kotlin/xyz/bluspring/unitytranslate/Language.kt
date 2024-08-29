@@ -48,6 +48,102 @@ enum class Language(
     )),
     CHINESE("zh", mapOf(
         TranscriberType.BROWSER to "zh"
+    )),
+    ITALIAN("it", mapOf(
+        TranscriberType.BROWSER to "it"
+    )),
+    CHINESE_TRADITIONAL("zt", mapOf(
+        TranscriberType.BROWSER to "zh" // TODO: ???
+    )),
+    CZECH("cs", mapOf(
+        TranscriberType.BROWSER to "cs"
+    )),
+    DANISH("da", mapOf(
+        TranscriberType.BROWSER to "da"
+    )),
+    DUTCH("nl", mapOf(
+        TranscriberType.BROWSER to "nl"
+    )),
+    FINNISH("fi", mapOf(
+        TranscriberType.BROWSER to "fi"
+    )),
+    GREEK("el", mapOf(
+        TranscriberType.BROWSER to "el"
+    )),
+    HINDI("hi", mapOf(
+        TranscriberType.BROWSER to "hi"
+    )),
+    HUNGARIAN("hu", mapOf(
+        TranscriberType.BROWSER to "hu"
+    )),
+    INDONESIAN("id", mapOf(
+        TranscriberType.BROWSER to "id"
+    )),
+    KOREAN("ko", mapOf(
+        TranscriberType.BROWSER to "ko"
+    )),
+    NORWEGIAN("nb", mapOf(
+        TranscriberType.BROWSER to "nb"
+    )),
+    POLISH("pl", mapOf(
+        TranscriberType.BROWSER to "pl"
+    )),
+    TAGALOG("tl", mapOf(
+        TranscriberType.BROWSER to "tl"
+    )),
+    THAI("th", mapOf(
+        TranscriberType.BROWSER to "th"
+    )),
+    TURKISH("tr", mapOf(
+        TranscriberType.BROWSER to "tr"
+    )),
+    UKRAINIAN("uk", mapOf(
+        TranscriberType.BROWSER to "uk"
+    )),
+    BULGARIAN("bg", mapOf(
+        TranscriberType.BROWSER to "bg"
+    )),
+    ALBANIAN("sq", mapOf(
+        TranscriberType.BROWSER to "sq"
+    )),
+    AZERBAIJANI("az", mapOf(
+        TranscriberType.BROWSER to "az"
+    )),
+    BENGALI("bn", mapOf(
+        TranscriberType.BROWSER to "bn"
+    )),
+    CATALAN("ca", mapOf(
+        TranscriberType.BROWSER to "ca"
+    )),
+    ESPERANTO("eo", mapOf(
+        TranscriberType.BROWSER to "eo"
+    )),
+    ESTONIAN("et", mapOf(
+        TranscriberType.BROWSER to "et"
+    )),
+    IRISH("ga", mapOf(
+        TranscriberType.BROWSER to "ga"
+    )),
+    LATVIAN("lv", mapOf(
+        TranscriberType.BROWSER to "lv"
+    )),
+    LITHUANIAN("lt", mapOf(
+        TranscriberType.BROWSER to "lt"
+    )),
+    PERSIAN("fa", mapOf(
+        TranscriberType.BROWSER to "fa"
+    )),
+    ROMANIAN("ro", mapOf(
+        TranscriberType.BROWSER to "ro"
+    )),
+    SLOVAK("sk", mapOf(
+        TranscriberType.BROWSER to "sk"
+    )),
+    SLOVENIAN("sl", mapOf(
+        TranscriberType.BROWSER to "sl"
+    )),
+    URDU("ur", mapOf(
+        TranscriberType.BROWSER to "ur"
     ));
 
     override fun toString(): String {

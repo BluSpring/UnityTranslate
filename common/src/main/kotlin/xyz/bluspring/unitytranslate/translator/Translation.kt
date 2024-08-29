@@ -13,4 +13,6 @@ data class Translation(
     val future: CompletableFuture<String>,
     val player: Player,
     val index: Int
-)
+) {
+    var attempts = 0
+}

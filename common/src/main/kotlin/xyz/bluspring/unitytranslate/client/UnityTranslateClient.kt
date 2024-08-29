@@ -4,6 +4,7 @@ import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
@@ -14,18 +15,18 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.network.chat.CommonComponents
 import net.minecraft.network.chat.Component
-import xyz.bluspring.unitytranslate.PacketIds
+import xyz.bluspring.unitytranslate.network.PacketIds
 import xyz.bluspring.unitytranslate.UnityTranslate
-import xyz.bluspring.unitytranslate.client.gui.EditTranscriptBoxesScreen
-import xyz.bluspring.unitytranslate.client.gui.LanguageSelectScreen
-import xyz.bluspring.unitytranslate.client.gui.TranscriptBox
+import xyz.bluspring.unitytranslate.client.gui.*
 import xyz.bluspring.unitytranslate.client.transcribers.SpeechTranscriber
 import xyz.bluspring.unitytranslate.client.transcribers.windows.sapi5.WindowsSpeechApiTranscriber
 import xyz.bluspring.unitytranslate.compat.talkballoons.TalkBalloonsCompat
 import xyz.bluspring.unitytranslate.network.UTClientNetworking
 import xyz.bluspring.unitytranslate.translator.LocalLibreTranslateInstance
 import xyz.bluspring.unitytranslate.translator.TranslatorManager
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.function.BiConsumer
+import java.util.function.Consumer
 
 class UnityTranslateClient : ClientModInitializer {
     override fun onInitializeClient() {
@@ -36,7 +37,7 @@ class UnityTranslateClient : ClientModInitializer {
         setupTranscriber(transcriber)
 
         HudRenderCallback.EVENT.register { guiGraphics, delta ->
-            if (shouldRenderBoxes) {
+            if (shouldRenderBoxes && UnityTranslate.config.client.enabled) {
                 for (languageBox in languageBoxes) {
                     languageBox.render(guiGraphics, delta)
                 }
@@ -145,7 +146,7 @@ class UnityTranslateClient : ClientModInitializer {
     }
 
     private fun setupCompat() {
-        if (FabricLoader.getInstance().isModLoaded("talk_balloons")) {
+        if (isTalkBalloonsInstalled) {
             TalkBalloonsCompat.init()
         }
     }
@@ -169,6 +170,8 @@ class UnityTranslateClient : ClientModInitializer {
         val SET_SPOKEN_LANGUAGE = KeyBindingHelper.registerKeyBinding(KeyMapping("unitytranslate.set_spoken_language", -1, "UnityTranslate"))
         val CLEAR_TRANSCRIPTS = KeyBindingHelper.registerKeyBinding(KeyMapping("unitytranslate.clear_transcripts", -1, "UnityTranslate"))
 
+        val isTalkBalloonsInstalled = FabricLoader.getInstance().isModLoaded("talk_balloons")
+
         fun displayMessage(component: Component, isError: Boolean = false) {
             val full = Component.empty()
                 .append(Component.literal("[UnityTranslate]: ")
@@ -185,6 +188,33 @@ class UnityTranslateClient : ClientModInitializer {
 
             guiGraphics.drawString(font, "UnityTranslate v$version", 2, Minecraft.getInstance().window.guiScaledHeight - (font.lineHeight * 2) - 4, 0xAAAAAA)
             guiGraphics.drawString(font, Component.translatable("unitytranslate.credit.author"), 2, Minecraft.getInstance().window.guiScaledHeight - font.lineHeight - 2, 0xAAAAAA)
+        }
+
+        private val queuedForJoin = ConcurrentLinkedQueue<Consumer<Minecraft>>()
+
+        init {
+            ClientPlayConnectionEvents.JOIN.register { _, _, mc ->
+                for (consumer in queuedForJoin) {
+                    consumer.accept(mc)
+                }
+                queuedForJoin.clear()
+            }
+        }
+
+        fun openDownloadRequest() {
+            queuedForJoin.add { mc ->
+                if (mc.screen is OpenBrowserScreen) {
+                    mc.execute {
+                        mc.setScreen(RequestDownloadScreen().apply {
+                            parent = mc.screen
+                        })
+                    }
+                } else {
+                    mc.execute {
+                        mc.setScreen(RequestDownloadScreen())
+                    }
+                }
+            }
         }
     }
 }

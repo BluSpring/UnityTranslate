@@ -32,7 +32,17 @@ class UTVoiceChatCompat : VoicechatPlugin {
         lateinit var voiceChatServer: VoicechatServerApi
 
         fun getNearbyPlayers(source: ServerPlayer): List<ServerPlayer> {
-            return source.serverLevel().getPlayers { it.distanceToSqr(source) <= voiceChatServer.voiceChatDistance * voiceChatServer.voiceChatDistance }
+            if (isPlayerDeafened(source))
+                return listOf()
+
+            return source.serverLevel().getPlayers { !isPlayerDeafened(it) && ((it.distanceToSqr(source) <= voiceChatServer.voiceChatDistance * voiceChatServer.voiceChatDistance && !it.isInvisibleTo(source)) || playerSharesGroup(it, source)) }
+        }
+
+        fun playerSharesGroup(player: ServerPlayer, other: ServerPlayer): Boolean {
+            val firstGroup = voiceChatServer.getConnectionOf(player.uuid)?.group ?: return false
+            val secondGroup = voiceChatServer.getConnectionOf(other.uuid)?.group ?: return false
+
+            return firstGroup.id == secondGroup.id
         }
 
         fun isPlayerDeafened(player: ServerPlayer): Boolean {

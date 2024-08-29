@@ -5,7 +5,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.server.level.ServerPlayer
 import xyz.bluspring.unitytranslate.Language
-import xyz.bluspring.unitytranslate.PacketIds
+import xyz.bluspring.unitytranslate.UnityTranslate
 import xyz.bluspring.unitytranslate.UnityTranslate.Companion.hasVoiceChat
 import xyz.bluspring.unitytranslate.compat.voicechat.UTVoiceChatCompat
 import xyz.bluspring.unitytranslate.translator.TranslatorManager
@@ -59,6 +59,12 @@ object UTServerNetworking {
 
         ServerPlayConnectionEvents.JOIN.register { handler, sender, server ->
             ServerPlayNetworking.send(handler.player, PacketIds.SERVER_SUPPORT, PacketByteBufs.empty())
+
+            if (UnityTranslate.IS_UNITY_SERVER) {
+                val buf = PacketByteBufs.create()
+                buf.writeBoolean(UnityTranslate.config.server.enabled)
+                ServerPlayNetworking.send(handler.player, PacketIds.TOGGLE_MOD, buf)
+            }
         }
 
         ServerPlayConnectionEvents.DISCONNECT.register { handler, server ->
