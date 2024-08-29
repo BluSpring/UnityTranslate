@@ -1,0 +1,109 @@
+architectury {
+    platformSetupLoomIde()
+    forge()
+}
+
+configurations {
+    common
+    shadowCommon // Don't use shadow from the shadow plugin because we don't want IDEA to index this.
+    compileClasspath.extendsFrom common
+    runtimeClasspath.extendsFrom common
+    developmentForge.extendsFrom common
+}
+
+repositories {
+    maven {
+        name = 'Kotlin for Forge'
+        url = 'https://thedarkcolour.github.io/KotlinForForge/'
+    }
+}
+
+loom {
+    forge {
+        mixinConfig "unitytranslate.mixins.json"
+    }
+}
+
+dependencies {
+    forge "net.neoforged:forge:${rootProject.forge_version}"
+    // Remove the next line if you don't want to depend on the API
+    modApi "dev.architectury:architectury-forge:${rootProject.architectury_version}"
+    api("thedarkcolour:kotlinforforge:${rootProject.forge_kotlin_version}")
+
+    common(project(path: ":common", configuration: "namedElements")) { transitive false }
+    shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
+
+    modRuntimeOnly "maven.modrinth:simple-voice-chat:forge-${rootProject.voicechat_version}"
+
+    modImplementation("maven.modrinth:talk-balloons:kN8kdQ22") // 1.0.0
+    // don't use anything from here. this is only for Talk Balloons compat.
+    modImplementation("maven.modrinth:cloth-config:${rootProject.cloth_config_version}+forge")
+    modImplementation("maven.modrinth:cerbons-api:XWZQbKsr") // 1.1.0
+
+    include(forgeRuntimeLibrary('org.java-websocket:Java-WebSocket:1.5.7'))
+
+    // the fact that I need to fucking do this bullshit for Forge to work is fucking ridiculous
+    // Forge, why the fuck are you like this
+    def ktorLibs = ["events", "http-cio", "http", "io", "network", "serialization", "server-core", "server-host-common", "server-netty", "utils", "websockets"]
+
+    for (final def lib in ktorLibs) {
+        include(forgeRuntimeLibrary("io.ktor:ktor-$lib-jvm:${rootProject.ktor_version}") {
+            transitive = false
+        })
+    }
+}
+
+processResources {
+    inputs.property "version", rootProject.version
+    inputs.property "architectury_version", rootProject.architectury_version
+    inputs.property "forge_kotlin_version", rootProject.forge_kotlin_version
+
+    filesMatching("META-INF/mods.toml") {
+        expand "version": rootProject.version,
+               "architectury_version": rootProject.architectury_version,
+               "forge_kotlin_version": rootProject.forge_kotlin_version
+    }
+}
+
+shadowJar {
+    exclude "fabric.mod.json"
+
+    configurations = [project.configurations.shadowCommon]
+    archiveClassifier.set("dev-shadow")
+}
+
+remapJar {
+    inputFile.set shadowJar.archiveFile
+    dependsOn shadowJar
+    archiveClassifier.set(null)
+}
+
+jar {
+    archiveClassifier.set("dev")
+}
+
+sourcesJar {
+    def commonSources = project(":common").sourcesJar
+    dependsOn commonSources
+    from commonSources.archiveFile.map { zipTree(it) }
+}
+
+components.java {
+    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
+        skip()
+    }
+}
+
+publishing {
+    publications {
+        mavenForge(MavenPublication) {
+            artifactId = rootProject.archives_base_name + "-" + project.name
+            from components.java
+        }
+    }
+
+    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+    repositories {
+        // Add repositories to publish to here.
+    }
+}

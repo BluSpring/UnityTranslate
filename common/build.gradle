@@ -1,0 +1,38 @@
+dependencies {
+    // We depend on fabric loader here to use the fabric @Environment annotations and get the mixin dependencies
+    // Do NOT use other classes from fabric loader
+    modImplementation "net.fabricmc:fabric-loader:${rootProject.loader_version}"
+
+    modApi "dev.architectury:architectury:${rootProject.architectury_version}"
+
+    // these are Fabric mods, but they are included for having them commonly included.
+    // their (Neo)Forge equivalents are stored in the respective build.gradle.
+    modCompileOnly("maven.modrinth:talk-balloons:1.0.0")
+    // don't use anything from here. this is only for Talk Balloons compat.
+    modCompileOnly("maven.modrinth:cloth-config:${rootProject.cloth_config_version}+fabric")
+    modCompileOnly("maven.modrinth:cerbons-api:1.1.0")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.7.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.7.2")
+}
+
+architectury {
+    common(
+        "fabric",
+        //"forge"
+    )
+}
+
+publishing {
+    publications {
+        mavenCommon(MavenPublication) {
+            artifactId = rootProject.archives_base_name
+            from components.java
+        }
+    }
+
+    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+    repositories {
+        // Add repositories to publish to here.
+    }
+}
