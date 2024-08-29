@@ -33,7 +33,7 @@ subprojects {
         implementation(shadow("io.ktor:ktor-server-netty-jvm:${rootProject.ktor_version}"))
 
         implementation "de.maxhenkel.voicechat:voicechat-api:${rootProject.voicechat_api_version}"
-        annotationProcessor(implementation("com.moulberry:mixinconstraints:1.0.1"))
+        include(annotationProcessor(implementation("com.moulberry:mixinconstraints:1.0.1")))
     }
 
     shadowJar {
