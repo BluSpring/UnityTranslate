@@ -36,8 +36,8 @@ dependencies {
 
     include(implementation('org.java-websocket:Java-WebSocket:1.5.7'))
 
-    include(implementation("io.ktor:ktor-server-core-jvm:${rootProject.ktor_version}"))
-    include(implementation("io.ktor:ktor-server-netty-jvm:${rootProject.ktor_version}"))
+    shadow(implementation("io.ktor:ktor-server-core-jvm:${rootProject.ktor_version}"))
+    shadow(implementation("io.ktor:ktor-server-netty-jvm:${rootProject.ktor_version}"))
 }
 
 processResources {
