@@ -20,7 +20,11 @@ data class UnityTranslateConfig(
         var textScale: Int = 100,
 
         val transcriptBoxes: MutableList<TranscriptBox> = mutableListOf(),
+
+        @get:Hidden
         val transcriber: TranscriberType = TranscriberType.BROWSER,
+
+        @get:Hidden
         var language: Language = Language.ENGLISH,
 
         var disappearingText: Boolean = true,
@@ -62,6 +66,7 @@ data class UnityTranslateConfig(
         var batchTranslateInterval: Float = 0.5f, // 500ms
 
         // TODO: Unity MP exclusive, remove later
+        @get:Hidden
         var enabled: Boolean = false,
     )
 

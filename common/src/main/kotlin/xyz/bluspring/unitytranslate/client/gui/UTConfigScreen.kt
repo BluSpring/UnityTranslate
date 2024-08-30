@@ -11,10 +11,8 @@ import net.minecraft.util.FastColor
 import net.minecraft.util.Mth
 import xyz.bluspring.unitytranslate.UnityTranslate
 import xyz.bluspring.unitytranslate.client.UnityTranslateClient
-import xyz.bluspring.unitytranslate.config.DependsOn
-import xyz.bluspring.unitytranslate.config.FloatRange
+import xyz.bluspring.unitytranslate.config.*
 import xyz.bluspring.unitytranslate.config.IntRange
-import xyz.bluspring.unitytranslate.config.UnityTranslateConfig
 import xyz.bluspring.unitytranslate.duck.ScrollableWidget
 import xyz.bluspring.unitytranslate.mixin.AbstractWidgetAccessor
 import kotlin.math.absoluteValue
@@ -100,6 +98,9 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
                 if (dependent != null && (configClass.declaredMembers.first { it.name == dependent.configName } as KMutableProperty<*>).getter.call(instance) != true) {
                     continue
                 }
+
+                if (member.getter.findAnnotation<Hidden>() != null)
+                    continue
 
                 val name = StringWidget(Component.translatable("config.unitytranslate.$type.${member.name}"), font)
                 name.x = 35
