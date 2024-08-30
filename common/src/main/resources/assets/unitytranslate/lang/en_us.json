@@ -30,6 +30,10 @@
     "unitytranslate.select_language": "Select Language",
     "unitytranslate.select_language.already_selected": "This option has already been selected!",
     "unitytranslate.clear_transcripts": "Clear Transcripts",
+    "unitytranslate.translate_sign": "Translate Sign",
+    "unitytranslate.open_config": "Open Config GUI",
+
+    "unitytranslate.transcribe_sign": "Sign text translated from %s to %s:\n\n%s",
 
     "unitytranslate.transcript_boxes": "Transcript Boxes",
     "unitytranslate.transcript": "Transcript",

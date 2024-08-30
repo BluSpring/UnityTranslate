@@ -48,6 +48,24 @@ object TranslatorManager {
         }
     }
 
+    fun detectLanguage(line: String): Language? {
+        val possible = instances.sortedByDescending { it.weight.asInt() }
+
+        if (possible.isEmpty()) {
+            UnityTranslate.logger.warn("No available instances available for detecting language for line \"$line\"!")
+            return null
+        }
+
+        for (instance in possible) {
+            val lang = instance.detectLanguage(line) ?: continue
+            return lang
+        }
+
+        UnityTranslate.logger.warn("Failed to detect language for line \"$line\"!")
+
+        return null
+    }
+
     fun translateLine(line: String, from: Language, to: Language): String? {
         val possible = instances.filter { it.supportsLanguage(from, to) }.sortedByDescending { it.weight.asInt() }
 

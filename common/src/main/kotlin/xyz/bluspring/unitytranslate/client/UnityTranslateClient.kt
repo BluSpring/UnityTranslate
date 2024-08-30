@@ -1,5 +1,6 @@
 package xyz.bluspring.unitytranslate.client
 
+import com.mojang.blaze3d.platform.InputConstants
 import dev.architectury.event.events.client.ClientGuiEvent
 import dev.architectury.event.events.client.ClientLifecycleEvent
 import dev.architectury.event.events.client.ClientPlayerEvent
@@ -11,6 +12,8 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.network.chat.CommonComponents
 import net.minecraft.network.chat.Component
+import net.minecraft.world.phys.BlockHitResult
+import net.minecraft.world.phys.HitResult
 import xyz.bluspring.unitytranslate.network.PacketIds
 import xyz.bluspring.unitytranslate.UnityTranslate
 import xyz.bluspring.unitytranslate.client.gui.*
@@ -73,6 +76,23 @@ class UnityTranslateClient {
                     box.transcripts.clear()
                 }
             }
+
+            if (OPEN_CONFIG_GUI.consumeClick()) {
+                mc.setScreen(UTConfigScreen(null))
+            }
+
+            /*if (TRANSLATE_SIGN.consumeClick()) {
+                if (mc.player != null && mc.level != null) {
+                    val hitResult = mc.player?.pick(7.5, mc.frameTime, false)
+
+                    if (hitResult != null && hitResult is BlockHitResult) {
+                        val buf = UnityTranslate.instance.proxy.createByteBuf()
+                        buf.writeBlockPos(hitResult.blockPos)
+
+                        UnityTranslate.instance.proxy.sendPacketClient(PacketIds.TRANSLATE_SIGN, buf)
+                    }
+                }
+            }*/
 
             // prune transcripts
             val currentTime = System.currentTimeMillis()
@@ -165,6 +185,8 @@ class UnityTranslateClient {
         val TOGGLE_BOXES = (KeyMapping("unitytranslate.toggle_boxes", -1, "UnityTranslate"))
         val SET_SPOKEN_LANGUAGE = (KeyMapping("unitytranslate.set_spoken_language", -1, "UnityTranslate"))
         val CLEAR_TRANSCRIPTS = (KeyMapping("unitytranslate.clear_transcripts", -1, "UnityTranslate"))
+        //val TRANSLATE_SIGN = (KeyMapping("unitytranslate.translate_sign", InputConstants.KEY_F8, "UnityTranslate"))
+        val OPEN_CONFIG_GUI = (KeyMapping("unitytranslate.open_config", InputConstants.KEY_F7, "UnityTranslate"))
 
         @JvmStatic
         fun registerKeys() {
@@ -173,6 +195,8 @@ class UnityTranslateClient {
             KeyMappingRegistry.register(TOGGLE_BOXES)
             KeyMappingRegistry.register(SET_SPOKEN_LANGUAGE)
             KeyMappingRegistry.register(CLEAR_TRANSCRIPTS)
+            //KeyMappingRegistry.register(TRANSLATE_SIGN)
+            KeyMappingRegistry.register(OPEN_CONFIG_GUI)
         }
 
         val isTalkBalloonsInstalled = UnityTranslate.instance.proxy.isModLoaded("talk_balloons")

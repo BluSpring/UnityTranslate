@@ -8,4 +8,6 @@ object PacketIds {
     val SET_USED_LANGUAGES = UnityTranslate.id("set_used_languages")
     val MARK_INCOMPLETE = UnityTranslate.id("mark_incomplete")
     val TOGGLE_MOD = UnityTranslate.id("toggle")
+    val TRANSLATE_SIGN = UnityTranslate.id("translate_sign")
+    val SET_CURRENT_LANGUAGE = UnityTranslate.id("set_current_language")
 }

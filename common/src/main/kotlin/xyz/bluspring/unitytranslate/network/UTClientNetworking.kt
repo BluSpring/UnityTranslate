@@ -28,23 +28,32 @@ object UTClientNetworking {
 
                 proxy.sendPacketClient(PacketIds.SET_USED_LANGUAGES, buf)
             }
+
+            Minecraft.getInstance().execute {
+                val buf = UnityTranslate.instance.proxy.createByteBuf()
+                buf.writeEnum(UnityTranslate.config.client.language)
+
+                UnityTranslate.instance.proxy.sendPacketClient(PacketIds.SET_CURRENT_LANGUAGE, buf)
+            }
         }
 
-        NetworkManager.registerReceiver(NetworkManager.Side.S2C, PacketIds.TOGGLE_MOD) { buf, ctx ->
-            val isEnabled = buf.readBoolean()
-            UnityTranslate.config.client.enabled = isEnabled
+        if (UnityTranslate.IS_UNITY_SERVER && Minecraft.getInstance().level?.server == null) {
+            NetworkManager.registerReceiver(NetworkManager.Side.S2C, PacketIds.TOGGLE_MOD) { buf, ctx ->
+                val isEnabled = buf.readBoolean()
+                UnityTranslate.config.client.enabled = isEnabled
 
-            if (isEnabled) {
-                val transcriber = UnityTranslateClient.transcriber
+                if (isEnabled) {
+                    val transcriber = UnityTranslateClient.transcriber
 
-                if (transcriber is BrowserSpeechTranscriber && transcriber.socket.totalConnections <= 0) {
-                    val serverPort = transcriber.serverPort
+                    if (transcriber is BrowserSpeechTranscriber && transcriber.socket.totalConnections <= 0) {
+                        val serverPort = transcriber.serverPort
 
-                    ctx.queue {
-                        if (UnityTranslate.config.client.openBrowserWithoutPrompt) {
-                            Util.getPlatform().openUri("http://127.0.0.1:$serverPort")
-                        } else {
-                            Minecraft.getInstance().setScreen(OpenBrowserScreen("http://127.0.0.1:$serverPort"))
+                        ctx.queue {
+                            if (UnityTranslate.config.client.openBrowserWithoutPrompt) {
+                                Util.getPlatform().openUri("http://127.0.0.1:$serverPort")
+                            } else {
+                                Minecraft.getInstance().setScreen(OpenBrowserScreen("http://127.0.0.1:$serverPort"))
+                            }
                         }
                     }
                 }

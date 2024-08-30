@@ -2,7 +2,12 @@ package xyz.bluspring.unitytranslate.network
 
 import dev.architectury.event.events.common.PlayerEvent
 import dev.architectury.networking.NetworkManager
+import net.minecraft.ChatFormatting
+import net.minecraft.core.Direction
+import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.level.block.SignBlock
+import net.minecraft.world.level.block.entity.SignBlockEntity
 import xyz.bluspring.unitytranslate.Language
 import xyz.bluspring.unitytranslate.UnityTranslate
 import xyz.bluspring.unitytranslate.UnityTranslate.Companion.hasVoiceChat
@@ -15,6 +20,7 @@ import java.util.concurrent.ConcurrentLinkedDeque
 
 object UTServerNetworking {
     val proxy = UnityTranslate.instance.proxy
+    val playerLanguages = ConcurrentHashMap<UUID, Language>()
 
     fun init() {
         val usedLanguages = ConcurrentHashMap<UUID, EnumSet<Language>>()
@@ -56,6 +62,45 @@ object UTServerNetworking {
                         }
                     }
                 }
+        }
+
+        NetworkManager.registerReceiver(NetworkManager.Side.C2S, PacketIds.SET_CURRENT_LANGUAGE) { buf, ctx ->
+            val language = buf.readEnum(Language::class.java)
+            val player = ctx.player
+
+            playerLanguages[player.uuid] = language
+        }
+
+        NetworkManager.registerReceiver(NetworkManager.Side.C2S, PacketIds.TRANSLATE_SIGN) { buf, ctx ->
+            val pos = buf.readBlockPos()
+
+            val player = ctx.player
+            val level = player.level()
+
+            val state = level.getBlockState(pos)
+
+            if (state.block !is SignBlock)
+                return@registerReceiver
+
+            ctx.queue {
+                val entity = level.getBlockEntity(pos)
+
+                if (entity !is SignBlockEntity)
+                    return@queue
+
+                val text = (if (entity.isFacingFrontText(player)) entity.frontText else entity.backText)
+                    .getMessages(false)
+                    .joinToString("\n") { it.string }
+
+                val language = TranslatorManager.detectLanguage(text) ?: Language.ENGLISH
+                val toLang = this.playerLanguages.getOrElse(player.uuid) { Language.ENGLISH }
+
+                player.displayClientMessage(Component.empty()
+                        .append(Component.literal("[UnityTranslate]: ").withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD))
+                        .append(Component.translatable("unitytranslate.transcribe_sign", language.text, toLang.text, TranslatorManager.translateLine(text, language, toLang))),
+                    false
+                )
+            }
         }
 
         PlayerEvent.PLAYER_JOIN.register { player ->
