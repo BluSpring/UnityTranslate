@@ -28,7 +28,36 @@ dependencies {
     forge "net.neoforged:forge:${rootProject.forge_version}"
     // Remove the next line if you don't want to depend on the API
     modApi "dev.architectury:architectury-forge:${rootProject.architectury_version}"
-    api("thedarkcolour:kotlinforforge:${rootProject.forge_kotlin_version}")
+
+    def kotlinModules = [
+            "kotlin-stdlib",
+            "kotlin-stdlib-jdk7",
+            "kotlin-stdlib-jdk8",
+            "kotlin-reflect"
+    ]
+
+    def coroutinesModules = [
+            "kotlinx-coroutines-core",
+            "kotlinx-coroutines-core-jvm",
+            "kotlinx-coroutines-jdk8"
+    ]
+
+    def serializationModules = [
+            "kotlinx-serialization-core",
+            "kotlinx-serialization-json"
+    ]
+
+    for (final def module in kotlinModules) {
+        forgeRuntimeLibrary("org.jetbrains.kotlin:$module:${rootProject.kotlin_version}")
+    }
+
+    for (final def module in coroutinesModules) {
+        forgeRuntimeLibrary("org.jetbrains.kotlinx:$module:${rootProject.kotlin_coroutines_version}")
+    }
+
+    for (final def module in serializationModules) {
+        forgeRuntimeLibrary("org.jetbrains.kotlinx:$module:${rootProject.kotlin_serialization_version}")
+    }
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
@@ -42,15 +71,8 @@ dependencies {
 
     include(forgeRuntimeLibrary('org.java-websocket:Java-WebSocket:1.5.7'))
 
-    // the fact that I need to fucking do this bullshit for Forge to work is fucking ridiculous
-    // Forge, why the fuck are you like this
-    def ktorLibs = ["events", "http-cio", "http", "io", "network", "serialization", "server-core", "server-host-common", "server-netty", "utils", "websockets"]
-
-    for (final def lib in ktorLibs) {
-        include(forgeRuntimeLibrary("io.ktor:ktor-$lib-jvm:${rootProject.ktor_version}") {
-            transitive = false
-        })
-    }
+    include(forgeRuntimeLibrary("io.ktor:ktor-server-core-jvm:${rootProject.ktor_version}"))
+    include(forgeRuntimeLibrary("io.ktor:ktor-server-netty-jvm:${rootProject.ktor_version}"))
 }
 
 processResources {
