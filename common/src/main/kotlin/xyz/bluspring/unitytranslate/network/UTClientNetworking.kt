@@ -48,16 +48,8 @@ object UTClientNetworking {
             if (isEnabled) {
                 val transcriber = UnityTranslateClient.transcriber
 
-                if (transcriber is BrowserSpeechTranscriber && transcriber.socket.totalConnections <= 0) {
-                    val serverPort = transcriber.serverPort
-
-                    ctx.queue {
-                        if (UnityTranslate.config.client.openBrowserWithoutPrompt) {
-                            Util.getPlatform().openUri("http://127.0.0.1:$serverPort")
-                        } else {
-                            Minecraft.getInstance().setScreen(OpenBrowserScreen("http://127.0.0.1:$serverPort"))
-                        }
-                    }
+                if (transcriber is BrowserSpeechTranscriber) {
+                    transcriber.openWebsite()
                 }
             }
         }

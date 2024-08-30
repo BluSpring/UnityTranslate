@@ -43,17 +43,21 @@ class BrowserSpeechTranscriber(language: Language) : SpeechTranscriber(language)
         socket.start()
 
         ClientPlayerEvent.CLIENT_PLAYER_JOIN.register { _ ->
-            val mc = Minecraft.getInstance()
+            openWebsite()
+        }
+    }
 
-            if (socket.totalConnections <= 0 && UnityTranslate.config.client.enabled) {
-                if (UnityTranslate.config.client.openBrowserWithoutPrompt) {
-                    Util.getPlatform().openUri("http://127.0.0.1:$serverPort")
+    fun openWebsite() {
+        val mc = Minecraft.getInstance()
+
+        if (socket.totalConnections <= 0 && UnityTranslate.config.client.enabled) {
+            if (UnityTranslate.config.client.openBrowserWithoutPrompt) {
+                Util.getPlatform().openUri("http://127.0.0.1:$serverPort")
+            } else {
+                if (mc.screen is RequestDownloadScreen) {
+                    (mc.screen as RequestDownloadScreen).parent = OpenBrowserScreen("http://127.0.0.1:$serverPort")
                 } else {
-                    if (mc.screen is RequestDownloadScreen) {
-                        (mc.screen as RequestDownloadScreen).parent = OpenBrowserScreen("http://127.0.0.1:$serverPort")
-                    } else {
-                        mc.setScreen(OpenBrowserScreen("http://127.0.0.1:$serverPort"))
-                    }
+                    mc.setScreen(OpenBrowserScreen("http://127.0.0.1:$serverPort"))
                 }
             }
         }

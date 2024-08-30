@@ -19,6 +19,7 @@ import xyz.bluspring.unitytranslate.UnityTranslate
 import xyz.bluspring.unitytranslate.client.gui.*
 import xyz.bluspring.unitytranslate.client.transcribers.SpeechTranscriber
 import xyz.bluspring.unitytranslate.client.transcribers.windows.sapi5.WindowsSpeechApiTranscriber
+import xyz.bluspring.unitytranslate.commands.UnityTranslateClientCommands
 import xyz.bluspring.unitytranslate.compat.talkballoons.TalkBalloonsCompat
 import xyz.bluspring.unitytranslate.network.UTClientNetworking
 import xyz.bluspring.unitytranslate.translator.LocalLibreTranslateInstance
@@ -31,6 +32,7 @@ class UnityTranslateClient {
     init {
         WindowsSpeechApiTranscriber.isSupported() // runs a check to load Windows Speech API. why write the code again anyway?
         setupCompat()
+        UnityTranslateClientCommands.init()
 
         transcriber = UnityTranslate.config.client.transcriber.creator.invoke(UnityTranslate.config.client.language)
         setupTranscriber(transcriber)
