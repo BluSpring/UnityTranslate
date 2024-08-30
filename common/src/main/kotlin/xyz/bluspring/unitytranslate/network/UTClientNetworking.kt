@@ -37,23 +37,25 @@ object UTClientNetworking {
             }
         }
 
-        if (UnityTranslate.IS_UNITY_SERVER && Minecraft.getInstance().level?.server == null) {
-            NetworkManager.registerReceiver(NetworkManager.Side.S2C, PacketIds.TOGGLE_MOD) { buf, ctx ->
-                val isEnabled = buf.readBoolean()
-                UnityTranslate.config.client.enabled = isEnabled
+        NetworkManager.registerReceiver(NetworkManager.Side.S2C, PacketIds.TOGGLE_MOD) { buf, ctx ->
+            val isEnabled = buf.readBoolean()
+            UnityTranslate.config.client.enabled = isEnabled
 
-                if (isEnabled) {
-                    val transcriber = UnityTranslateClient.transcriber
+            if (!UnityTranslate.IS_UNITY_SERVER || Minecraft.getInstance().hasSingleplayerServer()) {
+                return@registerReceiver
+            }
 
-                    if (transcriber is BrowserSpeechTranscriber && transcriber.socket.totalConnections <= 0) {
-                        val serverPort = transcriber.serverPort
+            if (isEnabled) {
+                val transcriber = UnityTranslateClient.transcriber
 
-                        ctx.queue {
-                            if (UnityTranslate.config.client.openBrowserWithoutPrompt) {
-                                Util.getPlatform().openUri("http://127.0.0.1:$serverPort")
-                            } else {
-                                Minecraft.getInstance().setScreen(OpenBrowserScreen("http://127.0.0.1:$serverPort"))
-                            }
+                if (transcriber is BrowserSpeechTranscriber && transcriber.socket.totalConnections <= 0) {
+                    val serverPort = transcriber.serverPort
+
+                    ctx.queue {
+                        if (UnityTranslate.config.client.openBrowserWithoutPrompt) {
+                            Util.getPlatform().openUri("http://127.0.0.1:$serverPort")
+                        } else {
+                            Minecraft.getInstance().setScreen(OpenBrowserScreen("http://127.0.0.1:$serverPort"))
                         }
                     }
                 }
