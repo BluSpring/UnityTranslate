@@ -13,6 +13,7 @@ object UnityTranslateCommands {
         .executes { ctx ->
             ctx.source.sendSystemMessage(ComponentUtils.formatList(listOf(
                 Component.literal("UnityTranslate v${UnityTranslate.instance.proxy.modVersion}"),
+                Component.literal("- Mod Enabled: ${UnityTranslate.config.server.enabled}"),
                 Component.literal("- Total instances loaded: ${TranslatorManager.instances.size}"),
                 Component.literal("- Queued translations: ${TranslatorManager.queuedTranslations.size}"),
                 Component.empty(),
