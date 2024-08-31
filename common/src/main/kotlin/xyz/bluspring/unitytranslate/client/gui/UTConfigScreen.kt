@@ -24,6 +24,11 @@ import kotlin.reflect.full.findAnnotation
 
 class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("UnityTranslate")) {
     override fun init() {
+        if (UnityTranslate.IS_UNITY_SERVER && !UnityTranslate.config.client.enabled) {
+            Minecraft.getInstance().setScreen(null)
+            return
+        }
+
         val width = (this.width / 4).coerceAtLeast(250)
 
         addRenderableWidget(
@@ -85,6 +90,11 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
             }
 
         override fun init() {
+            if (UnityTranslate.IS_UNITY_SERVER && !UnityTranslate.config.client.enabled) {
+                Minecraft.getInstance().setScreen(null)
+                return
+            }
+
             var y = 75
 
             for (member in configClass.declaredMembers) {
