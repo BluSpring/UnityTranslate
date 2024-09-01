@@ -266,6 +266,8 @@ object TranslatorManager {
                 e.printStackTrace()
             }
         }
+
+        loadFromConfig()
     }
 
     fun init() {
@@ -283,6 +285,7 @@ object TranslatorManager {
 
         LifecycleEvent.SERVER_STOPPING.register {
             timer.cancel()
+            instances.removeIf { it is LocalLibreTranslateInstance }
         }
 
         PlayerEvent.PLAYER_QUIT.register { player ->
@@ -308,48 +311,52 @@ object TranslatorManager {
 
         timer.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
-                val queueLater = ConcurrentLinkedQueue<Translation>()
-                val toTranslate = mutableMapOf<Pair<Language, Language>, MutableList<Translation>>()
+                try {
+                    val queueLater = ConcurrentLinkedQueue<Translation>()
+                    val toTranslate = mutableMapOf<Pair<Language, Language>, MutableList<Translation>>()
 
-                while (queuedTranslations.isNotEmpty()) {
-                    val translation = queuedTranslations.remove()
+                    while (queuedTranslations.isNotEmpty()) {
+                        val translation = queuedTranslations.remove()
 
-                    toTranslate.computeIfAbsent(translation.fromLang to translation.toLang) { mutableListOf() }
-                        .add(translation)
-                }
-
-                toTranslate.forEach { (from, to), allTranslations ->
-                    val translations = allTranslations.filter {
-                        if (it.player is ServerPlayer)
-                            !it.player.hasDisconnected()
-                        else true
+                        toTranslate.computeIfAbsent(translation.fromLang to translation.toLang) { mutableListOf() }
+                            .add(translation)
                     }
 
-                    CompletableFuture.supplyAsync {
-                        batchTranslateLines(translations.map { it.text }, from, to)
-                    }
-                        .whenCompleteAsync { t, u ->
-                            translations.forEachIndexed { i, translation ->
-                                if (t != null && u == null) {
-                                    broadcastIncomplete(false, translation)
-                                    translation.future.completeAsync { t[i] }
-                                } else {
-                                    if (translation.player is ServerPlayer) {
-                                        broadcastIncomplete(true, translation)
+                    toTranslate.forEach { (from, to), allTranslations ->
+                        val translations = allTranslations.filter {
+                            if (it.player is ServerPlayer)
+                                !it.player.hasDisconnected()
+                            else true
+                        }
+
+                        CompletableFuture.supplyAsync {
+                            batchTranslateLines(translations.map { it.text }, from, to)
+                        }
+                            .whenCompleteAsync { t, u ->
+                                translations.forEachIndexed { i, translation ->
+                                    if (t != null && u == null) {
+                                        broadcastIncomplete(false, translation)
+                                        translation.future.completeAsync { t[i] }
+                                    } else {
+                                        if (translation.player is ServerPlayer) {
+                                            broadcastIncomplete(true, translation)
+                                        }
+
+                                        translation.attempts++
+                                        queueLater.add(translation)
                                     }
-
-                                    translation.attempts++
-                                    queueLater.add(translation)
                                 }
                             }
-                        }
-                }
+                    }
 
-                for (translation in queueLater) {
-                    if (queuedTranslations.any { it.id == translation.id && it.queueTime > translation.queueTime } || translation.attempts > 3)
-                        continue
+                    for (translation in queueLater) {
+                        if (queuedTranslations.any { it.id == translation.id && it.queueTime > translation.queueTime } || translation.attempts > 3)
+                            continue
 
-                    queuedTranslations.add(translation)
+                        queuedTranslations.add(translation)
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
             }
         }, 0L, (UnityTranslate.config.server.batchTranslateInterval * 1000.0).toLong())

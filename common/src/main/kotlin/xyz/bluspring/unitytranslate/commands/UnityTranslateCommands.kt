@@ -33,6 +33,14 @@ object UnityTranslateCommands {
             1
         }
 
+    val DEBUG_RESTART_TIMER = Commands.literal("debugreload")
+        .executes { ctx ->
+            TranslatorManager.loadFromConfig()
+            ctx.source.sendSystemMessage(Component.literal("Restarted timer!"))
+
+            1
+        }
+
     // Unity MP exclusive
     val TOGGLE = Commands.literal("toggle")
         .requires { UnityTranslate.IS_UNITY_SERVER }
@@ -57,4 +65,5 @@ object UnityTranslateCommands {
         .then(INFO)
         .then(CLEAR_QUEUE)
         .then(TOGGLE)
+        .then(DEBUG_RESTART_TIMER)
 }

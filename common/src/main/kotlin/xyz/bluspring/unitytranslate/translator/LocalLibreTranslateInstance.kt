@@ -145,7 +145,6 @@ class LocalLibreTranslateInstance private constructor(val process: Process, val 
                     }
 
                     hasStarted = false
-                    TranslatorManager.instances.removeIf { it is LocalLibreTranslateInstance }
                 }
 
             var attempts = 0
