@@ -258,16 +258,16 @@ object TranslatorManager {
     }
 
     fun installLibreTranslate() {
+        loadFromConfig()
+
         LocalLibreTranslateInstance.installLibreTranslate().thenApplyAsync {
             try {
-                LocalLibreTranslateInstance.launchLibreTranslate(it, instances::add)
+                LocalLibreTranslateInstance.launchLibreTranslate(it) { a -> instances.addFirst(a) }
             } catch (e: Throwable) {
                 UnityTranslate.logger.error("Failed to launch local LibreTranslate instance!")
                 e.printStackTrace()
             }
         }
-
-        loadFromConfig()
     }
 
     fun init() {
@@ -302,11 +302,15 @@ object TranslatorManager {
         for (server in UnityTranslate.config.server.offloadServers) {
             try {
                 val instance = LibreTranslateInstance(server.url, server.weight, server.authKey)
-                list.add(0, instance)
+                list.add(instance)
             } catch (e: Exception) {
                 UnityTranslate.logger.error("Failed to load an offloaded server instance!")
                 e.printStackTrace()
             }
+        }
+
+        if (LocalLibreTranslateInstance.currentInstance != null) {
+            list.add(0, LocalLibreTranslateInstance.currentInstance!!)
         }
 
         timer.scheduleAtFixedRate(object : TimerTask() {

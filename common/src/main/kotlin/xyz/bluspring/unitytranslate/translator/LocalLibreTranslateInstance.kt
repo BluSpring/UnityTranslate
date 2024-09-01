@@ -39,6 +39,7 @@ class LocalLibreTranslateInstance private constructor(val process: Process, val 
         const val DOWNLOAD_URL = "https://nightly.link/BluSpring/LibreTranslate/workflows/build/main/{PLATFORM}%20Artifacts%20%28{TYPE}%29.zip?completed=true"
         private var lastPid = -1L
         var hasStarted = false
+        var currentInstance: LocalLibreTranslateInstance? = null
 
         val libreTranslateDir = File(UnityTranslate.instance.proxy.gameDir.toFile(), ".unitytranslate")
 
@@ -78,6 +79,8 @@ class LocalLibreTranslateInstance private constructor(val process: Process, val 
 
                     lastPid = -1L
                 }
+
+            currentInstance = null
         }
 
         private fun clearDeadDirectories() {
@@ -151,7 +154,11 @@ class LocalLibreTranslateInstance private constructor(val process: Process, val 
             timer.scheduleAtFixedRate(object : TimerTask() {
                 override fun run() {
                     try {
-                        consumer.accept(LocalLibreTranslateInstance(process, port))
+                        val instance = LocalLibreTranslateInstance(process, port)
+
+                        currentInstance = instance
+                        consumer.accept(instance)
+
                         timer.cancel()
                         hasStarted = true
                     } catch (_: Exception) {
