@@ -13,7 +13,6 @@ object UnityTranslateCommands {
         .executes { ctx ->
             ctx.source.sendSystemMessage(ComponentUtils.formatList(listOf(
                 Component.literal("UnityTranslate v${UnityTranslate.instance.proxy.modVersion}"),
-                Component.literal("- Mod Enabled: ${UnityTranslate.config.server.enabled}"),
                 Component.literal("- Total instances loaded: ${TranslatorManager.instances.size}"),
                 Component.literal("- Queued translations: ${TranslatorManager.queuedTranslations.size}"),
                 Component.empty(),
@@ -41,29 +40,9 @@ object UnityTranslateCommands {
             1
         }
 
-    // Unity MP exclusive
-    val TOGGLE = Commands.literal("toggle")
-        .requires { UnityTranslate.IS_UNITY_SERVER }
-        .executes { ctx ->
-            UnityTranslate.config.server.enabled = !UnityTranslate.config.server.enabled
-            UnityTranslate.saveConfig()
-
-            val buf = UnityTranslate.instance.proxy.createByteBuf()
-            buf.writeBoolean(UnityTranslate.config.server.enabled)
-
-            for (player in ctx.source.server.playerList.players) {
-                UnityTranslate.instance.proxy.sendPacketServer(player, PacketIds.TOGGLE_MOD, buf)
-            }
-
-            ctx.source.sendSystemMessage(Component.literal("Toggled UnityTranslate for all players: ${UnityTranslate.config.server.enabled}"))
-
-            1
-        }
-
     val ROOT = Commands.literal("unitytranslate")
         .requires { it.hasPermission(3) }
         .then(INFO)
         .then(CLEAR_QUEUE)
-        .then(TOGGLE)
         .then(DEBUG_RESTART_TIMER)
 }

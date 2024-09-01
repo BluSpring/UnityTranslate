@@ -31,9 +31,6 @@ object UTServerNetworking {
         }
 
         NetworkManager.registerReceiver(NetworkManager.Side.C2S, PacketIds.SEND_TRANSCRIPT) { buf, ctx ->
-            if (!UnityTranslate.config.server.enabled)
-                return@registerReceiver
-
             val sourceLanguage = buf.readEnum(Language::class.java)
             val text = buf.readUtf()
             val index = buf.readVarInt()
@@ -108,12 +105,6 @@ object UTServerNetworking {
 
         PlayerEvent.PLAYER_JOIN.register { player ->
             proxy.sendPacketServer(player, PacketIds.SERVER_SUPPORT, proxy.createByteBuf())
-
-            if (UnityTranslate.IS_UNITY_SERVER) {
-                val buf = proxy.createByteBuf()
-                buf.writeBoolean(UnityTranslate.config.server.enabled)
-                proxy.sendPacketServer(player, PacketIds.TOGGLE_MOD, buf)
-            }
         }
 
         PlayerEvent.PLAYER_QUIT.register { player ->

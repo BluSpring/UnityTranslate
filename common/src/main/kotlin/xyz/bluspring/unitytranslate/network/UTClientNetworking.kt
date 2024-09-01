@@ -41,10 +41,6 @@ object UTClientNetworking {
             val isEnabled = buf.readBoolean()
             UnityTranslate.config.client.enabled = isEnabled
 
-            if (!UnityTranslate.IS_UNITY_SERVER || Minecraft.getInstance().hasSingleplayerServer()) {
-                return@registerReceiver
-            }
-
             if (isEnabled) {
                 val transcriber = UnityTranslateClient.transcriber
 

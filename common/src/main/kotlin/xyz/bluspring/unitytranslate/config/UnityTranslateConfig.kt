@@ -64,10 +64,6 @@ data class UnityTranslateConfig(
         // which puts unnecessary stress on the translation instances.
         @get:FloatRange(from = 0.5f, to = 5.0f, increment = 0.1f)
         var batchTranslateInterval: Float = 0.5f, // 500ms
-
-        // TODO: Unity MP exclusive, remove later
-        @get:Hidden
-        var enabled: Boolean = false,
     )
 
     @Serializable

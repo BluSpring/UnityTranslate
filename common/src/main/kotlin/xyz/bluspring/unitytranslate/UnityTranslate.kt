@@ -35,7 +35,6 @@ class UnityTranslate(val proxy: PlatformProxy) {
 
     companion object {
         const val MOD_ID = "unitytranslate"
-        const val IS_UNITY_SERVER = true // TODO: remove this on launch
 
         lateinit var instance: UnityTranslate
         lateinit var configFile: File
