@@ -49,7 +49,9 @@ object UTClientNetworking {
                 val transcriber = UnityTranslateClient.transcriber
 
                 if (transcriber is BrowserSpeechTranscriber) {
-                    transcriber.openWebsite()
+                    ctx.queue {
+                        transcriber.openWebsite()
+                    }
                 }
             }
         }

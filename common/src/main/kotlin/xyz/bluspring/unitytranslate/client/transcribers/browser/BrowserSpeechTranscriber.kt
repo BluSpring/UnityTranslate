@@ -54,10 +54,12 @@ class BrowserSpeechTranscriber(language: Language) : SpeechTranscriber(language)
             if (UnityTranslate.config.client.openBrowserWithoutPrompt) {
                 Util.getPlatform().openUri("http://127.0.0.1:$serverPort")
             } else {
-                if (mc.screen is RequestDownloadScreen) {
-                    (mc.screen as RequestDownloadScreen).parent = OpenBrowserScreen("http://127.0.0.1:$serverPort")
-                } else {
-                    mc.setScreen(OpenBrowserScreen("http://127.0.0.1:$serverPort"))
+                Minecraft.getInstance().execute {
+                    if (mc.screen is RequestDownloadScreen) {
+                        (mc.screen as RequestDownloadScreen).parent = OpenBrowserScreen("http://127.0.0.1:$serverPort")
+                    } else {
+                        mc.setScreen(OpenBrowserScreen("http://127.0.0.1:$serverPort"))
+                    }
                 }
             }
         }
