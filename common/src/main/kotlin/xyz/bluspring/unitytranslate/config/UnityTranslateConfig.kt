@@ -12,7 +12,7 @@ data class UnityTranslateConfig(
 ) {
     @Serializable
     data class ClientConfig(
-        var enabled: Boolean = false,
+        var enabled: Boolean = true,
         var openBrowserWithoutPrompt: Boolean = false,
         var muteTranscriptWhenVoiceChatMuted: Boolean = true,
 
