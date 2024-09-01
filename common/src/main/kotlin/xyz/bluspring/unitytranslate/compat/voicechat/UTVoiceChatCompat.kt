@@ -6,6 +6,7 @@ import de.maxhenkel.voicechat.api.events.EventRegistration
 import de.maxhenkel.voicechat.api.events.MicrophoneMuteEvent
 import de.maxhenkel.voicechat.api.events.VoicechatServerStartedEvent
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.level.GameType
 import xyz.bluspring.unitytranslate.UnityTranslate
 import xyz.bluspring.unitytranslate.client.UnityTranslateClient
 
@@ -33,9 +34,15 @@ class UTVoiceChatCompat : VoicechatPlugin {
 
         fun getNearbyPlayers(source: ServerPlayer): List<ServerPlayer> {
             if (isPlayerDeafened(source))
-                return listOf()
+                return listOf(source)
 
-            return source.serverLevel().getPlayers { !isPlayerDeafened(it) && ((it.distanceToSqr(source) <= voiceChatServer.voiceChatDistance * voiceChatServer.voiceChatDistance && !it.isInvisibleTo(source)) || playerSharesGroup(it, source)) }
+            return source.serverLevel().getPlayers {
+                (!isPlayerDeafened(it) &&
+                        ((it.distanceToSqr(source) <= voiceChatServer.voiceChatDistance * voiceChatServer.voiceChatDistance && areBothSpectator(it, source)) ||
+                                playerSharesGroup(it, source))
+                )
+                || it == source
+            }
         }
 
         fun playerSharesGroup(player: ServerPlayer, other: ServerPlayer): Boolean {
@@ -47,6 +54,15 @@ class UTVoiceChatCompat : VoicechatPlugin {
 
         fun isPlayerDeafened(player: ServerPlayer): Boolean {
             return voiceChatServer.getConnectionOf(player.uuid)?.isDisabled == true
+        }
+
+        fun areBothSpectator(player: ServerPlayer, other: ServerPlayer): Boolean {
+            if (player.gameMode.gameModeForPlayer == GameType.SPECTATOR && other.gameMode.gameModeForPlayer == GameType.SPECTATOR)
+                return true
+            else if (player.gameMode.gameModeForPlayer == GameType.SPECTATOR && other.gameMode.gameModeForPlayer != GameType.SPECTATOR)
+                return false
+
+            return true
         }
     }
 }

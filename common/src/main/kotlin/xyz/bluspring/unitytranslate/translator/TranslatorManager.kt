@@ -70,7 +70,7 @@ object TranslatorManager {
         val possible = instances.filter { it.supportsLanguage(from, to) }.sortedByDescending { it.weight.asInt() }
 
         if (possible.isEmpty()) {
-            UnityTranslate.logger.warn("No available instances available for translating $from to $to!)")
+            UnityTranslate.logger.warn("No instances available for translating $from to $to!)")
             return line
         }
 
@@ -100,7 +100,7 @@ object TranslatorManager {
         val possible = instances.filter { it.supportsLanguage(from, to) }.sortedByDescending { it.weight.asInt() }
 
         if (possible.isEmpty()) {
-            UnityTranslate.logger.warn("No available instances available for translating $from to $to!)")
+            UnityTranslate.logger.warn("No instances available for translating $from to $to!)")
             return lines
         }
 

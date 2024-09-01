@@ -48,6 +48,7 @@ object UTServerNetworking {
                 .forEach { (language, future) ->
                     future.whenCompleteAsync { translated, e ->
                         if (e != null) {
+                            //e.printStackTrace()
                             return@whenCompleteAsync
                         }
 

@@ -105,6 +105,7 @@ open class LibreTranslateInstance(val url: String, private var weight: Int, val 
                 UnityTranslate.logger.error("Failed to find language for LibreTranslate code $langCode!")
             }
 
+            s.close()
             return lang
         }
     }
@@ -143,7 +144,8 @@ open class LibreTranslateInstance(val url: String, private var weight: Int, val 
             val response = if (s.hasNext()) s.next() else ""
 
             val translated = JsonParser.parseString(response).asJsonObject.get("translatedText").asJsonArray
-            
+
+            s.close()
             return translated.map { it.asString }
         }
     }
@@ -187,6 +189,7 @@ open class LibreTranslateInstance(val url: String, private var weight: Int, val 
             val s = Scanner(responseStream, "UTF-8").useDelimiter("\\A")
             val response = if (s.hasNext()) s.next() else ""
 
+            s.close()
             return JsonParser.parseString(response).asJsonObject.get("translatedText").asString
         }
     }
