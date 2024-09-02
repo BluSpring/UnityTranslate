@@ -105,6 +105,7 @@ open class LibreTranslateInstance(val url: String, private var weight: Int, val 
                 UnityTranslate.logger.error("Failed to find language for LibreTranslate code $langCode!")
             }
 
+            httpConn.disconnect()
             s.close()
             return lang
         }
@@ -145,6 +146,7 @@ open class LibreTranslateInstance(val url: String, private var weight: Int, val 
 
             val translated = JsonParser.parseString(response).asJsonObject.get("translatedText").asJsonArray
 
+            httpConn.disconnect()
             s.close()
             return translated.map { it.asString }
         }
