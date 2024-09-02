@@ -5,6 +5,7 @@ plugins {
     id "org.jetbrains.kotlin.plugin.serialization" version "2.0.20" apply false
     id "com.gradleup.shadow" version "8.3.0" apply false
     id "io.ktor.plugin" version "2.3.11" apply false
+    id "com.hypherionmc.modutils.modpublisher" version "2.1.6" apply false
 }
 
 architectury {
@@ -15,6 +16,55 @@ subprojects {
     apply plugin: "dev.architectury.loom"
     apply plugin: "com.gradleup.shadow"
     apply plugin: "io.ktor.plugin"
+    apply plugin: "com.hypherionmc.modutils.modpublisher"
+
+    publisher {
+        if (project.path == ":common")
+            return
+
+        apiKeys {
+            modrinth System.getenv("MODRINTH_TOKEN")
+            curseforge System.getenv("CURSE_TOKEN")
+        }
+
+        setCurseID("1093604")
+        setModrinthID("yA7uge1H")
+        setVersionType("beta")
+
+        setChangelog("https://raw.githubusercontent.com/BluSpring/UnityTranslate/ver/1.20.1/CHANGELOG.md")
+
+        setProjectVersion("${project.version}-${project.name}")
+        setDisplayName("[${rootProject.minecraft_version}] UnityTranslate ${rootProject.mod_version} (${project.name})")
+        setLoaders(project.name)
+        setGameVersions(rootProject.minecraft_version)
+
+        setCurseEnvironment("both")
+        setArtifact(project.remapJar)
+
+        modrinthDepends {
+            if (project.name == "fabric")
+                required "fabric-api", "fabric-language-kotlin", "architectury-api"
+            else if (project.name == "neoforge")
+                required "kotlin-for-forge", "architectury-api"
+
+            optional "simple-voice-chat"
+
+            if (rootProject.minecraft_version == "1.20.1")
+                optional "talk-balloons"
+        }
+
+        curseDepends {
+            if (project.name == "fabric")
+                required "fabric-api", "fabric-language-kotlin", "architectury-api"
+            else if (project.name == "neoforge")
+                required "kotlin-for-forge", "architectury-api"
+
+            optional "simple-voice-chat"
+
+            if (rootProject.minecraft_version == "1.20.1")
+                optional "talk-balloons"
+        }
+    }
 
     loom {
         silentMojangMappingsLicense()
