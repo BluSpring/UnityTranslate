@@ -75,7 +75,7 @@ class LanguageSelectScreen(val parent: Screen?, val isAddingBox: Boolean) : Scre
         onClose()
     }
 
-    private inner class LanguageSelectionList : ObjectSelectionList<LanguageSelectionList.Entry>(Minecraft.getInstance(), this@LanguageSelectScreen.width, this@LanguageSelectScreen.height, 32, 18) {
+    private inner class LanguageSelectionList : ObjectSelectionList<LanguageSelectionList.Entry>(Minecraft.getInstance(), this@LanguageSelectScreen.width, this@LanguageSelectScreen.height - 75, 32, 18) {
         init {
             for (language in Language.entries.sortedBy { it.name }) {
                 val entry = Entry(language)
