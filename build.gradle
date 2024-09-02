@@ -171,3 +171,18 @@ allprojects {
         withSourcesJar()
     }
 }
+
+task publishModFiles {
+    group = "publishing"
+    dependsOn(":publishCurseForgeFiles", ":publishModrinthFiles")
+}
+
+task publishCurseForgeFiles {
+    group = "publishing"
+    dependsOn(":fabric:publishCurseforge", ":neoforge:publishCurseforge")
+}
+
+task publishModrinthFiles {
+    group = "publishing"
+    dependsOn(":fabric:publishModrinth", ":neoforge:publishModrinth")
+}
