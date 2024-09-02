@@ -18,7 +18,7 @@ import xyz.bluspring.unitytranslate.network.payloads.SetUsedLanguagesPayload
 import java.util.*
 
 class EditTranscriptBoxesScreen(val boxes: MutableList<TranscriptBox>, val parent: Screen? = null) : Screen(Component.empty()) {
-    val CLOSE_BUTTON = ResourceLocation(UnityTranslate.MOD_ID, "textures/gui/close.png")
+    val CLOSE_BUTTON = ResourceLocation.fromNamespaceAndPath(UnityTranslate.MOD_ID, "textures/gui/close.png")
     var shouldDisableHudAfter = false
 
     private val arrowCursor: Long = GLFW.glfwCreateStandardCursor(GLFW.GLFW_ARROW_CURSOR)

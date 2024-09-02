@@ -3,6 +3,7 @@ package xyz.bluspring.unitytranslate.client.gui
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import net.minecraft.ChatFormatting
+import net.minecraft.client.DeltaTracker
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.network.chat.Component

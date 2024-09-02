@@ -41,7 +41,7 @@ class UnityTranslateClient {
         ClientGuiEvent.RENDER_HUD.register { guiGraphics, delta ->
             if (shouldRenderBoxes && UnityTranslate.config.client.enabled) {
                 for (languageBox in languageBoxes) {
-                    languageBox.render(guiGraphics, delta)
+                    languageBox.render(guiGraphics, delta.realtimeDeltaTicks)
                 }
             }
         }
