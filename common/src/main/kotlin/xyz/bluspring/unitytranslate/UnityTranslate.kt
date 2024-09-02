@@ -6,6 +6,7 @@ import kotlinx.serialization.json.Json
 import net.minecraft.resources.ResourceLocation
 import org.slf4j.LoggerFactory
 import xyz.bluspring.unitytranslate.commands.UnityTranslateCommands
+import xyz.bluspring.unitytranslate.compat.voicechat.UTVoiceChatCompat
 import xyz.bluspring.unitytranslate.config.UnityTranslateConfig
 import xyz.bluspring.unitytranslate.network.UTServerNetworking
 import xyz.bluspring.unitytranslate.translator.LocalLibreTranslateInstance
@@ -17,7 +18,6 @@ class UnityTranslate(val proxy: PlatformProxy) {
         instance = this
         configFile = File(proxy.configDir.toFile(), "unitytranslate.json")
         version = proxy.modVersion
-        hasVoiceChat = proxy.isModLoaded("voicechat")
 
         TranslatorManager.init()
         loadConfig()
@@ -39,7 +39,10 @@ class UnityTranslate(val proxy: PlatformProxy) {
         lateinit var instance: UnityTranslate
         lateinit var configFile: File
         lateinit var version: String
-        var hasVoiceChat: Boolean = false
+        val hasVoiceChat: Boolean
+            get() {
+                return UTVoiceChatCompat.hasVoiceChat
+            }
 
         var config = UnityTranslateConfig()
         val logger = LoggerFactory.getLogger("UnityTranslate")

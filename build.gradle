@@ -1,10 +1,10 @@
 plugins {
     id "architectury-plugin" version "3.4-SNAPSHOT"
     id "dev.architectury.loom" version "1.7-SNAPSHOT" apply false
-    id 'org.jetbrains.kotlin.jvm' version '2.0.20' apply false
-    id 'org.jetbrains.kotlin.plugin.serialization' version '2.0.20' apply false
+    id "org.jetbrains.kotlin.jvm" version "2.0.20" apply false
+    id "org.jetbrains.kotlin.plugin.serialization" version "2.0.20" apply false
     id "com.gradleup.shadow" version "8.3.0" apply false
-    id 'io.ktor.plugin' version '2.3.11' apply false
+    id "io.ktor.plugin" version "2.3.11" apply false
 }
 
 architectury {
@@ -33,6 +33,8 @@ subprojects {
         // DO NOT INCLUDE THIS
         // IT BREAKS GRADLE
         annotationProcessor(implementation("com.moulberry:mixinconstraints:1.0.1"))
+
+        compileOnly "su.plo.voice.api:server:${rootProject.plasmo_api_version}"
     }
 
     shadowJar {
@@ -87,10 +89,18 @@ allprojects {
             url = "https://maven.terraformersmc.com/"
         }
         maven {
-            url = 'https://maven.maxhenkel.de/repository/public'
+            url = "https://maven.maxhenkel.de/repository/public"
         }
         maven {
             url = "https://maven.neoforged.net/releases/"
+        }
+        maven {
+            name = "plasmoverse-releases"
+            url = "https://repo.plasmoverse.com/releases"
+        }
+        maven {
+            name = "plasmoverse-snapshots"
+            url = "https://repo.plasmoverse.com/snapshots"
         }
         maven {
             url = "https://maven.nucleoid.xyz/"
