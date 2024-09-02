@@ -1,5 +1,6 @@
 package xyz.bluspring.unitytranslate.compat.voicechat
 
+import de.maxhenkel.voicechat.api.ForgeVoicechatPlugin
 import de.maxhenkel.voicechat.api.VoicechatPlugin
 import de.maxhenkel.voicechat.api.VoicechatServerApi
 import de.maxhenkel.voicechat.api.events.EventRegistration
@@ -10,6 +11,7 @@ import net.minecraft.world.level.GameType
 import xyz.bluspring.unitytranslate.UnityTranslate
 import xyz.bluspring.unitytranslate.client.UnityTranslateClient
 
+@ForgeVoicechatPlugin
 class UTVoiceChatCompat : VoicechatPlugin {
     override fun getPluginId(): String {
         return UnityTranslate.MOD_ID

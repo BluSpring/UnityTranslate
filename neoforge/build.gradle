@@ -29,35 +29,7 @@ dependencies {
     // Remove the next line if you don't want to depend on the API
     modApi "dev.architectury:architectury-forge:${rootProject.architectury_version}"
 
-    def kotlinModules = [
-            "kotlin-stdlib",
-            "kotlin-stdlib-jdk7",
-            "kotlin-stdlib-jdk8",
-            "kotlin-reflect"
-    ]
-
-    def coroutinesModules = [
-            "kotlinx-coroutines-core",
-            "kotlinx-coroutines-core-jvm",
-            "kotlinx-coroutines-jdk8"
-    ]
-
-    def serializationModules = [
-            "kotlinx-serialization-core",
-            "kotlinx-serialization-json"
-    ]
-
-    for (final def module in kotlinModules) {
-        forgeRuntimeLibrary("org.jetbrains.kotlin:$module:${rootProject.kotlin_version}")
-    }
-
-    for (final def module in coroutinesModules) {
-        forgeRuntimeLibrary("org.jetbrains.kotlinx:$module:${rootProject.kotlin_coroutines_version}")
-    }
-
-    for (final def module in serializationModules) {
-        forgeRuntimeLibrary("org.jetbrains.kotlinx:$module:${rootProject.kotlin_serialization_version}")
-    }
+    implementation "thedarkcolour:kotlinforforge:${rootProject.forge_kotlin_version}"
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
@@ -70,9 +42,6 @@ dependencies {
     modImplementation("maven.modrinth:cerbons-api:XWZQbKsr") // 1.1.0
 
     include(forgeRuntimeLibrary('org.java-websocket:Java-WebSocket:1.5.7'))
-
-    include(forgeRuntimeLibrary("io.ktor:ktor-server-core-jvm:${rootProject.ktor_version}"))
-    include(forgeRuntimeLibrary("io.ktor:ktor-server-netty-jvm:${rootProject.ktor_version}"))
 }
 
 processResources {
