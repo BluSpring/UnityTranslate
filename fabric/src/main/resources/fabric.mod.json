@@ -25,7 +25,7 @@
             "xyz.bluspring.unitytranslate.fabric.compat.modmenu.UTModMenuIntegration"
         ],
         "voicechat": [
-            "xyz.bluspring.unitytranslate.compat.voicechat.UTVoiceChatCompat"
+            "xyz.bluspring.unitytranslate.compat.voicechat.SimpleVoiceChatCompat"
         ]
     },
     "mixins": [
