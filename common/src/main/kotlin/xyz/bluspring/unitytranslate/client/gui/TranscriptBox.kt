@@ -1,10 +1,12 @@
 package xyz.bluspring.unitytranslate.client.gui
 
+import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.blaze3d.vertex.PoseStack
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import net.minecraft.ChatFormatting
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.screens.Screen
 import net.minecraft.network.chat.Component
 import net.minecraft.util.FastColor
 import net.minecraft.util.Mth
@@ -67,21 +69,22 @@ data class TranscriptBox(
     @Transient
     val transcripts = ConcurrentLinkedQueue<Transcript>()
 
-    fun render(guiGraphics: GuiGraphics, partialTick: Float) {
-        guiGraphics.pose().pushPose()
+    fun render(poseStack: PoseStack, partialTick: Float) {
+        poseStack.pushPose()
 
-        guiGraphics.pose().translate(0.0, 0.0, -255.0)
-        guiGraphics.enableScissor(x, y, x + width, y + height)
-
-        guiGraphics.fill(x, y, x + width, y + height, FastColor.ARGB32.color(opacity, 0, 0, 0))
-        guiGraphics.drawCenteredString(Minecraft.getInstance().font, Component.translatable("unitytranslate.transcript").append(" (${language.code.uppercase()})")
-            .withStyle(ChatFormatting.UNDERLINE, ChatFormatting.BOLD), x + (width / 2), y + 5, 16777215)
+        poseStack.translate(0.0, 0.0, -255.0)
+        RenderSystem.enableScissor(x, y, x + width, y + height)
+        
+        Screen.fill(poseStack, x, y, x + width, y + height, FastColor.ARGB32.color(opacity, 0, 0, 0))
+        Minecraft.getInstance().font.draw(poseStack, Component.translatable("unitytranslate.transcript").append(" (${language.code.uppercase()})")
+            .withStyle(ChatFormatting.UNDERLINE, ChatFormatting.BOLD), x + (width / 2).toFloat(), y + 5f, 16777215)
 
         if (!UnityTranslateClient.shouldTranscribe) {
-            guiGraphics.blit(TRANSCRIPT_MUTED, x + width - 20, y + 2, 0f, 0f, 16, 16, 16, 16)
+            RenderSystem.setShaderTexture(0, TRANSCRIPT_MUTED)
+            Screen.blit(poseStack, x + width - 20, y + 2, 0f, 0f, 16, 16, 16, 16)
         }
 
-        guiGraphics.enableScissor(x, y + 15, x + width, y + height)
+        RenderSystem.enableScissor(x, y + 15, x + width, y + height)
 
         val lines = transcripts.sortedByDescending { it.arrivalTime }
 
@@ -119,31 +122,38 @@ data class TranscriptBox(
                 val fadeAmount = ((fadeEnd - currentTime).toFloat() / fadeTime.toFloat())
 
                 val alpha = Mth.clamp(fadeAmount, 0f, 1f)
-                guiGraphics.setColor(1f, 1f, 1f, alpha)
+                RenderSystem.setShaderColor(1f, 1f, 1f, alpha)
             }
 
             val split = font.split(component, ((width - 5) * invScale).toInt()).reversed()
 
             for (line in split) {
-                guiGraphics.pose().pushPose()
-                guiGraphics.pose().translate(x.toFloat(), currentY.toFloat(), 0f)
-                guiGraphics.pose().scale(scale, scale, scale)
-                guiGraphics.drawString(font, line, 4, 0, 16777215)
+                poseStack.pushPose()
+                poseStack.translate(x.toDouble(), currentY.toDouble(), 0.0)
+                poseStack.scale(scale, scale, scale)
+                font.draw(poseStack, line, 4f, 0f, 16777215)
                 currentY -= (font.lineHeight * scale).toInt()
-                guiGraphics.pose().popPose()
+                poseStack.popPose()
             }
 
-            guiGraphics.setColor(1f, 1f, 1f, 1f)
+            RenderSystem.setShaderColor(1f, 1f, 1f, 1f)
 
             currentY -= 4
         }
 
-        guiGraphics.disableScissor()
-        guiGraphics.disableScissor()
+        RenderSystem.disableScissor()
+        RenderSystem.disableScissor()
 
-        guiGraphics.renderOutline(x, y, width, height, FastColor.ARGB32.color(100, 0, 0, 0))
+        renderOutline(poseStack, x, y, width, height, FastColor.ARGB32.color(100, 0, 0, 0))
 
-        guiGraphics.pose().popPose()
+        poseStack.popPose()
+    }
+
+    private fun renderOutline(poseStack: PoseStack, x: Int, y: Int, width: Int, height: Int, color: Int) {
+        Screen.fill(poseStack, x, y, x + width, y + 1, color)
+        Screen.fill(poseStack, x, y + height - 1, x + width, y + height, color)
+        Screen.fill(poseStack, x, y + 1, x + 1, y + height - 1, color)
+        Screen.fill(poseStack, x + width - 1, y + 1, x + width, y + height - 1, color)
     }
 
     fun updateTranscript(source: Player, text: String, language: Language, index: Int, updateTime: Long, incomplete: Boolean) {

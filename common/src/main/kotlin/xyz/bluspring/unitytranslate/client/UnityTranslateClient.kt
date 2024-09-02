@@ -1,6 +1,7 @@
 package xyz.bluspring.unitytranslate.client
 
 import com.mojang.blaze3d.platform.InputConstants
+import com.mojang.blaze3d.vertex.PoseStack
 import dev.architectury.event.events.client.ClientGuiEvent
 import dev.architectury.event.events.client.ClientLifecycleEvent
 import dev.architectury.event.events.client.ClientPlayerEvent
@@ -9,7 +10,6 @@ import dev.architectury.registry.client.keymappings.KeyMappingRegistry
 import net.minecraft.ChatFormatting
 import net.minecraft.client.KeyMapping
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.network.chat.CommonComponents
 import net.minecraft.network.chat.Component
 import net.minecraft.world.phys.BlockHitResult
@@ -213,12 +213,12 @@ class UnityTranslateClient {
             Minecraft.getInstance().gui.chat.addMessage(full)
         }
 
-        fun renderCreditText(guiGraphics: GuiGraphics) {
+        fun renderCreditText(poseStack: PoseStack) {
             val version = UnityTranslate.instance.proxy.modVersion
             val font = Minecraft.getInstance().font
 
-            guiGraphics.drawString(font, "UnityTranslate v$version", 2, Minecraft.getInstance().window.guiScaledHeight - (font.lineHeight * 2) - 4, 0xAAAAAA)
-            guiGraphics.drawString(font, Component.translatable("unitytranslate.credit.author"), 2, Minecraft.getInstance().window.guiScaledHeight - font.lineHeight - 2, 0xAAAAAA)
+            font.draw(poseStack, "UnityTranslate v$version", 2f, (Minecraft.getInstance().window.guiScaledHeight - (font.lineHeight * 2) - 4).toFloat(), 0xAAAAAA)
+            font.draw(poseStack, Component.translatable("unitytranslate.credit.author"), 2f, (Minecraft.getInstance().window.guiScaledHeight - font.lineHeight - 2).toFloat(), 0xAAAAAA)
         }
 
         private val queuedForJoin = ConcurrentLinkedQueue<Consumer<Minecraft>>()

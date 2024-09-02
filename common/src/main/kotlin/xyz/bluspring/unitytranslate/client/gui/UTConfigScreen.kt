@@ -1,8 +1,8 @@
 package xyz.bluspring.unitytranslate.client.gui
 
+import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.ChatFormatting
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.*
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.network.chat.CommonComponents
@@ -27,41 +27,42 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
         val width = (this.width / 4).coerceAtLeast(250)
 
         addRenderableWidget(
-            Button.builder(Component.translatable("gui.unitytranslate.config.client")) {
+            Button(this.width / 2 - (width / 2), 75,
+                width, Button.DEFAULT_HEIGHT,
+                Component.translatable("gui.unitytranslate.config.client")
+            ) {
                 Minecraft.getInstance().setScreen(UTConfigSubScreen(UnityTranslate.config.client::class, UnityTranslate.config.client, "client"))
             }
-                .pos(this.width / 2 - (width / 2), 75)
-                .size(width, Button.DEFAULT_HEIGHT)
-                .build()
         )
 
         addRenderableWidget(
-            Button.builder(Component.translatable("gui.unitytranslate.config.common")) {
+            Button(this.width / 2 - (width / 2), 75 + Button.DEFAULT_HEIGHT + 5,
+                width, Button.DEFAULT_HEIGHT,
+                Component.translatable("gui.unitytranslate.config.common")
+            ) {
                 Minecraft.getInstance().setScreen(UTConfigSubScreen(UnityTranslate.config.server::class, UnityTranslate.config.server, "common"))
             }
-                .pos(this.width / 2 - (width / 2), 75 + Button.DEFAULT_HEIGHT + 5)
-                .size(width, Button.DEFAULT_HEIGHT)
-                .build()
         )
 
         addRenderableWidget(
-            Button.builder(CommonComponents.GUI_DONE) {
+            Button(this.width / 2 - (Button.DEFAULT_WIDTH / 2), this.height - 20 - 15,
+                Button.DEFAULT_WIDTH, Button.DEFAULT_HEIGHT,
+                CommonComponents.GUI_DONE
+            ) {
                 this.onClose()
             }
-                .pos(this.width / 2 - (Button.DEFAULT_WIDTH / 2), this.height - 20 - 15)
-                .build()
         )
     }
 
-    override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
-        this.renderBackground(guiGraphics)
+    override fun render(poseStack: PoseStack, mouseX: Int, mouseY: Int, partialTick: Float) {
+        this.renderBackground(poseStack)
 
-        guiGraphics.fill(0, 50, this.width, this.height - 50, FastColor.ARGB32.color(150, 0, 0, 0))
-        guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 20, 16777215)
+        fill(poseStack, 0, 50, this.width, this.height - 50, FastColor.ARGB32.color(150, 0, 0, 0))
+        this.font.draw(poseStack, this.title, this.width / 2f, 20f, 16777215)
 
-        super.render(guiGraphics, mouseX, mouseY, partialTick)
+        super.render(poseStack, mouseX, mouseY, partialTick)
 
-        UnityTranslateClient.renderCreditText(guiGraphics)
+        UnityTranslateClient.renderCreditText(poseStack)
     }
 
     override fun onClose() {

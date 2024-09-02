@@ -7,10 +7,10 @@ dependencies {
 
     // these are Fabric mods, but they are included for having them commonly included.
     // their (Neo)Forge equivalents are stored in the respective build.gradle.
-    modCompileOnly("maven.modrinth:talk-balloons:1.0.0")
+    //modCompileOnly("maven.modrinth:talk-balloons:1.0.0")
     // don't use anything from here. this is only for Talk Balloons compat.
     modCompileOnly("maven.modrinth:cloth-config:${rootProject.cloth_config_version}+fabric")
-    modCompileOnly("maven.modrinth:cerbons-api:1.1.0")
+    //modCompileOnly("maven.modrinth:cerbons-api:1.1.0")
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.7.2")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.7.2")

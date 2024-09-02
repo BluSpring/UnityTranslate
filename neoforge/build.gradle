@@ -25,7 +25,7 @@ loom {
 }
 
 dependencies {
-    forge "net.neoforged:forge:${rootProject.forge_version}"
+    forge "net.minecraftforge:forge:${rootProject.forge_version}"
     // Remove the next line if you don't want to depend on the API
     modApi "dev.architectury:architectury-forge:${rootProject.architectury_version}"
 
@@ -36,10 +36,10 @@ dependencies {
 
     modRuntimeOnly "maven.modrinth:simple-voice-chat:forge-${rootProject.voicechat_version}"
 
-    modImplementation("maven.modrinth:talk-balloons:kN8kdQ22") // 1.0.0
+    //modImplementation("maven.modrinth:talk-balloons:kN8kdQ22") // 1.0.0
     // don't use anything from here. this is only for Talk Balloons compat.
     modImplementation("maven.modrinth:cloth-config:${rootProject.cloth_config_version}+forge")
-    modImplementation("maven.modrinth:cerbons-api:XWZQbKsr") // 1.1.0
+    //modImplementation("maven.modrinth:cerbons-api:XWZQbKsr") // 1.1.0
 
     include(forgeRuntimeLibrary('org.java-websocket:Java-WebSocket:1.5.7'))
 }

@@ -1,8 +1,9 @@
 package xyz.bluspring.unitytranslate.client.gui
 
+import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.Util
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.Button
 import net.minecraft.client.gui.components.ObjectSelectionList
 import net.minecraft.client.gui.screens.Screen
@@ -22,11 +23,11 @@ class LanguageSelectScreen(val parent: Screen?, val isAddingBox: Boolean) : Scre
         list = LanguageSelectionList()
         this.addRenderableWidget(list)
         this.addRenderableWidget(
-            Button.builder(CommonComponents.GUI_DONE) {
+            Button(this.width / 2 - (Button.DEFAULT_WIDTH / 2), this.height - 38, Button.DEFAULT_WIDTH, Button.DEFAULT_HEIGHT,
+                CommonComponents.GUI_DONE
+            ) {
                 this.onDone()
             }
-                .bounds(this.width / 2 - (Button.DEFAULT_WIDTH / 2), this.height - 38, Button.DEFAULT_WIDTH, Button.DEFAULT_HEIGHT)
-                .build()
         )
     }
 
@@ -34,18 +35,18 @@ class LanguageSelectScreen(val parent: Screen?, val isAddingBox: Boolean) : Scre
         Minecraft.getInstance().setScreen(parent)
     }
 
-    override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
-        this.renderBackground(guiGraphics)
-        super.render(guiGraphics, mouseX, mouseY, partialTick)
+    override fun render(poseStack: PoseStack, mouseX: Int, mouseY: Int, partialTick: Float) {
+        this.renderBackground(poseStack)
+        super.render(poseStack, mouseX, mouseY, partialTick)
 
-        guiGraphics.drawCenteredString(font, Component.translatable(
+        font.draw(poseStack, Component.translatable(
             if (isAddingBox)
                 "unitytranslate.select_language"
             else
                 "unitytranslate.set_spoken_language"
-        ), this.width / 2, 15, 16777215)
+        ), (this.width / 2).toFloat(), 15f, 16777215)
 
-        UnityTranslateClient.renderCreditText(guiGraphics)
+        UnityTranslateClient.renderCreditText(poseStack)
     }
 
     private fun onDone() {
@@ -92,7 +93,7 @@ class LanguageSelectScreen(val parent: Screen?, val isAddingBox: Boolean) : Scre
             private var lastClickTime: Long = 0L
 
             override fun render(
-                guiGraphics: GuiGraphics,
+                poseStack: PoseStack,
                 index: Int, top: Int, left: Int,
                 width: Int, height: Int,
                 mouseX: Int, mouseY: Int,
@@ -102,7 +103,7 @@ class LanguageSelectScreen(val parent: Screen?, val isAddingBox: Boolean) : Scre
                     0x656565
                 } else 0xFFFFFF
 
-                guiGraphics.drawCenteredString(font, language.text, this@LanguageSelectScreen.width / 2, top + 1, color)
+                font.draw(poseStack, language.text, this@LanguageSelectScreen.width / 2f, top + 1f, color)
 
                 if (!isAddingBox) {
                     var x = this@LanguageSelectScreen.width / 2 + (font.width(language.text) / 2) + 4
@@ -110,7 +111,8 @@ class LanguageSelectScreen(val parent: Screen?, val isAddingBox: Boolean) : Scre
                         if (!type.enabled)
                             continue
 
-                        guiGraphics.blit(UnityTranslate.id("textures/gui/transcriber/${type.name.lowercase()}.png"),
+                        RenderSystem.setShaderTexture(0, UnityTranslate.id("textures/gui/transcriber/${type.name.lowercase()}.png"))
+                        blit(poseStack,
                             x, top - 1, 0f, 0f, 16, 16, 16, 16
                         )
 
@@ -121,7 +123,7 @@ class LanguageSelectScreen(val parent: Screen?, val isAddingBox: Boolean) : Scre
                             lines.add(Component.empty().visualOrderText)
                             lines.addAll(font.split(Component.translatable("unitytranslate.transcriber.type.${type.name.lowercase()}.description"), (this@LanguageSelectScreen.width / 6).coerceAtLeast(150)))
 
-                            guiGraphics.renderTooltip(font, lines, mouseX, mouseY)
+                            renderTooltip(poseStack, lines, mouseX, mouseY)
                         }
 
                         x += 20
@@ -132,7 +134,7 @@ class LanguageSelectScreen(val parent: Screen?, val isAddingBox: Boolean) : Scre
                     val centerX = this@LanguageSelectScreen.width / 2
 
                     if (mouseX >= centerX - halfTextWidth && mouseX <= centerX + halfTextWidth && mouseY >= top + 1 && mouseY <= top + 1 + font.lineHeight) {
-                        guiGraphics.renderTooltip(font, listOf(
+                        renderTooltip(poseStack, listOf(
                             Component.translatable("unitytranslate.select_language.already_selected").visualOrderText
                         ), mouseX, mouseY)
                     }

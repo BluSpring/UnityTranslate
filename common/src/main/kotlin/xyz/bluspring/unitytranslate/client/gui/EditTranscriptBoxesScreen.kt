@@ -1,7 +1,8 @@
 package xyz.bluspring.unitytranslate.client.gui
 
+import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.Button
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.network.chat.CommonComponents
@@ -31,20 +32,21 @@ class EditTranscriptBoxesScreen(val boxes: MutableList<TranscriptBox>, val paren
         }
 
         this.addRenderableWidget(
-            Button.builder(CommonComponents.GUI_DONE) {
+            Button(this.width / 2 - (Button.DEFAULT_WIDTH / 2), this.height - 50,
+                Button.DEFAULT_WIDTH, Button.DEFAULT_HEIGHT,    
+                CommonComponents.GUI_DONE
+            ) {
                 this.onClose()
             }
-                .pos(this.width / 2 - (Button.DEFAULT_WIDTH / 2), this.height - 50)
-                .build()
         )
 
         this.addRenderableWidget(
-            Button.builder(Component.literal("+")) {
+            Button(this.width / 2 - (Button.DEFAULT_WIDTH / 2) - Button.DEFAULT_HEIGHT, this.height - 50,
+                Button.DEFAULT_HEIGHT, Button.DEFAULT_HEIGHT,
+                Component.literal("+")
+            ) {
                 Minecraft.getInstance().setScreen(LanguageSelectScreen(this, true))
             }
-                .pos(this.width / 2 - (Button.DEFAULT_WIDTH / 2) - Button.DEFAULT_HEIGHT, this.height - 50)
-                .width(Button.DEFAULT_HEIGHT)
-                .build()
         )
     }
 
@@ -65,10 +67,10 @@ class EditTranscriptBoxesScreen(val boxes: MutableList<TranscriptBox>, val paren
                 languages.add(UnityTranslate.config.client.language)
             }
 
-            buf.writeEnumSet(
-                EnumSet.copyOf(languages),
-                Language::class.java
-            )
+            buf.writeVarInt(languages.size)
+            for (language in languages) {
+                buf.writeEnum(language)
+            }
 
             if (Minecraft.getInstance().player != null) {
                 UnityTranslate.instance.proxy.sendPacketClient(PacketIds.SET_USED_LANGUAGES, buf)
@@ -98,14 +100,14 @@ class EditTranscriptBoxesScreen(val boxes: MutableList<TranscriptBox>, val paren
         return currentCursor
     }
 
-    override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+    override fun render(poseStack: PoseStack, mouseX: Int, mouseY: Int, partialTick: Float) {
         var inAnyBox = false
 
         if (Minecraft.getInstance().player == null) { // assume user is currently configuring in the config screen
-            this.renderBackground(guiGraphics)
+            this.renderBackground(poseStack)
 
             for (box in boxes) {
-                box.render(guiGraphics, partialTick)
+                box.render(poseStack, partialTick)
             }
         }
 
@@ -114,47 +116,48 @@ class EditTranscriptBoxesScreen(val boxes: MutableList<TranscriptBox>, val paren
                 if (mouseX >= box.x - 1 && mouseY >= box.y - 1 && mouseX <= box.x + box.width + 1 && mouseY <= box.y + box.height + 1) {
                     if (mouseX >= box.x - 1 && mouseX <= box.x + 1) {
                         if (mouseY >= box.y - 1 && mouseY <= box.y + 1) {
-                            guiGraphics.fill(box.x, box.y - 1, box.x + box.width, box.y + 1, FastColor.ARGB32.color(255, 255, 255, 255))
+                            fill(poseStack, box.x, box.y - 1, box.x + box.width, box.y + 1, FastColor.ARGB32.color(255, 255, 255, 255))
                             GLFW.glfwSetCursor(this.minecraft!!.window.window, assignCursor(GLFW.GLFW_RESIZE_NWSE_CURSOR))
                         } else if (mouseY >= box.y + box.height - 1 && mouseY <= box.y + box.height + 1) {
-                            guiGraphics.fill(box.x, box.y + box.height - 1, box.x + box.width, box.y + box.height + 1, FastColor.ARGB32.color(255, 255, 255, 255))
+                            fill(poseStack, box.x, box.y + box.height - 1, box.x + box.width, box.y + box.height + 1, FastColor.ARGB32.color(255, 255, 255, 255))
                             GLFW.glfwSetCursor(this.minecraft!!.window.window, assignCursor(GLFW.GLFW_RESIZE_NESW_CURSOR))
                         } else {
                             GLFW.glfwSetCursor(this.minecraft!!.window.window, assignCursor(GLFW.GLFW_HRESIZE_CURSOR))
                         }
 
-                        guiGraphics.fill(box.x - 1, box.y, box.x + 1, box.y + box.height, FastColor.ARGB32.color(255, 255, 255, 255))
+                        fill(poseStack, box.x - 1, box.y, box.x + 1, box.y + box.height, FastColor.ARGB32.color(255, 255, 255, 255))
                     } else if (mouseX >= box.x + box.width - 1 && mouseX <= box.x + box.width + 1) {
                         if (mouseY >= box.y - 1 && mouseY <= box.y + 1) {
-                            guiGraphics.fill(box.x, box.y - 1, box.x + box.width, box.y + 1, FastColor.ARGB32.color(255, 255, 255, 255))
+                            fill(poseStack, box.x, box.y - 1, box.x + box.width, box.y + 1, FastColor.ARGB32.color(255, 255, 255, 255))
                             GLFW.glfwSetCursor(this.minecraft!!.window.window, assignCursor(GLFW.GLFW_RESIZE_NESW_CURSOR))
                         } else if (mouseY >= box.y + box.height - 1 && mouseY <= box.y + box.height + 1) {
-                            guiGraphics.fill(box.x, box.y + box.height - 1, box.x + box.width, box.y + box.height + 1, FastColor.ARGB32.color(255, 255, 255, 255))
+                            fill(poseStack, box.x, box.y + box.height - 1, box.x + box.width, box.y + box.height + 1, FastColor.ARGB32.color(255, 255, 255, 255))
                             GLFW.glfwSetCursor(this.minecraft!!.window.window, assignCursor(GLFW.GLFW_RESIZE_NWSE_CURSOR))
                         } else {
                             GLFW.glfwSetCursor(this.minecraft!!.window.window, assignCursor(GLFW.GLFW_HRESIZE_CURSOR))
                         }
 
-                        guiGraphics.fill(box.x + box.width - 1, box.y, box.x + box.width + 1, box.y + box.height, FastColor.ARGB32.color(255, 255, 255, 255))
+                        fill(poseStack, box.x + box.width - 1, box.y, box.x + box.width + 1, box.y + box.height, FastColor.ARGB32.color(255, 255, 255, 255))
                     } else if (mouseY >= box.y - 1 && mouseY <= box.y + 1) {
-                        guiGraphics.fill(box.x, box.y - 1, box.x + box.width, box.y + 1, FastColor.ARGB32.color(255, 255, 255, 255))
+                        fill(poseStack, box.x, box.y - 1, box.x + box.width, box.y + 1, FastColor.ARGB32.color(255, 255, 255, 255))
                         GLFW.glfwSetCursor(this.minecraft!!.window.window, assignCursor(GLFW.GLFW_VRESIZE_CURSOR))
                     } else if (mouseY >= box.y + box.height - 1 && mouseY <= box.y + box.height + 1) {
-                        guiGraphics.fill(box.x, box.y + box.height - 1, box.x + box.width, box.y + box.height + 1, FastColor.ARGB32.color(255, 255, 255, 255))
+                        fill(poseStack, box.x, box.y + box.height - 1, box.x + box.width, box.y + box.height + 1, FastColor.ARGB32.color(255, 255, 255, 255))
                         GLFW.glfwSetCursor(this.minecraft!!.window.window, assignCursor(GLFW.GLFW_VRESIZE_CURSOR))
                     } else {
-                        guiGraphics.renderOutline(box.x, box.y, box.width, box.height, FastColor.ARGB32.color(255, 255, 255, 255))
+                        renderOutline(poseStack, box.x, box.y, box.width, box.height, FastColor.ARGB32.color(255, 255, 255, 255))
 
                         val offset = 5
                         if (mouseX >= box.x + offset + 1 && mouseY >= box.y + offset + 1 && mouseX <= box.x + offset + 16 && mouseY <= box.y + offset + 16) {
                             GLFW.glfwSetCursor(this.minecraft!!.window.window, arrowCursor)
-                            guiGraphics.fill(box.x + offset, box.y + offset, box.x + offset + 16, box.y + offset + 16, FastColor.ARGB32.color(95, 255, 0, 0))
-                            guiGraphics.renderOutline(box.x + offset, box.y + offset, 16, 16, FastColor.ARGB32.color(95, 255, 255, 255))
+                            fill(poseStack, box.x + offset, box.y + offset, box.x + offset + 16, box.y + offset + 16, FastColor.ARGB32.color(95, 255, 0, 0))
+                            renderOutline(poseStack, box.x + offset, box.y + offset, 16, 16, FastColor.ARGB32.color(95, 255, 255, 255))
                         } else {
                             GLFW.glfwSetCursor(this.minecraft!!.window.window, assignCursor(GLFW.GLFW_RESIZE_ALL_CURSOR))
                         }
 
-                        guiGraphics.blit(CLOSE_BUTTON, box.x + offset, box.y + offset, 0f, 0f, 16, 16, 16, 16)
+                        RenderSystem.setShaderTexture(0, CLOSE_BUTTON)
+                        blit(poseStack, box.x + offset, box.y + offset, 0f, 0f, 16, 16, 16, 16)
                     }
 
                     inAnyBox = true
@@ -166,9 +169,16 @@ class EditTranscriptBoxesScreen(val boxes: MutableList<TranscriptBox>, val paren
             GLFW.glfwSetCursor(this.minecraft!!.window.window, arrowCursor)
         }
 
-        super.render(guiGraphics, mouseX, mouseY, partialTick)
+        super.render(poseStack, mouseX, mouseY, partialTick)
 
-        UnityTranslateClient.renderCreditText(guiGraphics)
+        UnityTranslateClient.renderCreditText(poseStack)
+    }
+
+    private fun renderOutline(poseStack: PoseStack, x: Int, y: Int, width: Int, height: Int, color: Int) {
+        fill(poseStack, x, y, x + width, y + 1, color)
+        fill(poseStack, x, y + height - 1, x + width, y + height, color)
+        fill(poseStack, x, y + 1, x + 1, y + height - 1, color)
+        fill(poseStack, x + width - 1, y + 1, x + width, y + height - 1, color)
     }
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
