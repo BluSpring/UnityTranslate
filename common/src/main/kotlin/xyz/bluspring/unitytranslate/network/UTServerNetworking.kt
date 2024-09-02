@@ -41,7 +41,9 @@ object UTServerNetworking {
 
             Language.entries.filter { usedLanguages.values.any { b -> b.contains(it) } }.map {
                 Pair(it, if (sourceLanguage == it)
-                    CompletableFuture.completedFuture(text)
+                    CompletableFuture.supplyAsync {
+                        text
+                    }
                 else
                     TranslatorManager.queueTranslation(text, sourceLanguage, it, ctx.player, index))
             }
