@@ -35,7 +35,7 @@ class OpenBrowserScreen(val address: String) : Screen(Component.empty()) {
     }
 
     override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
-        renderBackground(guiGraphics)
+        this.renderBackground(guiGraphics, mouseX, mouseY, partialTick)
         super.render(guiGraphics, mouseX, mouseY, partialTick)
 
         val split = this.font.split(FormattedText.of(I18n.get("unitytranslate.open_browser.prompt")), this.width / 2)

@@ -15,6 +15,6 @@ pluginManagement {
 }
 
 include("common", "fabric")
-// Neo/Forge is broken in 1.20.1 due to KotlinForForge and Forge bullshit with modules.
+// Neo/Forge is broken in 1.20.4 due to KotlinForForge and Forge bullshit with modules.
 // If you can figure out what the fuck is wrong with this in 1.20.1, please, PR.
-//include("neoforge")
+include("neoforge")

@@ -2,11 +2,10 @@ package xyz.bluspring.unitytranslate.neoforge
 
 import io.netty.buffer.Unpooled
 import net.minecraft.network.FriendlyByteBuf
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.fml.ModContainer
-import net.minecraftforge.fml.ModList
-import net.minecraftforge.fml.loading.FMLLoader
-import net.minecraftforge.fml.loading.FMLPaths
+import net.neoforged.api.distmarker.Dist
+import net.neoforged.fml.ModList
+import net.neoforged.fml.loading.FMLLoader
+import net.neoforged.fml.loading.FMLPaths
 import xyz.bluspring.unitytranslate.PlatformProxy
 import xyz.bluspring.unitytranslate.UnityTranslate
 import java.nio.file.Path

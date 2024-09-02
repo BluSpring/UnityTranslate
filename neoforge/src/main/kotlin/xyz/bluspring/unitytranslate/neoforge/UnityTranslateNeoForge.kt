@@ -1,12 +1,13 @@
 package xyz.bluspring.unitytranslate.neoforge
 
-import net.minecraftforge.client.ConfigScreenHandler
-import net.minecraftforge.client.event.RegisterKeyMappingsEvent
-import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.fml.ModLoadingContext
-import net.minecraftforge.fml.common.Mod
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext
+import net.neoforged.bus.api.SubscribeEvent
+import net.neoforged.fml.ModLoadingContext
+import net.neoforged.fml.common.Mod
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent
+import net.neoforged.neoforge.client.ConfigScreenHandler
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent
+import thedarkcolour.kotlinforforge.neoforge.forge.MOD_BUS
+import thedarkcolour.kotlinforforge.neoforge.forge.MOD_CONTEXT
 import xyz.bluspring.unitytranslate.UnityTranslate
 import xyz.bluspring.unitytranslate.client.UnityTranslateClient
 import xyz.bluspring.unitytranslate.client.gui.UTConfigScreen
@@ -15,7 +16,8 @@ import xyz.bluspring.unitytranslate.client.gui.UTConfigScreen
 class UnityTranslateNeoForge {
     init {
         UnityTranslate(NeoForgeProxy())
-        FMLJavaModLoadingContext.get().modEventBus.register(this)
+
+        MOD_BUS.register(this)
     }
 
     @SubscribeEvent

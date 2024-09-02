@@ -35,7 +35,7 @@ class RequestDownloadScreen : Screen(Component.empty()) {
     }
 
     override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
-        this.renderBackground(guiGraphics)
+        this.renderBackground(guiGraphics, mouseX, mouseY, partialTick)
         super.render(guiGraphics, mouseX, mouseY, partialTick)
 
         val lines = font.split(Component.translatable("unitytranslate.request_download"), this.width - 50)

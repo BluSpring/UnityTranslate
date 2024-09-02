@@ -102,7 +102,7 @@ class EditTranscriptBoxesScreen(val boxes: MutableList<TranscriptBox>, val paren
         var inAnyBox = false
 
         if (Minecraft.getInstance().player == null) { // assume user is currently configuring in the config screen
-            this.renderBackground(guiGraphics)
+            this.renderBackground(guiGraphics, mouseX, mouseY, partialTick)
 
             for (box in boxes) {
                 box.render(guiGraphics, partialTick)

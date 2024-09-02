@@ -24,7 +24,7 @@ dependencies {
 architectury {
     common(
         "fabric",
-        //"forge"
+        "neoforge"
     )
 }
 

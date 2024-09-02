@@ -54,7 +54,7 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
     }
 
     override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
-        this.renderBackground(guiGraphics)
+        this.renderBackground(guiGraphics, mouseX, mouseY, partialTick)
 
         guiGraphics.fill(0, 50, this.width, this.height - 50, FastColor.ARGB32.color(150, 0, 0, 0))
         guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 20, 16777215)
@@ -239,14 +239,12 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
                             }
                         })
 
-                    addRenderableWidget(TextAndImageButton.builder(Component.empty(), UnityTranslate.id("textures/gui/arrow_up.png")) {
+                    addRenderableWidget(SpriteIconButton.builder(Component.empty(), {
                         member.setter.call(instance, Mth.clamp(value + range.increment, min, max))
                         this.rebuildWidgets()
-                    }
-                        .offset(0, 2)
-                        .texStart(0, 0)
-                        .textureSize(8, 8)
-                        .usedTextureSize(8, 8)
+                    }, true)
+                        .sprite(UnityTranslate.id("textures/gui/arrow_up.png"), 8, 8)
+                        .size(12, 12)
                         .build()
                         .apply {
                             this.x = this@UTConfigSubScreen.width - 18
@@ -261,14 +259,12 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
                         }
                     )
 
-                    addRenderableWidget(TextAndImageButton.builder(Component.empty(), UnityTranslate.id("textures/gui/arrow_down.png")) {
+                    addRenderableWidget(SpriteIconButton.builder(Component.empty(), {
                         member.setter.call(instance, Mth.clamp(value - range.increment, min, max))
                         this.rebuildWidgets()
-                    }
-                        .offset(0, 2)
-                        .texStart(0, 0)
-                        .textureSize(8, 8)
-                        .usedTextureSize(8, 8)
+                    }, true)
+                        .sprite(UnityTranslate.id("textures/gui/arrow_down.png"), 8, 8)
+                        .size(12, 12)
                         .build()
                         .apply {
                             this.x = this@UTConfigSubScreen.width - 18
@@ -302,14 +298,12 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
                             }
                         })
 
-                    addRenderableWidget(TextAndImageButton.builder(Component.empty(), UnityTranslate.id("textures/gui/arrow_up.png")) {
+                    addRenderableWidget(SpriteIconButton.builder(Component.empty(), {
                         member.setter.call(instance, Mth.clamp(value + range.increment, min, max))
                         this.rebuildWidgets()
-                    }
-                        .offset(0, 2)
-                        .texStart(0, 0)
-                        .textureSize(8, 8)
-                        .usedTextureSize(8, 8)
+                    }, true)
+                        .sprite(UnityTranslate.id("textures/gui/arrow_up.png"), 8, 8)
+                        .size(12, 12)
                         .build()
                         .apply {
                             this.x = this@UTConfigSubScreen.width - 18
@@ -324,14 +318,12 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
                         }
                     )
 
-                    addRenderableWidget(TextAndImageButton.builder(Component.empty(), UnityTranslate.id("textures/gui/arrow_down.png")) {
+                    addRenderableWidget(SpriteIconButton.builder(Component.empty(), {
                         member.setter.call(instance, Mth.clamp(value - range.increment, min, max))
                         this.rebuildWidgets()
-                    }
-                        .offset(0, 2)
-                        .texStart(0, 0)
-                        .textureSize(8, 8)
-                        .usedTextureSize(8, 8)
+                    }, true)
+                        .sprite(UnityTranslate.id("textures/gui/arrow_down.png"), 8, 8)
+                        .size(12, 12)
                         .build()
                         .apply {
                             this.x = this@UTConfigSubScreen.width - 18
@@ -388,45 +380,37 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
         }
 
         private fun <T> addArrows(x: Int, y: Int, index: Int, actualValue: MutableList<T>) {
-            addRenderableWidget(TextAndImageButton.builder(Component.empty(), UnityTranslate.id("textures/gui/arrow_up.png")) {
+            addRenderableWidget(SpriteIconButton.builder(Component.empty(), {
                 val oldValue = actualValue[index]
                 val oldPrevValue = actualValue[index - 1]
                 actualValue[index - 1] = oldValue
                 actualValue[index] = oldPrevValue
                 this.rebuildWidgets()
-            }
-                .offset(0, 2)
-                .texStart(0, 0)
-                .textureSize(8, 8)
-                .usedTextureSize(8, 8)
+            }, true)
+                .sprite(UnityTranslate.id("textures/gui/arrow_up.png"), 8, 8)
+                .size(12, 12)
                 .build()
                 .apply {
                     this.x = x
                     this.y = y - 8
-                    this.width = 12
-                    (this as AbstractWidgetAccessor).setHeight(12) // :mojank:
                     (this as ScrollableWidget).updateInitialPosition()
                     this.active = index > 0
                 }
             )
 
-            addRenderableWidget(TextAndImageButton.builder(Component.empty(), UnityTranslate.id("textures/gui/arrow_down.png")) {
+            addRenderableWidget(SpriteIconButton.builder(Component.empty(), {
                 val oldValue = actualValue[index]
                 val oldPrevValue = actualValue[index + 1]
                 actualValue[index + 1] = oldValue
                 actualValue[index] = oldPrevValue
                 this.rebuildWidgets()
-            }
-                .offset(0, 2)
-                .texStart(0, 0)
-                .textureSize(8, 8)
-                .usedTextureSize(8, 8)
+            }, true)
+                .sprite(UnityTranslate.id("textures/gui/arrow_down.png"), 8, 8)
+                .size(12, 12)
                 .build()
                 .apply {
                     this.x = x
                     this.y = y + 4
-                    this.width = 12
-                    (this as AbstractWidgetAccessor).setHeight(12) // :mojank:
                     (this as ScrollableWidget).updateInitialPosition()
                     this.active = index < actualValue.size - 1
                 }
@@ -438,7 +422,7 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
         }
 
         override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
-            this.renderBackground(guiGraphics)
+            this.renderBackground(guiGraphics, mouseX, mouseY, partialTick)
 
             guiGraphics.fill(0, 50, this.width, this.height - 50, FastColor.ARGB32.color(150, 0, 0, 0))
             guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 20, 16777215)
@@ -523,8 +507,8 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
             return false
         }
 
-        override fun mouseScrolled(mouseX: Double, mouseY: Double, delta: Double): Boolean {
-            this.scrollAmount = Mth.clamp(this.scrollAmount - delta * (this.maxPosition / 4.0), 0.0, this.maxScroll.toDouble())
+        override fun mouseScrolled(mouseX: Double, mouseY: Double, scrollX: Double, scrollY: Double): Boolean {
+            this.scrollAmount = Mth.clamp(this.scrollAmount - scrollY * (this.maxPosition / 4.0), 0.0, this.maxScroll.toDouble())
             updateScroll()
             return true
         }

@@ -27,10 +27,10 @@ dependencies {
 
     modRuntimeOnly "maven.modrinth:simple-voice-chat:fabric-${rootProject.voicechat_version}"
 
-    modImplementation("maven.modrinth:talk-balloons:1.0.0")
+    //modImplementation("maven.modrinth:talk-balloons:1.0.0")
     // don't use anything from here. this is only for Talk Balloons compat.
     modImplementation("maven.modrinth:cloth-config:${rootProject.cloth_config_version}+fabric")
-    modCompileOnly("maven.modrinth:cerbons-api:1.1.0")
+    //modCompileOnly("maven.modrinth:cerbons-api:1.1.0")
 
     include(annotationProcessor(implementation("com.moulberry:mixinconstraints:1.0.1")))
 
