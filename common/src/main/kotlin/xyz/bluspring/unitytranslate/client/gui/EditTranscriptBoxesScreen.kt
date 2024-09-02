@@ -14,6 +14,7 @@ import xyz.bluspring.unitytranslate.Language
 import xyz.bluspring.unitytranslate.network.PacketIds
 import xyz.bluspring.unitytranslate.UnityTranslate
 import xyz.bluspring.unitytranslate.client.UnityTranslateClient
+import xyz.bluspring.unitytranslate.network.payloads.SetUsedLanguagesPayload
 import java.util.*
 
 class EditTranscriptBoxesScreen(val boxes: MutableList<TranscriptBox>, val parent: Screen? = null) : Screen(Component.empty()) {
@@ -57,21 +58,14 @@ class EditTranscriptBoxesScreen(val boxes: MutableList<TranscriptBox>, val paren
         UnityTranslate.saveConfig()
 
         if (UnityTranslateClient.languageBoxes.isNotEmpty()) {
-            val buf = UnityTranslate.instance.proxy.createByteBuf()
-
             val languages = UnityTranslateClient.languageBoxes.map { it.language }.toMutableList()
 
             if (!languages.contains(UnityTranslate.config.client.language)) {
                 languages.add(UnityTranslate.config.client.language)
             }
 
-            buf.writeEnumSet(
-                EnumSet.copyOf(languages),
-                Language::class.java
-            )
-
             if (Minecraft.getInstance().player != null) {
-                UnityTranslate.instance.proxy.sendPacketClient(PacketIds.SET_USED_LANGUAGES, buf)
+                UnityTranslate.instance.proxy.sendPacketClient(SetUsedLanguagesPayload(languages))
             }
         }
 

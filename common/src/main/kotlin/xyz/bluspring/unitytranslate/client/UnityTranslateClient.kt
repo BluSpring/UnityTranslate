@@ -22,6 +22,7 @@ import xyz.bluspring.unitytranslate.client.transcribers.windows.sapi5.WindowsSpe
 import xyz.bluspring.unitytranslate.commands.UnityTranslateClientCommands
 import xyz.bluspring.unitytranslate.compat.talkballoons.TalkBalloonsCompat
 import xyz.bluspring.unitytranslate.network.UTClientNetworking
+import xyz.bluspring.unitytranslate.network.payloads.SendTranscriptToServerPayload
 import xyz.bluspring.unitytranslate.translator.LocalLibreTranslateInstance
 import xyz.bluspring.unitytranslate.translator.TranslatorManager
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -132,13 +133,7 @@ class UnityTranslateClient {
             val updateTime = System.currentTimeMillis()
 
             if (connectedServerHasSupport) {
-                val buf = UnityTranslate.instance.proxy.createByteBuf()
-                buf.writeEnum(transcriber.language)
-                buf.writeUtf(text)
-                buf.writeVarInt(index)
-                buf.writeVarLong(updateTime)
-
-                UnityTranslate.instance.proxy.sendPacketClient(PacketIds.SEND_TRANSCRIPT, buf)
+                UnityTranslate.instance.proxy.sendPacketClient(SendTranscriptToServerPayload(transcriber.language, text, index, updateTime))
                 languageBoxes.firstOrNull { it.language == transcriber.language }?.updateTranscript(Minecraft.getInstance().player!!, text, transcriber.language, index, updateTime, false)
             } else {
                 if (Minecraft.getInstance().player == null)

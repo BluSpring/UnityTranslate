@@ -17,14 +17,14 @@ issueTrackerURL="https://github.com/BluSpring/UnityTranslate/issues"
 [[dependencies.unitytranslate]]
     modId="neoforge"
     mandatory=true
-    versionRange="[20.4,20.5)"
+    versionRange="[20.5,21)"
     ordering="NONE"
     side="BOTH"
 
 [[dependencies.unitytranslate]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.20.4,1.20.5)"
+    versionRange="[1.20.5,1.21)"
     ordering="NONE"
     side="BOTH"
 

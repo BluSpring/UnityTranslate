@@ -4,6 +4,7 @@ import dev.architectury.networking.NetworkManager
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 import net.minecraft.network.FriendlyByteBuf
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import java.nio.file.Path
@@ -20,10 +21,10 @@ interface PlatformProxy {
     fun createByteBuf(): FriendlyByteBuf
 
     @Environment(EnvType.CLIENT)
-    fun sendPacketClient(id: ResourceLocation, buf: FriendlyByteBuf) {
-        NetworkManager.sendToServer(id, buf)
+    fun sendPacketClient(payload: CustomPacketPayload) {
+        NetworkManager.sendToServer(payload)
     }
-    fun sendPacketServer(player: ServerPlayer, id: ResourceLocation, buf: FriendlyByteBuf) {
-        NetworkManager.sendToPlayer(player, id, buf)
+    fun sendPacketServer(player: ServerPlayer, payload: CustomPacketPayload) {
+        NetworkManager.sendToPlayer(player, payload)
     }
 }

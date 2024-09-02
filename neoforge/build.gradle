@@ -23,7 +23,9 @@ dependencies {
     // Remove the next line if you don't want to depend on the API
     modApi "dev.architectury:architectury-neoforge:${rootProject.architectury_version}"
 
-    implementation "thedarkcolour:kotlinforforge-neoforge:${rootProject.forge_kotlin_version}"
+    implementation("thedarkcolour:kotlinforforge-neoforge:${rootProject.forge_kotlin_version}") {
+        exclude group: "net.neoforged.fancymodloader", module: "loader"
+    }
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionNeoForge")) { transitive = false }
@@ -43,7 +45,7 @@ processResources {
     inputs.property "architectury_version", rootProject.architectury_version
     inputs.property "forge_kotlin_version", rootProject.forge_kotlin_version
 
-    filesMatching("META-INF/mods.toml") {
+    filesMatching("META-INF/neoforge.mods.toml") {
         expand "version": rootProject.version,
                "architectury_version": rootProject.architectury_version,
                "forge_kotlin_version": rootProject.forge_kotlin_version
