@@ -64,7 +64,7 @@ remapJar {
 }
 
 jar {
-    archiveClassifier.set("dev")
+    archiveClassifier.set("neoforge-dev")
 }
 
 sourcesJar {

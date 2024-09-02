@@ -67,7 +67,7 @@ remapJar {
 }
 
 jar {
-    archiveClassifier.set("dev")
+    archiveClassifier.set("fabric-dev")
 }
 
 sourcesJar {
