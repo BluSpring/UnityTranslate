@@ -15,10 +15,9 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.7.2")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.7.2")
 
-    implementation('org.java-websocket:Java-WebSocket:1.5.7')
+    implementation("org.jetbrains.kotlin:kotlin-reflect:2.0.20")
 
-    implementation("io.ktor:ktor-server-core-jvm:${rootProject.ktor_version}")
-    implementation("io.ktor:ktor-server-netty-jvm:${rootProject.ktor_version}")
+    implementation('org.java-websocket:Java-WebSocket:1.5.7')
 }
 
 architectury {

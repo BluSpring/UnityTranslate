@@ -2,10 +2,8 @@ package xyz.bluspring.unitytranslate.client.transcribers.browser
 
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
+import com.sun.net.httpserver.HttpServer
 import dev.architectury.event.events.client.ClientPlayerEvent
-import io.ktor.server.application.*
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
 import net.minecraft.Util
 import net.minecraft.client.Minecraft
 import net.minecraft.network.chat.ClickEvent
@@ -25,7 +23,7 @@ import java.net.InetSocketAddress
 
 class BrowserSpeechTranscriber(language: Language) : SpeechTranscriber(language) {
     val socketPort = HttpUtil.getAvailablePort()
-    val server: ApplicationEngine
+    val server: HttpServer
     val socket = BrowserSocket()
     val serverPort = if (!HttpUtil.isPortAvailable(25117))
         HttpUtil.getAvailablePort()
@@ -33,11 +31,11 @@ class BrowserSpeechTranscriber(language: Language) : SpeechTranscriber(language)
         25117
 
     init {
-        server = embeddedServer(Netty, port = serverPort, host = "0.0.0.0", module = Application::module)
-            .start(wait = false)
-            .apply {
-                wsPort = socketPort
-            }
+        BrowserApplication.socketPort = socketPort
+        server = HttpServer.create(InetSocketAddress("0.0.0.0", serverPort), 0)
+        BrowserApplication.addHandler(server)
+
+        server.start()
 
         socket.isDaemon = true
         socket.start()
@@ -66,7 +64,7 @@ class BrowserSpeechTranscriber(language: Language) : SpeechTranscriber(language)
     }
 
     override fun stop() {
-        server.stop(1000L, 1000L)
+        server.stop(0)
         socket.stop(1000)
     }
 
@@ -77,7 +75,7 @@ class BrowserSpeechTranscriber(language: Language) : SpeechTranscriber(language)
         })
     }
 
-    inner class BrowserSocket : WebSocketServer(InetSocketAddress("localhost", socketPort)) {
+    inner class BrowserSocket : WebSocketServer(InetSocketAddress("0.0.0.0", socketPort)) {
         var totalConnections = 0
 
         override fun onOpen(ws: WebSocket, handshake: ClientHandshake) {

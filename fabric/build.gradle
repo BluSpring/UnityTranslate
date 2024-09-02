@@ -35,9 +35,6 @@ dependencies {
     include(annotationProcessor(implementation("com.moulberry:mixinconstraints:1.0.1")))
 
     include(implementation('org.java-websocket:Java-WebSocket:1.5.7'))
-
-    shadow(implementation("io.ktor:ktor-server-core-jvm:${rootProject.ktor_version}"))
-    shadow(implementation("io.ktor:ktor-server-netty-jvm:${rootProject.ktor_version}"))
 }
 
 processResources {

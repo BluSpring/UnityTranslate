@@ -23,7 +23,7 @@ dependencies {
     // Remove the next line if you don't want to depend on the API
     modApi "dev.architectury:architectury-neoforge:${rootProject.architectury_version}"
 
-    modApi "thedarkcolour:kotlinforforge-neoforge:${rootProject.forge_kotlin_version}"
+    implementation "thedarkcolour:kotlinforforge-neoforge:${rootProject.forge_kotlin_version}"
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionNeoForge")) { transitive = false }
@@ -36,9 +36,6 @@ dependencies {
     //modImplementation("maven.modrinth:cerbons-api:XWZQbKsr") // 1.1.0
 
     include(forgeRuntimeLibrary('org.java-websocket:Java-WebSocket:1.5.7'))
-
-    include(forgeRuntimeLibrary("io.ktor:ktor-server-core-jvm:${rootProject.ktor_version}"))
-    include(forgeRuntimeLibrary("io.ktor:ktor-server-netty-jvm:${rootProject.ktor_version}"))
 }
 
 processResources {
