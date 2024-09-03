@@ -43,6 +43,20 @@ object UTServerNetworking {
             val index = buf.index
             val updateTime = buf.updateTime
 
+            // TODO: probably make this better
+            if (text.length > 1500) {
+                ctx.player.displayClientMessage(Component.literal("Transcription too long! Current transcript discarded.").withStyle(ChatFormatting.RED), true)
+                val markBuf = proxy.createByteBuf()
+                markBuf.writeEnum(sourceLanguage)
+                markBuf.writeEnum(sourceLanguage)
+                markBuf.writeUUID(ctx.player.uuid)
+                markBuf.writeVarInt(index)
+                markBuf.writeBoolean(true)
+
+                proxy.sendPacketServer(ctx.player as ServerPlayer, PacketIds.MARK_INCOMPLETE, markBuf)
+                return@registerReceiver
+            }
+
             val translations = ConcurrentHashMap<Language, String>()
             val translationsToSend = ConcurrentLinkedDeque<Language>()
 
