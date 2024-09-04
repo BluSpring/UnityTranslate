@@ -1,1 +1,4 @@
-- Initial release of UnityTranslate
+- Improved LibreTranslate HTTP requests
+- Add temporary workaround to long transcripts
+- Mute transcripts on the browser too
+- Restart local LibreTranslate instance with command "/unitytranslate debugreload"
