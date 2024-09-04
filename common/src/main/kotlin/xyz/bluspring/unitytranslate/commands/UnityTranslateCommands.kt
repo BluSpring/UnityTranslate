@@ -32,9 +32,9 @@ object UnityTranslateCommands {
             1
         }
 
-    val DEBUG_RESTART_TIMER = Commands.literal("debugreload")
+    val DEBUG_RESTART = Commands.literal("debugreload")
         .executes { ctx ->
-            TranslatorManager.loadFromConfig()
+            TranslatorManager.installLibreTranslate()
             ctx.source.sendSystemMessage(Component.literal("Restarted timer!"))
 
             1
@@ -44,5 +44,5 @@ object UnityTranslateCommands {
         .requires { it.hasPermission(3) }
         .then(INFO)
         .then(CLEAR_QUEUE)
-        .then(DEBUG_RESTART_TIMER)
+        .then(DEBUG_RESTART)
 }
