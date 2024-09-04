@@ -43,6 +43,8 @@ object UTVoiceChatCompat {
             return true
         else if (player.gameMode.gameModeForPlayer == GameType.SPECTATOR && other.gameMode.gameModeForPlayer != GameType.SPECTATOR)
             return false
+        else if (player.gameMode.gameModeForPlayer != GameType.SPECTATOR && other.gameMode.gameModeForPlayer == GameType.SPECTATOR)
+            return true
 
         return true
     }
