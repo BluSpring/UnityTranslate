@@ -47,6 +47,11 @@ class UnityTranslate(val proxy: PlatformProxy) {
         var config = UnityTranslateConfig()
         val logger = LoggerFactory.getLogger("UnityTranslate")
 
+        private val json = Json {
+            this.ignoreUnknownKeys = true
+            this.prettyPrint = true
+        }
+
         @JvmStatic
         fun id(path: String): ResourceLocation {
             return ResourceLocation(MOD_ID, path)
@@ -57,7 +62,7 @@ class UnityTranslate(val proxy: PlatformProxy) {
                 if (!configFile.exists())
                     configFile.createNewFile()
 
-                val serialized = Json.encodeToString(UnityTranslateConfig.serializer(), config)
+                val serialized = json.encodeToString(UnityTranslateConfig.serializer(), config)
                 configFile.writeText(serialized)
             } catch (e: Exception) {
                 logger.error("Failed to save UnityTranslate config!")
@@ -70,7 +75,7 @@ class UnityTranslate(val proxy: PlatformProxy) {
                 return
 
             try {
-                config = Json.decodeFromString(UnityTranslateConfig.serializer(), configFile.readText())
+                config = json.decodeFromString(UnityTranslateConfig.serializer(), configFile.readText())
             } catch (e: Exception) {
                 logger.error("Failed to load UnityTranslate config, reverting to defaults.")
                 e.printStackTrace()
