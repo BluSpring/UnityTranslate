@@ -13,6 +13,7 @@ let lastReset = 0;
 let totalResetsBelow50ms = 0;
 let isErrored = false;
 let wasNoSpeech = false;
+let isCurrentlyMuted = false;
 
 ws.onopen = () => {
     console.log('Connected');
@@ -42,6 +43,10 @@ function setupTranscriber(lang) {
     transcriber.onend = () => {
         if (isErrored) {
             pause.classList.add('visible');
+            return;
+        }
+
+        if (isCurrentlyMuted) {
             return;
         }
 
@@ -126,6 +131,20 @@ ws.onmessage = (ev) => {
             setupTranscriber(lang);
 
             break;
+        }
+
+        case 'set_muted': {
+            const isMuted = data.d.muted;
+            isCurrentlyMuted = isMuted;
+
+            if (!isMuted && !!transcriber) {
+                ws.send(JSON.stringify({
+                    op: 'reset'
+                }));
+                transcriber.start();
+            } else if (!!transcriber) {
+                transcriber.stop();
+            }
         }
     }
 }

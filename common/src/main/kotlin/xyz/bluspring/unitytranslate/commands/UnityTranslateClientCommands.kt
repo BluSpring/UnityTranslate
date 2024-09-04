@@ -41,9 +41,19 @@ object UnityTranslateClientCommands {
             1
         }
 
+    val OPEN_BROWSER = ClientCommandRegistrationEvent.literal("openbrowser")
+        .executes {
+            if (UnityTranslateClient.transcriber is BrowserSpeechTranscriber) {
+                (UnityTranslateClient.transcriber as BrowserSpeechTranscriber).openWebsite()
+            }
+
+            1
+        }
+
     val ROOT = ClientCommandRegistrationEvent.literal("unitytranslateclient")
         .then(TRANSCRIBER)
         .then(INFO)
+        .then(OPEN_BROWSER)
 
     fun init() {
         ClientCommandRegistrationEvent.EVENT.register { dispatcher, ctx ->
