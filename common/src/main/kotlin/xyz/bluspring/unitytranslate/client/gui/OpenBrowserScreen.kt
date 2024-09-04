@@ -44,7 +44,7 @@ class OpenBrowserScreen(val address: String) : Screen(Component.empty()) {
 
         val start = (this.height / 2 - (10 * split.size))
         for ((index, text) in split.withIndex()) {
-            font.draw(poseStack, text, this.width / 2f, start + (this.font.lineHeight * index).toFloat(), 16777215)
+            drawCenteredString(poseStack, font, text, this.width / 2, start + (this.font.lineHeight * index), 16777215)
         }
     }
 }

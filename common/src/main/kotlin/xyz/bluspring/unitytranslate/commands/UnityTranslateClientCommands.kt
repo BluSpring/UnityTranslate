@@ -16,14 +16,14 @@ object UnityTranslateClientCommands {
                 (UnityTranslateClient.transcriber as BrowserSpeechTranscriber).openWebsite()
             }
 
-            it.source.`arch$sendSuccess`({ Component.literal("Reopening browser transcriber if not opened") }, false)
+            it.source.`arch$sendSuccess`(Component.literal("Reopening browser transcriber if not opened"), false)
 
             1
         }
 
     val INFO = ClientCommandRegistrationEvent.literal("info")
         .executes {
-            it.source.`arch$sendSuccess`({
+            it.source.`arch$sendSuccess`(
                 ComponentUtils.formatList(
                     listOf(
                         Component.literal("UnityTranslate v${UnityTranslate.instance.proxy.modVersion}"),
@@ -35,8 +35,7 @@ object UnityTranslateClientCommands {
                         Component.literal("- Is local translation server running: ${LocalLibreTranslateInstance.hasStarted}"),
                         Component.literal("- Supports CUDA: ${TranslatorManager.supportsCuda}"),
                     ), Component.literal("\n")
-                )
-            }, false)
+                ), false)
 
             1
         }

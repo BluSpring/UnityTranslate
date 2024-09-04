@@ -102,7 +102,7 @@ class LocalLibreTranslateInstance private constructor(val process: Process, val 
         }
 
         fun launchLibreTranslate(source: File, consumer: Consumer<LibreTranslateInstance>) {
-            val port = if (HttpUtil.isPortAvailable(5000)) 5000 else HttpUtil.getAvailablePort()
+            val port = if (UnityTranslate.isPortAvailable(5000)) 5000 else HttpUtil.getAvailablePort()
 
             if (lastPid != -1L) {
                 killOpenInstances()

@@ -39,12 +39,12 @@ class LanguageSelectScreen(val parent: Screen?, val isAddingBox: Boolean) : Scre
         this.renderBackground(poseStack)
         super.render(poseStack, mouseX, mouseY, partialTick)
 
-        font.draw(poseStack, Component.translatable(
+        drawCenteredString(poseStack, font, Component.translatable(
             if (isAddingBox)
                 "unitytranslate.select_language"
             else
                 "unitytranslate.set_spoken_language"
-        ), (this.width / 2).toFloat(), 15f, 16777215)
+        ), (this.width / 2), 15, 16777215)
 
         UnityTranslateClient.renderCreditText(poseStack)
     }
@@ -103,7 +103,7 @@ class LanguageSelectScreen(val parent: Screen?, val isAddingBox: Boolean) : Scre
                     0x656565
                 } else 0xFFFFFF
 
-                font.draw(poseStack, language.text, this@LanguageSelectScreen.width / 2f, top + 1f, color)
+                drawCenteredString(poseStack, font, language.text, this@LanguageSelectScreen.width / 2, top + 1, color)
 
                 if (!isAddingBox) {
                     var x = this@LanguageSelectScreen.width / 2 + (font.width(language.text) / 2) + 4

@@ -24,7 +24,11 @@ object UTClientNetworking {
         ClientPlayerEvent.CLIENT_PLAYER_JOIN.register { player ->
             Minecraft.getInstance().execute {
                 val buf = proxy.createByteBuf()
-                buf.writeEnumSet(EnumSet.copyOf(UnityTranslateClient.languageBoxes.map { it.language }), Language::class.java)
+                buf.writeVarInt(UnityTranslateClient.languageBoxes.size)
+
+                UnityTranslateClient.languageBoxes.forEach { box ->
+                    buf.writeEnum(box.language)
+                }
 
                 proxy.sendPacketClient(PacketIds.SET_USED_LANGUAGES, buf)
             }
@@ -58,7 +62,7 @@ object UTClientNetworking {
 
         NetworkManager.registerReceiver(NetworkManager.Side.S2C, PacketIds.SEND_TRANSCRIPT) { buf, ctx ->
             val sourceId = buf.readUUID()
-            val source = ctx.player.level().getPlayerByUUID(sourceId) ?: return@registerReceiver
+            val source = ctx.player.level.getPlayerByUUID(sourceId) ?: return@registerReceiver
 
             val sourceLanguage = buf.readEnum(Language::class.java)
             val index = buf.readVarInt()

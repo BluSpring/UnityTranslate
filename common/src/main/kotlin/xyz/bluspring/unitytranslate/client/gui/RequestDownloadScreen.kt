@@ -40,7 +40,7 @@ class RequestDownloadScreen : Screen(Component.empty()) {
 
         val lines = font.split(Component.translatable("unitytranslate.request_download"), this.width - 50)
         for ((index, line) in lines.withIndex()) {
-            font.draw(poseStack, line, this.width / 2f, ((this.height / 2 - (lines.size * (font.lineHeight + 2))).coerceAtLeast(13) + (index * (font.lineHeight + 2))).toFloat(), 16777215)
+            drawCenteredString(poseStack, font, line, this.width / 2, ((this.height / 2 - (lines.size * (font.lineHeight + 2))).coerceAtLeast(13) + (index * (font.lineHeight + 2))), 16777215)
         }
     }
 

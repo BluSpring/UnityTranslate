@@ -12,6 +12,7 @@ import xyz.bluspring.unitytranslate.Language
 import xyz.bluspring.unitytranslate.UnityTranslate
 import xyz.bluspring.unitytranslate.UnityTranslate.Companion.hasVoiceChat
 import xyz.bluspring.unitytranslate.compat.voicechat.UTVoiceChatCompat
+import xyz.bluspring.unitytranslate.mixin.SignBlockEntityAccessor
 import xyz.bluspring.unitytranslate.translator.TranslatorManager
 import java.util.*
 import java.util.concurrent.CompletableFuture
@@ -26,8 +27,13 @@ object UTServerNetworking {
         val usedLanguages = ConcurrentHashMap<UUID, EnumSet<Language>>()
 
         NetworkManager.registerReceiver(NetworkManager.Side.C2S, PacketIds.SET_USED_LANGUAGES) { buf, ctx ->
-            val languages = buf.readEnumSet(Language::class.java)
-            usedLanguages[ctx.player.uuid] = languages
+            val languageSize = buf.readVarInt()
+            val languages = mutableSetOf<Language>()
+            for (i in 0 until languageSize) {
+                languages.add(buf.readEnum(Language::class.java))
+            }
+
+            usedLanguages[ctx.player.uuid] = EnumSet.copyOf(languages)
         }
 
         NetworkManager.registerReceiver(NetworkManager.Side.C2S, PacketIds.SEND_TRANSCRIPT) { buf, ctx ->
@@ -78,7 +84,7 @@ object UTServerNetworking {
             val pos = buf.readBlockPos()
 
             val player = ctx.player
-            val level = player.level()
+            val level = player.level
 
             val state = level.getBlockState(pos)
 
@@ -91,8 +97,8 @@ object UTServerNetworking {
                 if (entity !is SignBlockEntity)
                     return@queue
 
-                val text = (if (entity.isFacingFrontText(player)) entity.frontText else entity.backText)
-                    .getMessages(false)
+                val text = (entity as SignBlockEntityAccessor)
+                    .callGetMessages(false)
                     .joinToString("\n") { it.string }
 
                 val language = TranslatorManager.detectLanguage(text) ?: Language.ENGLISH

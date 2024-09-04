@@ -6,6 +6,7 @@ import de.maxhenkel.voicechat.api.VoicechatServerApi
 import de.maxhenkel.voicechat.api.events.EventRegistration
 import de.maxhenkel.voicechat.api.events.MicrophoneMuteEvent
 import de.maxhenkel.voicechat.api.events.VoicechatServerStartedEvent
+import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.level.GameType
 import xyz.bluspring.unitytranslate.UnityTranslate
@@ -38,7 +39,7 @@ class UTVoiceChatCompat : VoicechatPlugin {
             if (isPlayerDeafened(source))
                 return listOf(source)
 
-            return source.serverLevel().getPlayers {
+            return (source.level as ServerLevel).getPlayers {
                 (!isPlayerDeafened(it) &&
                         ((it.distanceToSqr(source) <= voiceChatServer.voiceChatDistance * voiceChatServer.voiceChatDistance && areBothSpectator(it, source)) ||
                                 playerSharesGroup(it, source))

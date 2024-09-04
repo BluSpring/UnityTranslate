@@ -73,18 +73,19 @@ data class TranscriptBox(
         poseStack.pushPose()
 
         poseStack.translate(0.0, 0.0, -255.0)
-        RenderSystem.enableScissor(x, y, x + width, y + height)
+        //RenderSystem.enableScissor((x * Minecraft.getInstance().window.guiScale).toInt(), (y * Minecraft.getInstance().window.guiScale).toInt(), (width * Minecraft.getInstance().window.guiScale).toInt(), (height * Minecraft.getInstance().window.guiScale).toInt())
         
         Screen.fill(poseStack, x, y, x + width, y + height, FastColor.ARGB32.color(opacity, 0, 0, 0))
-        Minecraft.getInstance().font.draw(poseStack, Component.translatable("unitytranslate.transcript").append(" (${language.code.uppercase()})")
-            .withStyle(ChatFormatting.UNDERLINE, ChatFormatting.BOLD), x + (width / 2).toFloat(), y + 5f, 16777215)
+        Screen.drawCenteredString(poseStack, Minecraft.getInstance().font, Component.translatable("unitytranslate.transcript").append(" (${language.code.uppercase()})")
+            .withStyle(ChatFormatting.UNDERLINE, ChatFormatting.BOLD), x + (width / 2), y + 5, 16777215)
 
         if (!UnityTranslateClient.shouldTranscribe) {
             RenderSystem.setShaderTexture(0, TRANSCRIPT_MUTED)
             Screen.blit(poseStack, x + width - 20, y + 2, 0f, 0f, 16, 16, 16, 16)
         }
 
-        RenderSystem.enableScissor(x, y + 15, x + width, y + height)
+        RenderSystem.disableScissor()
+        //RenderSystem.enableScissor((x * Minecraft.getInstance().window.guiScale).toInt(), ((y + 15) * Minecraft.getInstance().window.guiScale).toInt(), (width * Minecraft.getInstance().window.guiScale).toInt(), (height * Minecraft.getInstance().window.guiScale).toInt())
 
         val lines = transcripts.sortedByDescending { it.arrivalTime }
 
@@ -131,7 +132,7 @@ data class TranscriptBox(
                 poseStack.pushPose()
                 poseStack.translate(x.toDouble(), currentY.toDouble(), 0.0)
                 poseStack.scale(scale, scale, scale)
-                font.draw(poseStack, line, 4f, 0f, 16777215)
+                Screen.drawString(poseStack, font, line, 4, 0, 16777215)
                 currentY -= (font.lineHeight * scale).toInt()
                 poseStack.popPose()
             }
@@ -141,7 +142,6 @@ data class TranscriptBox(
             currentY -= 4
         }
 
-        RenderSystem.disableScissor()
         RenderSystem.disableScissor()
 
         renderOutline(poseStack, x, y, width, height, FastColor.ARGB32.color(100, 0, 0, 0))

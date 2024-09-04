@@ -25,7 +25,7 @@ class BrowserSpeechTranscriber(language: Language) : SpeechTranscriber(language)
     val socketPort = HttpUtil.getAvailablePort()
     val server: HttpServer
     val socket = BrowserSocket()
-    val serverPort = if (!HttpUtil.isPortAvailable(25117))
+    val serverPort = if (!UnityTranslate.isPortAvailable(25117))
         HttpUtil.getAvailablePort()
     else
         25117

@@ -11,6 +11,10 @@ import xyz.bluspring.unitytranslate.network.UTServerNetworking
 import xyz.bluspring.unitytranslate.translator.LocalLibreTranslateInstance
 import xyz.bluspring.unitytranslate.translator.TranslatorManager
 import java.io.File
+import java.io.IOException
+import java.net.ServerSocket
+
+
 
 class UnityTranslate(val proxy: PlatformProxy) {
     init {
@@ -72,6 +76,31 @@ class UnityTranslate(val proxy: PlatformProxy) {
                 logger.error("Failed to load UnityTranslate config, reverting to defaults.")
                 e.printStackTrace()
             }
+        }
+
+        // grabbed from MC code
+        fun isPortAvailable(port: Int): Boolean {
+            val bl: Boolean
+            if (port < 0 || port > 65535) {
+                return false
+            }
+            val serverSocket = ServerSocket(port)
+            try {
+                bl = serverSocket.localPort == port
+            } catch (throwable: Throwable) {
+                try {
+                    try {
+                        serverSocket.close()
+                    } catch (throwable2: Throwable) {
+                        throwable.addSuppressed(throwable2)
+                    }
+                    throw throwable
+                } catch (iOException: IOException) {
+                    return false
+                }
+            }
+            serverSocket.close()
+            return bl
         }
     }
 }

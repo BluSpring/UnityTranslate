@@ -1,5 +1,6 @@
 package xyz.bluspring.unitytranslate.client.gui
 
+import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.ChatFormatting
 import net.minecraft.client.Minecraft
@@ -58,7 +59,7 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
         this.renderBackground(poseStack)
 
         fill(poseStack, 0, 50, this.width, this.height - 50, FastColor.ARGB32.color(150, 0, 0, 0))
-        this.font.draw(poseStack, this.title, this.width / 2f, 20f, 16777215)
+        drawCenteredString(poseStack, font, this.title, this.width / 2, 20, 16777215)
 
         super.render(poseStack, mouseX, mouseY, partialTick)
 
@@ -107,7 +108,7 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
                 name.x = 35
                 name.y = y
                 name.alignLeft()
-                name.tooltip = Tooltip.create(Component.translatable("config.unitytranslate.$type.${member.name}.desc"))
+                name.tooltip = Component.translatable("config.unitytranslate.$type.${member.name}.desc")
                 (name as ScrollableWidget).updateInitialPosition()
 
                 addRenderableWidget(name)
@@ -117,9 +118,13 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
                 if (value is Boolean) {
                     var current: Boolean = value
 
-                    val button = Button.builder(Component.translatable("unitytranslate.value.$current")
+                    val button = Button(this.width - Button.SMALL_WIDTH - 20, y - (Button.DEFAULT_HEIGHT / 2) + 3,
+                        Button.SMALL_WIDTH, Button.DEFAULT_HEIGHT,
+                        Component.translatable("unitytranslate.value.$current")
                         .withStyle(if (current) ChatFormatting.GREEN else ChatFormatting.RED)
                     ) { btn ->
+                        (btn as ScrollableWidget).tooltip = Component.translatable("config.unitytranslate.$type.${member.name}.desc")
+
                         current = !current
                         member.setter.call(instance, current)
                         rebuildWidgets()
@@ -127,10 +132,6 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
                         btn.message = Component.translatable("unitytranslate.value.$current")
                             .withStyle(if (current) ChatFormatting.GREEN else ChatFormatting.RED)
                     }
-                        .pos(this.width - Button.SMALL_WIDTH - 20, y - (Button.DEFAULT_HEIGHT / 2) + 3)
-                        .width(Button.SMALL_WIDTH)
-                        .tooltip(Tooltip.create(Component.translatable("config.unitytranslate.$type.${member.name}.desc")))
-                        .build()
 
                     addRenderableWidget(button)
                 } else if (value is Enum<*>) {
@@ -139,7 +140,10 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
                     val values = valueOf.invoke(null) as Array<Enum<*>>
                     var current = value.ordinal
 
-                    val button = Button.builder(Component.literal(values[current].name.propercase())) { btn ->
+                    val button = Button(this.width - Button.SMALL_WIDTH - 20, y - (Button.DEFAULT_HEIGHT / 2) + 3,
+                        Button.SMALL_WIDTH, Button.DEFAULT_HEIGHT,
+                        Component.literal(values[current].name.propercase())
+                    ) { btn ->
                         if (hasShiftDown()) {
                             current -= 1
                             if (current < 0)
@@ -150,31 +154,29 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
                                 current = 0
                         }
 
+                        (btn as ScrollableWidget).tooltip = Component.translatable("config.unitytranslate.$type.${member.name}.desc")
                         btn.message = Component.literal(values[current].name.propercase())
                     }
-                        .pos(this.width - Button.SMALL_WIDTH - 20, y - (Button.DEFAULT_HEIGHT / 2) + 3)
-                        .width(Button.SMALL_WIDTH)
-                        .tooltip(Tooltip.create(Component.translatable("config.unitytranslate.$type.${member.name}.desc")))
-                        .build()
 
                     addRenderableWidget(button)
                 } else if (value is MutableList<*> && member.name == "offloadServers") { // special case
                     val actualValue = value as MutableList<UnityTranslateConfig.OffloadedLibreTranslateServer>
 
-                    addRenderableWidget(Button.builder(Component.literal("+")) {
+                    addRenderableWidget(Button(
+                        this.width - Button.DEFAULT_HEIGHT - 20, y - (Button.DEFAULT_HEIGHT / 2) + 3,
+                        Button.DEFAULT_HEIGHT, Button.DEFAULT_HEIGHT,
+                        Component.literal("+")
+                    ) {
                         actualValue.add(UnityTranslateConfig.OffloadedLibreTranslateServer(""))
                         this.rebuildWidgets()
-                    }
-                        .pos(this.width - Button.DEFAULT_HEIGHT - 20, y - (Button.DEFAULT_HEIGHT / 2) + 3)
-                        .width(Button.DEFAULT_HEIGHT)
-                        .build())
+                    })
 
                     for ((index, server) in actualValue.withIndex()) {
                         y += 30
 
                         val boxWidth = (Button.DEFAULT_WIDTH + 20).coerceAtMost(this.width / 3)
                         addRenderableWidget(EditBox(font, this.width / 2 - boxWidth - 5, y - (Button.DEFAULT_HEIGHT / 2) + 3, boxWidth, Button.DEFAULT_HEIGHT, Component.translatable("unitytranslate.value.none")).apply {
-                            this.tooltip = Tooltip.create(Component.translatable("config.unitytranslate.$type.${member.name}.website_url.desc"))
+                            (this as ScrollableWidget).tooltip = (Component.translatable("config.unitytranslate.$type.${member.name}.website_url.desc"))
                             this.value = server.url
                             this.setResponder {
                                 server.url = it
@@ -182,20 +184,20 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
                         })
 
                         addRenderableWidget(EditBox(font, this.width / 2 + 5, y - (Button.DEFAULT_HEIGHT / 2) + 3, boxWidth, Button.DEFAULT_HEIGHT, Component.translatable("unitytranslate.value.none")).apply {
-                            this.tooltip = Tooltip.create(Component.translatable("config.unitytranslate.$type.${member.name}.api_key.desc"))
+                            (this as ScrollableWidget).tooltip = (Component.translatable("config.unitytranslate.$type.${member.name}.api_key.desc"))
                             this.value = server.authKey ?: ""
                             this.setResponder {
                                 server.authKey = it
                             }
                         })
 
-                        addRenderableWidget(Button.builder(Component.literal("-")) {
+                        addRenderableWidget(Button(this.width - Button.DEFAULT_HEIGHT - 20, y - (Button.DEFAULT_HEIGHT / 2) + 3,
+                            Button.DEFAULT_HEIGHT, Button.DEFAULT_HEIGHT,
+                            Component.literal("-")
+                        ) {
                             actualValue.removeAt(index)
                             this.rebuildWidgets()
-                        }
-                            .pos(this.width - Button.DEFAULT_HEIGHT - 20, y - (Button.DEFAULT_HEIGHT / 2) + 3)
-                            .width(Button.DEFAULT_HEIGHT)
-                            .build())
+                        })
 
                         addArrows(this@UTConfigSubScreen.width - 17, y, index, actualValue)
                     }
@@ -210,7 +212,7 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
                         priorityName.x = this.width / 2 - (font.width(text) / 2)
                         priorityName.y = y
                         priorityName.alignCenter()
-                        priorityName.tooltip = Tooltip.create(Component.translatable("config.unitytranslate.$type.${member.name}.${priority.name.lowercase()}.desc"))
+                        priorityName.tooltip = (Component.translatable("config.unitytranslate.$type.${member.name}.${priority.name.lowercase()}.desc"))
                         (priorityName as ScrollableWidget).updateInitialPosition()
 
                         addRenderableWidget(priorityName)
@@ -224,7 +226,7 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
 
                     addRenderableWidget(EditBox(font, this.width - Button.SMALL_WIDTH - 20, y - (Button.DEFAULT_HEIGHT / 2) + 4, Button.SMALL_WIDTH, Button.DEFAULT_HEIGHT, Component.empty())
                         .apply {
-                            this.tooltip = Tooltip.create(Component.translatable("config.unitytranslate.$type.${member.name}.desc"))
+                            (this as ScrollableWidget).tooltip = (Component.translatable("config.unitytranslate.$type.${member.name}.desc"))
                             this.value = value.toString()
                             this.setFilter { it.toFloatOrNull() != null || it.isBlank() || it.contains('.') } // TODO: make adjustable via annotation
                             this.setResponder {
@@ -240,20 +242,15 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
                             }
                         })
 
-                    addRenderableWidget(TextAndImageButton.builder(Component.empty(), UnityTranslate.id("textures/gui/arrow_up.png")) {
+                    addRenderableWidget(ImageButton(this@UTConfigSubScreen.width - 18, y - 8,
+                        12, 12, 0, 0, 0,
+                        UnityTranslate.id("textures/gui/arrow_up.png"),
+                        8, 8
+                    ) {
                         member.setter.call(instance, Mth.clamp(value + range.increment, min, max))
                         this.rebuildWidgets()
                     }
-                        .offset(0, 2)
-                        .texStart(0, 0)
-                        .textureSize(8, 8)
-                        .usedTextureSize(8, 8)
-                        .build()
                         .apply {
-                            this.x = this@UTConfigSubScreen.width - 18
-                            this.y = y - 8
-                            this.width = 12
-                            (this as AbstractWidgetAccessor).setHeight(12) // :mojank:
                             (this as ScrollableWidget).updateInitialPosition()
 
                             if (value >= max) {
@@ -262,20 +259,15 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
                         }
                     )
 
-                    addRenderableWidget(TextAndImageButton.builder(Component.empty(), UnityTranslate.id("textures/gui/arrow_down.png")) {
+                    addRenderableWidget(ImageButton(this@UTConfigSubScreen.width - 18, y + 4,
+                        12, 12, 0, 0, 0,
+                        UnityTranslate.id("textures/gui/arrow_down.png"),
+                        8, 8
+                    ) {
                         member.setter.call(instance, Mth.clamp(value - range.increment, min, max))
                         this.rebuildWidgets()
                     }
-                        .offset(0, 2)
-                        .texStart(0, 0)
-                        .textureSize(8, 8)
-                        .usedTextureSize(8, 8)
-                        .build()
                         .apply {
-                            this.x = this@UTConfigSubScreen.width - 18
-                            this.y = y + 4
-                            this.width = 12
-                            (this as AbstractWidgetAccessor).setHeight(12) // :mojank:
                             (this as ScrollableWidget).updateInitialPosition()
 
                             if (value <= min) {
@@ -295,7 +287,7 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
 
                     addRenderableWidget(EditBox(font, this.width - Button.SMALL_WIDTH - 20, y - (Button.DEFAULT_HEIGHT / 2) + 4, Button.SMALL_WIDTH, Button.DEFAULT_HEIGHT, Component.empty())
                         .apply {
-                            this.tooltip = Tooltip.create(Component.translatable("config.unitytranslate.$type.${member.name}.desc"))
+                            (this as ScrollableWidget).tooltip = (Component.translatable("config.unitytranslate.$type.${member.name}.desc"))
                             this.value = value.toString()
                             this.setFilter { it.toIntOrNull() != null || it.isBlank() } // TODO: make adjustable via annotation
                             this.setResponder {
@@ -303,20 +295,15 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
                             }
                         })
 
-                    addRenderableWidget(TextAndImageButton.builder(Component.empty(), UnityTranslate.id("textures/gui/arrow_up.png")) {
+                    addRenderableWidget(ImageButton(this@UTConfigSubScreen.width - 18, y - 8,
+                        12, 12, 0, 0, 0,
+                        UnityTranslate.id("textures/gui/arrow_up.png"),
+                        8, 8
+                    ) {
                         member.setter.call(instance, Mth.clamp(value + range.increment, min, max))
                         this.rebuildWidgets()
                     }
-                        .offset(0, 2)
-                        .texStart(0, 0)
-                        .textureSize(8, 8)
-                        .usedTextureSize(8, 8)
-                        .build()
                         .apply {
-                            this.x = this@UTConfigSubScreen.width - 18
-                            this.y = y - 8
-                            this.width = 12
-                            (this as AbstractWidgetAccessor).setHeight(12) // :mojank:
                             (this as ScrollableWidget).updateInitialPosition()
 
                             if (value >= max) {
@@ -325,20 +312,15 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
                         }
                     )
 
-                    addRenderableWidget(TextAndImageButton.builder(Component.empty(), UnityTranslate.id("textures/gui/arrow_down.png")) {
+                    addRenderableWidget(ImageButton(this@UTConfigSubScreen.width - 18, y + 4,
+                        12, 12, 0, 0, 0,
+                        UnityTranslate.id("textures/gui/arrow_down.png"),
+                        8, 8
+                    ) {
                         member.setter.call(instance, Mth.clamp(value - range.increment, min, max))
                         this.rebuildWidgets()
                     }
-                        .offset(0, 2)
-                        .texStart(0, 0)
-                        .textureSize(8, 8)
-                        .usedTextureSize(8, 8)
-                        .build()
                         .apply {
-                            this.x = this@UTConfigSubScreen.width - 18
-                            this.y = y + 4
-                            this.width = 12
-                            (this as AbstractWidgetAccessor).setHeight(12) // :mojank:
                             (this as ScrollableWidget).updateInitialPosition()
 
                             if (value <= min) {
@@ -352,11 +334,12 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
             }
 
             if (type == "client") { // Special case
-                addRenderableWidget(Button.builder(Component.translatable("unitytranslate.configure_boxes")) {
+                addRenderableWidget(Button(this.width / 2 - (Button.DEFAULT_WIDTH / 2), y,
+                    Button.DEFAULT_WIDTH, Button.DEFAULT_HEIGHT,
+                    Component.translatable("unitytranslate.configure_boxes")
+                ) {
                     Minecraft.getInstance().setScreen(EditTranscriptBoxesScreen(UnityTranslateClient.languageBoxes, this@UTConfigSubScreen))
                 }
-                    .pos(this.width / 2 - (Button.DEFAULT_WIDTH / 2), y)
-                    .build()
                     .apply {
                         (this as ScrollableWidget).updateInitialPosition()
                     }
@@ -364,11 +347,12 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
 
                 y += 30
 
-                addRenderableWidget(Button.builder(Component.translatable("unitytranslate.set_spoken_language")) {
+                addRenderableWidget(Button(this.width / 2 - (Button.DEFAULT_WIDTH / 2), y,
+                    Button.DEFAULT_WIDTH, Button.DEFAULT_HEIGHT,
+                    Component.translatable("unitytranslate.set_spoken_language")
+                ) {
                     Minecraft.getInstance().setScreen(LanguageSelectScreen(this@UTConfigSubScreen, false))
                 }
-                    .pos(this.width / 2 - (Button.DEFAULT_WIDTH / 2), y)
-                    .build()
                     .apply {
                         (this as ScrollableWidget).updateInitialPosition()
                     }
@@ -380,54 +364,36 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
             maxPosition = y
 
             doneButton = addRenderableWidget(
-                Button.builder(CommonComponents.GUI_DONE) {
+                Button(this.width / 2 - (Button.DEFAULT_WIDTH / 2), this.height - 20 - 15,
+                    Button.DEFAULT_WIDTH, Button.DEFAULT_HEIGHT,
+                    CommonComponents.GUI_DONE) {
                     this.onClose()
                 }
-                    .pos(this.width / 2 - (Button.DEFAULT_WIDTH / 2), this.height - 20 - 15)
-                    .build()
             )
         }
 
         private fun <T> addArrows(x: Int, y: Int, index: Int, actualValue: MutableList<T>) {
-            addRenderableWidget(TextAndImageButton.builder(Component.empty(), UnityTranslate.id("textures/gui/arrow_up.png")) {
+            addRenderableWidget(ImageButton(x, y - 8, 12, 12, 0, 0, 0, UnityTranslate.id("textures/gui/arrow_up.png"), 8, 8) {
                 val oldValue = actualValue[index]
                 val oldPrevValue = actualValue[index - 1]
                 actualValue[index - 1] = oldValue
                 actualValue[index] = oldPrevValue
                 this.rebuildWidgets()
             }
-                .offset(0, 2)
-                .texStart(0, 0)
-                .textureSize(8, 8)
-                .usedTextureSize(8, 8)
-                .build()
                 .apply {
-                    this.x = x
-                    this.y = y - 8
-                    this.width = 12
-                    (this as AbstractWidgetAccessor).setHeight(12) // :mojank:
                     (this as ScrollableWidget).updateInitialPosition()
                     this.active = index > 0
                 }
             )
 
-            addRenderableWidget(TextAndImageButton.builder(Component.empty(), UnityTranslate.id("textures/gui/arrow_down.png")) {
+            addRenderableWidget(ImageButton(x, y + 4, 12, 12, 0, 0, 0, UnityTranslate.id("textures/gui/arrow_down.png"), 8, 8) {
                 val oldValue = actualValue[index]
                 val oldPrevValue = actualValue[index + 1]
                 actualValue[index + 1] = oldValue
                 actualValue[index] = oldPrevValue
                 this.rebuildWidgets()
             }
-                .offset(0, 2)
-                .texStart(0, 0)
-                .textureSize(8, 8)
-                .usedTextureSize(8, 8)
-                .build()
                 .apply {
-                    this.x = x
-                    this.y = y + 4
-                    this.width = 12
-                    (this as AbstractWidgetAccessor).setHeight(12) // :mojank:
                     (this as ScrollableWidget).updateInitialPosition()
                     this.active = index < actualValue.size - 1
                 }
@@ -438,15 +404,15 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
             return "${this[0].uppercaseChar()}${this.lowercase().substring(1)}"
         }
 
-        override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
-            this.renderBackground(guiGraphics)
+        override fun render(poseStack: PoseStack, mouseX: Int, mouseY: Int, partialTick: Float) {
+            this.renderBackground(poseStack)
 
-            guiGraphics.fill(0, 50, this.width, this.height - 50, FastColor.ARGB32.color(150, 0, 0, 0))
-            guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 20, 16777215)
+            fill(poseStack, 0, 50, this.width, this.height - 50, FastColor.ARGB32.color(150, 0, 0, 0))
+            drawCenteredString(poseStack, this.font, this.title, this.width / 2, 20, 16777215)
 
-            guiGraphics.enableScissor(0, 50, this.width, this.height - 50)
-            super.render(guiGraphics, mouseX, mouseY, partialTick)
-            guiGraphics.disableScissor()
+            RenderSystem.enableScissor(0, 50, this.width, this.height - 50)
+            super.render(poseStack, mouseX, mouseY, partialTick)
+            RenderSystem.disableScissor()
 
             if (maxScroll.absoluteValue > 0) {
                 var scrollbarHeight = ((this.height - 50 - 50) * (this.height - 50 - 50)) / this.maxPosition
@@ -457,14 +423,14 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
                     scrollbarPosY = 50
                 }
 
-                guiGraphics.fill(this.scrollbarPosition, 50, scrollbarPosition + 2, this.height - 50, -16777216)
-                guiGraphics.fill(this.scrollbarPosition, scrollbarPosY, scrollbarPosition + 2, scrollbarPosY + scrollbarHeight, -8355712)
-                guiGraphics.fill(this.scrollbarPosition, scrollbarPosY, scrollbarPosition + 2 - 1, scrollbarPosY + scrollbarHeight - 1, -4144960)
+                fill(poseStack, this.scrollbarPosition, 50, scrollbarPosition + 2, this.height - 50, -16777216)
+                fill(poseStack, this.scrollbarPosition, scrollbarPosY, scrollbarPosition + 2, scrollbarPosY + scrollbarHeight, -8355712)
+                fill(poseStack, this.scrollbarPosition, scrollbarPosY, scrollbarPosition + 2 - 1, scrollbarPosY + scrollbarHeight - 1, -4144960)
             }
 
-            doneButton.render(guiGraphics, mouseX, mouseY, partialTick)
+            doneButton.render(poseStack, mouseX, mouseY, partialTick)
 
-            UnityTranslateClient.renderCreditText(guiGraphics)
+            UnityTranslateClient.renderCreditText(poseStack)
         }
 
         fun updateScroll() {
