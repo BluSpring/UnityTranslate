@@ -66,6 +66,7 @@ open class LibreTranslateInstance(val url: String, private var weight: Int, val 
         return try {
             batchTranslate(from.code, to.code, texts)
         } catch (e: Exception) {
+            e.printStackTrace()
             null
         }
     }
@@ -121,34 +122,50 @@ open class LibreTranslateInstance(val url: String, private var weight: Int, val 
 
         val writer = OutputStreamWriter(httpConn.outputStream, "UTF-8")
 
-        writer.write(JsonObject().apply {
-            addProperty("source", from)
-            addProperty("target", to)
-            add("q", JsonArray().apply {
-                for (s in request) {
-                    this.add(s)
+        try {
+            writer.write(JsonObject().apply {
+                addProperty("source", from)
+                addProperty("target", to)
+                add("q", JsonArray().apply {
+                    for (s in request) {
+                        this.add(s)
+                    }
+                })
+
+                if (authKey?.isNotBlank() == true)
+                    addProperty("api_key", authKey)
+            }.toString())
+
+            writer.flush()
+            writer.close()
+            httpConn.outputStream.close()
+            if (httpConn.responseCode / 100 != 2) {
+                httpConn.disconnect()
+                throw Exception("Failed to load ${this.url}/translate (code ${httpConn.responseCode})")
+            } else {
+                val responseStream = httpConn.inputStream
+                val s = Scanner(responseStream, "UTF-8").useDelimiter("\\A")
+
+                try {
+                    val response = if (s.hasNext()) s.next() else ""
+
+                    val translated = JsonParser.parseString(response).asJsonObject.get("translatedText").asJsonArray
+
+                    httpConn.disconnect()
+                    s.close()
+                    return translated.map { it.asString }
+                } catch (e: Exception) {
+                    httpConn.disconnect()
+                    s.close()
+
+                    throw e
                 }
-            })
-
-            if (authKey?.isNotBlank() == true)
-                addProperty("api_key", authKey)
-        }.toString())
-
-        writer.flush()
-        writer.close()
-        httpConn.outputStream.close()
-        if (httpConn.responseCode / 100 != 2) {
-            throw Exception("Failed to load ${this.url}/translate (code ${httpConn.responseCode})")
-        } else {
-            val responseStream = httpConn.inputStream
-            val s = Scanner(responseStream, "UTF-8").useDelimiter("\\A")
-            val response = if (s.hasNext()) s.next() else ""
-
-            val translated = JsonParser.parseString(response).asJsonObject.get("translatedText").asJsonArray
-
+            }
+        } catch (e: Exception) {
+            writer.close()
             httpConn.disconnect()
-            s.close()
-            return translated.map { it.asString }
+
+            throw e
         }
     }
 
