@@ -15,6 +15,7 @@ import xyz.bluspring.unitytranslate.Language
 import xyz.bluspring.unitytranslate.UnityTranslate
 import xyz.bluspring.unitytranslate.UnityTranslate.Companion.hasVoiceChat
 import xyz.bluspring.unitytranslate.compat.voicechat.UTVoiceChatCompat
+import xyz.bluspring.unitytranslate.network.payloads.MarkIncompletePayload
 import xyz.bluspring.unitytranslate.network.payloads.SendTranscriptToClientPayload
 import xyz.bluspring.unitytranslate.network.payloads.ServerSupportPayload
 import xyz.bluspring.unitytranslate.translator.TranslatorManager
@@ -46,14 +47,8 @@ object UTServerNetworking {
             // TODO: probably make this better
             if (text.length > 1500) {
                 ctx.player.displayClientMessage(Component.literal("Transcription too long! Current transcript discarded.").withStyle(ChatFormatting.RED), true)
-                val markBuf = proxy.createByteBuf()
-                markBuf.writeEnum(sourceLanguage)
-                markBuf.writeEnum(sourceLanguage)
-                markBuf.writeUUID(ctx.player.uuid)
-                markBuf.writeVarInt(index)
-                markBuf.writeBoolean(true)
 
-                proxy.sendPacketServer(ctx.player as ServerPlayer, PacketIds.MARK_INCOMPLETE, markBuf)
+                proxy.sendPacketServer(ctx.player as ServerPlayer, MarkIncompletePayload(sourceLanguage, sourceLanguage, ctx.player.uuid, index, true))
                 return@registerReceiver
             }
 
