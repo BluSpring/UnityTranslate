@@ -170,6 +170,11 @@ class UnityTranslateClient {
         var connectedServerHasSupport = false
 
         var shouldTranscribe = true
+            set(value) {
+                field = value
+                transcriber.setMuted(!value)
+            }
+
         var shouldRenderBoxes = true
 
         val languageBoxes: MutableList<TranscriptBox>

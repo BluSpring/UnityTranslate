@@ -14,6 +14,7 @@ abstract class SpeechTranscriber(var language: Language) {
     lateinit var updater: BiConsumer<Int, String>
 
     abstract fun stop()
+    open fun setMuted(muted: Boolean) {}
 
     open fun changeLanguage(language: Language) {
         this.language = language

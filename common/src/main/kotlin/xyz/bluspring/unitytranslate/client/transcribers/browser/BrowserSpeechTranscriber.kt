@@ -75,6 +75,12 @@ class BrowserSpeechTranscriber(language: Language) : SpeechTranscriber(language)
         })
     }
 
+    override fun setMuted(muted: Boolean) {
+        this.socket.broadcast("set_muted", JsonObject().apply {
+            this.addProperty("muted", muted)
+        })
+    }
+
     inner class BrowserSocket : WebSocketServer(InetSocketAddress("0.0.0.0", socketPort)) {
         var totalConnections = 0
 
@@ -85,6 +91,7 @@ class BrowserSpeechTranscriber(language: Language) : SpeechTranscriber(language)
             totalConnections++
 
             UnityTranslateClient.displayMessage(Component.translatable("unitytranslate.transcriber.connected"))
+            setMuted(!UnityTranslateClient.shouldTranscribe)
         }
 
         override fun onClose(ws: WebSocket, code: Int, reason: String, remote: Boolean) {
