@@ -1,11 +1,8 @@
 name: Publish JDK 17 Mods
 on:
-  push:
-    tags:
-      - '*'
-    branches:
-      - 'ver/1.20.1'
-      - 'ver/1.20.4'
+  release:
+    types:
+      - 'published'
 
 jobs:
   build:
