@@ -334,23 +334,26 @@ object TranslatorManager {
                             else true
                         }
 
-                        CompletableFuture.supplyAsync {
-                            batchTranslateLines(translations.map { it.text }, from, to)
-                        }
-                            .whenCompleteAsync { t, u ->
-                                translations.forEachIndexed { i, translation ->
-                                    if (t != null && u == null) {
-                                        broadcastIncomplete(false, translation)
-                                        translation.future.completeAsync { t[i] }
-                                    } else {
-                                        if (translation.player is ServerPlayer) {
-                                            broadcastIncomplete(true, translation)
-                                        }
-
-                                        translation.attempts++
-                                        queueLater.add(translation)
-                                    }
+                        translations.chunked(LibreTranslateInstance.MAX_CONCURRENT_TRANSLATIONS)
+                            .forEach { spliced ->
+                                CompletableFuture.supplyAsync {
+                                    batchTranslateLines(spliced.map { it.text }, from, to)
                                 }
+                                    .whenCompleteAsync { t, u ->
+                                        spliced.forEachIndexed { i, translation ->
+                                            if (t != null && u == null) {
+                                                broadcastIncomplete(false, translation)
+                                                translation.future.completeAsync { t[i] }
+                                            } else {
+                                                if (translation.player is ServerPlayer) {
+                                                    broadcastIncomplete(true, translation)
+                                                }
+
+                                                translation.attempts++
+                                                queueLater.add(translation)
+                                            }
+                                        }
+                                    }
                             }
                     }
 
