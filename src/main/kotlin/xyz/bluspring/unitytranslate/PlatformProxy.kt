@@ -3,6 +3,9 @@ package xyz.bluspring.unitytranslate
 import dev.architectury.networking.NetworkManager
 import io.netty.buffer.Unpooled
 import net.minecraft.network.FriendlyByteBuf
+//#if MC >= 1.20.6
+//$$ import net.minecraft.network.protocol.common.custom.CustomPacketPayload
+//#endif
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import java.nio.file.Path

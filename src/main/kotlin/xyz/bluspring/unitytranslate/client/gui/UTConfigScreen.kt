@@ -54,16 +54,14 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
     }
 
     override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
-        //#if MC >= 1.20.4
-        //$$ this.renderBackground(guiGraphics, mouseX, mouseY, partialTick)
-        //#else
+        //#if MC < 1.20.4
         this.renderBackground(guiGraphics)
         //#endif
 
+        super.render(guiGraphics, mouseX, mouseY, partialTick)
+
         guiGraphics.fill(0, 50, this.width, this.height - 50, FastColor.ARGB32.color(150, 0, 0, 0))
         guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 20, 16777215)
-
-        super.render(guiGraphics, mouseX, mouseY, partialTick)
 
         UnityTranslateClient.renderCreditText(guiGraphics)
     }

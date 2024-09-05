@@ -185,6 +185,14 @@ class EditTranscriptBoxesScreen(val boxes: MutableList<TranscriptBox>, val paren
         UnityTranslateClient.renderCreditText(guiGraphics)
     }
 
+    //#if MC >= 1.20.4
+    //$$ override fun renderBackground(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+    //$$     if (Minecraft.getInstance().player == null) {
+    //$$         super.renderBackground(guiGraphics, mouseX, mouseY, partialTick)
+    //$$     }
+    //$$ }
+    //#endif
+
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
         val result = super.mouseClicked(mouseX, mouseY, button)
 

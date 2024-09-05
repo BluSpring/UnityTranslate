@@ -20,6 +20,9 @@ import xyz.bluspring.unitytranslate.commands.UnityTranslateClientCommands
 import xyz.bluspring.unitytranslate.compat.talkballoons.TalkBalloonsCompat
 import xyz.bluspring.unitytranslate.network.PacketIds
 import xyz.bluspring.unitytranslate.network.UTClientNetworking
+//#if MC >= 1.20.6
+//$$ import xyz.bluspring.unitytranslate.network.payloads.SendTranscriptToServerPayload
+//#endif
 import xyz.bluspring.unitytranslate.translator.LocalLibreTranslateInstance
 import xyz.bluspring.unitytranslate.translator.TranslatorManager
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -134,6 +137,9 @@ class UnityTranslateClient {
             val updateTime = System.currentTimeMillis()
 
             if (connectedServerHasSupport) {
+                //#if MC >= 1.20.6
+                //$$ UnityTranslate.instance.proxy.sendPacketClient(SendTranscriptToServerPayload(transcriber.language, text, index, updateTime))
+                //#else
                 val buf = UnityTranslate.instance.proxy.createByteBuf()
                 buf.writeEnum(transcriber.language)
                 buf.writeUtf(text)
@@ -141,6 +147,7 @@ class UnityTranslateClient {
                 buf.writeVarLong(updateTime)
 
                 UnityTranslate.instance.proxy.sendPacketClient(PacketIds.SEND_TRANSCRIPT, buf)
+                //#endif
                 languageBoxes.firstOrNull { it.language == transcriber.language }?.updateTranscript(Minecraft.getInstance().player!!, text, transcriber.language, index, updateTime, false)
             } else {
                 if (Minecraft.getInstance().player == null)

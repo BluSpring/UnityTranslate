@@ -4,6 +4,7 @@ package xyz.bluspring.unitytranslate.network
 //$$ import net.minecraft.network.RegistryFriendlyByteBuf
 //$$ import net.minecraft.network.protocol.common.custom.CustomPacketPayload
 //$$ import net.minecraft.network.protocol.common.custom.CustomPacketPayload.TypeAndCodec
+//$$ import xyz.bluspring.unitytranslate.network.payloads.MarkIncompletePayload
 //$$ import xyz.bluspring.unitytranslate.network.payloads.SendTranscriptToClientPayload
 //$$ import xyz.bluspring.unitytranslate.network.payloads.ServerSupportPayload
 //#endif
@@ -62,6 +63,9 @@ object UTServerNetworking {
             // TODO: probably make this better
             if (text.length > 1500) {
                 ctx.player.displayClientMessage(Component.literal("Transcription too long! Current transcript discarded.").withStyle(ChatFormatting.RED), true)
+                //#if MC >= 1.20.6
+                //$$ proxy.sendPacketServer(ctx.player as ServerPlayer, MarkIncompletePayload(sourceLanguage, sourceLanguage, ctx.player.uuid, index, true))
+                //#else
                 val markBuf = proxy.createByteBuf()
                 markBuf.writeEnum(sourceLanguage)
                 markBuf.writeEnum(sourceLanguage)
@@ -70,6 +74,7 @@ object UTServerNetworking {
                 markBuf.writeBoolean(true)
 
                 proxy.sendPacketServer(ctx.player as ServerPlayer, PacketIds.MARK_INCOMPLETE, markBuf)
+                //#endif
                 return@registerReceiver
             }
 
@@ -203,7 +208,7 @@ object UTServerNetworking {
             }
         } else {
             //#if MC >= 1.20.6
-            //$$ proxy.sendPacketServer(player, SendTranscriptToClientPayload(source.uuid, sourceLanguage, index, updateTime, toSend))
+            //$$ proxy.sendPacketServer(source, SendTranscriptToClientPayload(source.uuid, sourceLanguage, index, updateTime, toSend))
             //#else
             proxy.sendPacketServer(source, PacketIds.SEND_TRANSCRIPT, buf)
             //#endif

@@ -1,5 +1,12 @@
 package xyz.bluspring.unitytranslate.network
 
+//#if MC >= 1.20.6
+//$$ import net.minecraft.network.RegistryFriendlyByteBuf
+//$$ import net.minecraft.network.codec.StreamCodec
+//$$ import net.minecraft.network.protocol.common.custom.CustomPacketPayload
+//$$ import net.minecraft.network.protocol.common.custom.CustomPacketPayload.TypeAndCodec
+//$$ import xyz.bluspring.unitytranslate.network.payloads.*
+//#endif
 import xyz.bluspring.unitytranslate.UnityTranslate
 
 object PacketIds {
