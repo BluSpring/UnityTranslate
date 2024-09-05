@@ -23,6 +23,16 @@ import kotlin.reflect.full.declaredMembers
 import kotlin.reflect.full.findAnnotation
 
 class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("UnityTranslate")) {
+    companion object {
+        //#if MC >= 1.20.2
+        //$$ val ARROW_UP = UnityTranslate.id("arrow_up")
+        //$$ val ARROW_DOWN = UnityTranslate.id("arrow_down")
+        //#else
+        val ARROW_UP = UnityTranslate.id("textures/gui/sprites/arrow_up.png")
+        val ARROW_DOWN = UnityTranslate.id("textures/gui/sprites/arrow_down.png")
+        //#endif
+    }
+    
     override fun init() {
         val width = (this.width / 4).coerceAtLeast(250)
 
@@ -244,7 +254,7 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
                     //#if MC >= 1.20.4
                     //$$ addRenderableWidget(SpriteIconButton.builder(Component.empty(), {
                     //#else
-                    addRenderableWidget(TextAndImageButton.builder(Component.empty(), UnityTranslate.id("textures/gui/arrow_up.png")) {
+                    addRenderableWidget(TextAndImageButton.builder(Component.empty(), ARROW_UP) {
                     //#endif
                         member.setter.call(instance, Mth.clamp(value + range.increment, min, max))
                         this.rebuildWidgets()
@@ -254,7 +264,7 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
                     }
                     //#endif
                         //#if MC >= 1.20.4
-                        //$$ .sprite(UnityTranslate.id("textures/gui/arrow_up.png"), 8, 8)
+                        //$$ .sprite(ARROW_UP, 8, 8)
                         //$$ .size(12, 12)
                         //#else
                         .offset(0, 2)
@@ -279,7 +289,7 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
                     //#if MC >= 1.20.4
                     //$$ addRenderableWidget(SpriteIconButton.builder(Component.empty(), {
                     //#else
-                    addRenderableWidget(TextAndImageButton.builder(Component.empty(), UnityTranslate.id("textures/gui/arrow_down.png")) {
+                    addRenderableWidget(TextAndImageButton.builder(Component.empty(), ARROW_DOWN) {
                     //#endif
                         member.setter.call(instance, Mth.clamp(value - range.increment, min, max))
                         this.rebuildWidgets()
@@ -289,7 +299,7 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
                     }
                     //#endif
                         //#if MC >= 1.20.4
-                        //$$ .sprite(UnityTranslate.id("textures/gui/arrow_down.png"), 8, 8)
+                        //$$ .sprite(ARROW_DOWN, 8, 8)
                         //$$ .size(12, 12)
                         //#else
                         .offset(0, 2)
@@ -333,7 +343,7 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
                     //#if MC >= 1.20.4
                     //$$ addRenderableWidget(SpriteIconButton.builder(Component.empty(), {
                     //#else
-                    addRenderableWidget(TextAndImageButton.builder(Component.empty(), UnityTranslate.id("textures/gui/arrow_up.png")) {
+                    addRenderableWidget(TextAndImageButton.builder(Component.empty(), ARROW_UP) {
                     //#endif
                         member.setter.call(instance, Mth.clamp(value + range.increment, min, max))
                         this.rebuildWidgets()
@@ -343,7 +353,7 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
                     }
                     //#endif
                         //#if MC >= 1.20.4
-                        //$$ .sprite(UnityTranslate.id("textures/gui/arrow_up.png"), 8, 8)
+                        //$$ .sprite(ARROW_UP, 8, 8)
                         //$$ .size(12, 12)
                         //#else
                         .offset(0, 2)
@@ -368,7 +378,7 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
                     //#if MC >= 1.20.4
                     //$$ addRenderableWidget(SpriteIconButton.builder(Component.empty(), {
                     //#else
-                    addRenderableWidget(TextAndImageButton.builder(Component.empty(), UnityTranslate.id("textures/gui/arrow_down.png")) {
+                    addRenderableWidget(TextAndImageButton.builder(Component.empty(), ARROW_DOWN) {
                     //#endif
                         member.setter.call(instance, Mth.clamp(value - range.increment, min, max))
                         this.rebuildWidgets()
@@ -378,7 +388,7 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
                     }
                     //#endif
                         //#if MC >= 1.20.4
-                        //$$ .sprite(UnityTranslate.id("textures/gui/arrow_down.png"), 8, 8)
+                        //$$ .sprite(ARROW_DOWN, 8, 8)
                         //$$ .size(12, 12)
                         //#else
                         .offset(0, 2)
@@ -445,7 +455,7 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
             //#if MC >= 1.20.4
             //$$ addRenderableWidget(SpriteIconButton.builder(Component.empty(), {
             //#else
-            addRenderableWidget(TextAndImageButton.builder(Component.empty(), UnityTranslate.id("textures/gui/arrow_up.png")) {
+            addRenderableWidget(TextAndImageButton.builder(Component.empty(), ARROW_UP) {
             //#endif
                 val oldValue = actualValue[index]
                 val oldPrevValue = actualValue[index - 1]
@@ -458,7 +468,7 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
             }
             //#endif
                 //#if MC >= 1.20.4
-                //$$ .sprite(UnityTranslate.id("textures/gui/arrow_up.png"), 8, 8)
+                //$$ .sprite(ARROW_UP, 8, 8)
                 //$$ .size(12, 12)
                 //#else
                 .offset(0, 2)
@@ -480,7 +490,7 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
             //#if MC >= 1.20.4
             //$$ addRenderableWidget(SpriteIconButton.builder(Component.empty(), {
             //#else
-            addRenderableWidget(TextAndImageButton.builder(Component.empty(), UnityTranslate.id("textures/gui/arrow_down.png")) {
+            addRenderableWidget(TextAndImageButton.builder(Component.empty(), ARROW_DOWN) {
             //#endif
                 val oldValue = actualValue[index]
                 val oldPrevValue = actualValue[index + 1]
@@ -493,7 +503,7 @@ class UTConfigScreen(private val parent: Screen?) : Screen(Component.literal("Un
             }
             //#endif
                 //#if MC >= 1.20.4
-                //$$ .sprite(UnityTranslate.id("textures/gui/arrow_down.png"), 8, 8)
+                //$$ .sprite(ARROW_DOWN, 8, 8)
                 //$$ .size(12, 12)
                 //#else
                 .offset(0, 2)

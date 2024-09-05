@@ -80,7 +80,11 @@ class LanguageSelectScreen(val parent: Screen?, val isAddingBox: Boolean) : Scre
     }
 
     private inner class LanguageSelectionList : ObjectSelectionList<LanguageSelectionList.Entry>(Minecraft.getInstance(),
-        this@LanguageSelectScreen.width, this@LanguageSelectScreen.height, 32,
+        this@LanguageSelectScreen.width, this@LanguageSelectScreen.height
+        //#if MC >= 1.20.4
+        //$$ - 75
+        //#endif
+        , 32,
         //#if MC <= 1.20.1
         this@LanguageSelectScreen.height - 65 + 4,
         //#endif
