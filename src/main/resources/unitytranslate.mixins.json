@@ -1,0 +1,15 @@
+{
+    "required": true,
+    "minVersion": "0.8",
+    "package": "xyz.bluspring.unitytranslate.mixin",
+    "compatibilityLevel": "${java_version}",
+    "mixins": [
+        "AbstractWidgetAccessor"
+    ],
+    "client": [
+        "AbstractWidgetMixin"
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    }
+}
