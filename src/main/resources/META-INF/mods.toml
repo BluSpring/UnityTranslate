@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[47,)"
+loaderVersion="[${forge_loader_version},)"
 license="MIT"
 issueTrackerURL="https://github.com/BluSpring/UnityTranslate/issues"
 
@@ -41,3 +41,6 @@ issueTrackerURL="https://github.com/BluSpring/UnityTranslate/issues"
     versionRange="[${architectury_version},)"
     ordering="NONE"
     side="BOTH"
+
+[[mixins]]
+    config = "unitytranslate.mixins.json"

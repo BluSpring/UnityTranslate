@@ -2,6 +2,7 @@ import com.modrinth.minotaur.dependencies.DependencyType
 import com.modrinth.minotaur.dependencies.ModDependency
 import dev.deftu.gradle.tools.minecraft.CurseRelation
 import dev.deftu.gradle.tools.minecraft.CurseRelationType
+import dev.deftu.gradle.utils.MinecraftInfo
 import dev.deftu.gradle.utils.MinecraftVersion
 import dev.deftu.gradle.utils.ModLoader
 import dev.deftu.gradle.utils.includeOrShade
@@ -175,8 +176,28 @@ tasks {
             "architectury_version" to architecturyVersion,
         ))
 
-        if (mcData.isForgeLike)
+        val forgeLoaderVersion: String? = run {
+            if (!mcData.isPresent) {
+                return@run null
+            }
+
+            if (!mcData.isForgeLike) {
+                return@run null
+            }
+
+            if (mcData.isLegacyForge) {
+                return@run null
+            }
+
+            val version = MinecraftInfo.ForgeLike.getKotlinForForgeVersion(mcData.version)
+            val majorVersion = version.split(".")[0]
+            "[$majorVersion,)"
+        }
+
+        if (mcData.isForgeLike) {
             properties["forge_kotlin_version"] = mcData.dependencies.forgeLike.kotlinForForgeVersion
+            properties["forge_loader_version"] = forgeLoaderVersion!!
+        }
 
         if (mcData.isFabric) {
             properties["fabric_kotlin_version"] = mcData.dependencies.fabric.fabricLanguageKotlinVersion
