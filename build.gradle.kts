@@ -216,6 +216,9 @@ tasks {
         if (mcData.isFabric) {
             properties["fabric_kotlin_version"] = mcData.dependencies.fabric.fabricLanguageKotlinVersion
             properties["loader_version"] = mcData.dependencies.fabric.fabricLoaderVersion
+
+            exclude("META-INF/mods.toml")
+            exclude("META-INF/neoforge.mods.toml")
         }
 
         for ((key, value) in properties) {
