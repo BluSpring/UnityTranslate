@@ -155,6 +155,7 @@ class LocalLibreTranslateInstance private constructor(val process: Process, val 
                     }
 
                     hasStarted = false
+                    currentInstance = null
                 }
 
             var attempts = 0

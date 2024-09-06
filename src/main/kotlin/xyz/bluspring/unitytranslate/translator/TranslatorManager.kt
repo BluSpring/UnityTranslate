@@ -21,6 +21,7 @@ import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentLinkedDeque
 import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.ForkJoinPool
 
 object TranslatorManager {
     private var timer: Timer = Timer("UnityTranslate Batch Translate Manager")
@@ -28,6 +29,8 @@ object TranslatorManager {
 
     private val MULTI_ASTERISK_REGEX = Regex("\\*+")
     private val MULTI_MUSIC_NOTE_REGEX = Regex("[♩♪♫♬♭♮♯°ø\u0602≠≭]+")
+
+    var translationPool = ForkJoinPool((Runtime.getRuntime().availableProcessors() - 3).coerceAtLeast(1))
 
     var instances = ConcurrentLinkedDeque<LibreTranslateInstance>()
         private set
@@ -305,6 +308,9 @@ object TranslatorManager {
 
         timer.cancel()
         timer = Timer("UnityTranslate Batch Translate Manager")
+        
+        translationPool.shutdownNow()
+        translationPool = ForkJoinPool((Runtime.getRuntime().availableProcessors() - 3).coerceAtLeast(1))
 
         for (server in UnityTranslate.config.server.offloadServers) {
             try {
@@ -342,10 +348,10 @@ object TranslatorManager {
 
                         translations.chunked(LibreTranslateInstance.MAX_CONCURRENT_TRANSLATIONS)
                             .forEach { spliced ->
-                                CompletableFuture.supplyAsync {
+                                CompletableFuture.supplyAsync({
                                     batchTranslateLines(spliced.map { it.text }, from, to)
-                                }
-                                    .whenCompleteAsync { t, u ->
+                                }, translationPool)
+                                    .whenCompleteAsync({ t, u ->
                                         spliced.forEachIndexed { i, translation ->
                                             if (t != null && u == null) {
                                                 broadcastIncomplete(false, translation)
@@ -359,7 +365,7 @@ object TranslatorManager {
                                                 queueLater.add(translation)
                                             }
                                         }
-                                    }
+                                    }, translationPool)
                             }
                     }
 
