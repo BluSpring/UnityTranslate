@@ -5,6 +5,7 @@ import de.maxhenkel.voicechat.api.VoicechatPlugin
 import de.maxhenkel.voicechat.api.VoicechatServerApi
 import de.maxhenkel.voicechat.api.events.EventRegistration
 import de.maxhenkel.voicechat.api.events.MicrophoneMuteEvent
+import de.maxhenkel.voicechat.api.events.VoicechatDisableEvent
 import de.maxhenkel.voicechat.api.events.VoicechatServerStartedEvent
 import net.minecraft.server.level.ServerPlayer
 import xyz.bluspring.unitytranslate.UnityTranslate
@@ -22,6 +23,18 @@ class SimpleVoiceChatCompat : VoicechatPlugin {
         registration.registerEvent(MicrophoneMuteEvent::class.java) {
             if (UnityTranslate.config.client.muteTranscriptWhenVoiceChatMuted) {
                 UnityTranslateClient.shouldTranscribe = !it.isDisabled
+            }
+        }
+
+        registration.registerEvent(VoicechatDisableEvent::class.java) {
+            if (UnityTranslate.config.client.muteTranscriptWhenVoiceChatMuted) {
+                if (it.isDisabled) {
+                    UnityTranslateClient.shouldTranscribe = false
+                } else if (!it.isDisabled && !it.voicechat.isMuted) {
+                    UnityTranslateClient.shouldTranscribe = true
+                } else if (!it.isDisabled && it.voicechat.isMuted) {
+                    UnityTranslateClient.shouldTranscribe = false
+                }
             }
         }
 
