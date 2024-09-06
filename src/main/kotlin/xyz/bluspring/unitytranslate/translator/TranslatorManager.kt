@@ -27,6 +27,7 @@ object TranslatorManager {
     internal val queuedTranslations = ConcurrentLinkedQueue<Translation>()
 
     private val MULTI_ASTERISK_REGEX = Regex("\\*+")
+    private val MULTI_MUSIC_NOTE_REGEX = Regex("[♩♪♫♬♭♮♯°ø\u0602≠≭]+")
 
     var instances = ConcurrentLinkedDeque<LibreTranslateInstance>()
         private set
@@ -91,6 +92,7 @@ object TranslatorManager {
             }
 
             return translated.replace(MULTI_ASTERISK_REGEX, "**")
+                .replace(MULTI_MUSIC_NOTE_REGEX, "")
         }
 
         UnityTranslate.logger.warn("Failed to translate $line from $from to $to!")
@@ -120,7 +122,10 @@ object TranslatorManager {
                 continue
             }
 
-            return translated.map { it.replace(MULTI_ASTERISK_REGEX, "**") }
+            return translated.map {
+                it.replace(MULTI_ASTERISK_REGEX, "**")
+                    .replace(MULTI_MUSIC_NOTE_REGEX, "")
+            }
         }
 
         UnityTranslate.logger.warn("Failed to translate lines from $from to $to:")
