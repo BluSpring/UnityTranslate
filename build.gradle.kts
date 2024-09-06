@@ -130,6 +130,7 @@ dependencies {
 
 toolkitReleases {
     detectVersionType.set(true)
+    releaseName.set("[${mcData.version}] UnityTranslate ${modData.version} (${mcData.loader.friendlyName})")
 
     modrinth {
         projectId.set("yA7uge1H")
