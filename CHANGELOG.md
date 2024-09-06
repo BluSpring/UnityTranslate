@@ -1,4 +1,9 @@
-- Improved LibreTranslate HTTP requests
-- Add temporary workaround to long transcripts
-- Mute transcripts on the browser too
-- Restart local LibreTranslate instance with command "/unitytranslate debugreload"
+- Fix (Neo)Forge dedicated server crash
+- Fix music note spam in translations
+- Fix Simple Voice Chat deafen not muting transcriptions
+- Fix broken arrow rendering and language selection margins (1.20.4+)
+- Set timeouts for translations
+- Move translations to a separate ForkJoinPool
+- Fix config not loading with invalid keys
+- Made config JSON beautified
+- (internal) Migrated to Deftu's Gradle Toolkit for easier updates
