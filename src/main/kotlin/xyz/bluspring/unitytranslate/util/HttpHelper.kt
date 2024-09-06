@@ -18,6 +18,8 @@ object HttpHelper {
         try {
             connection = url.openConnection() as HttpURLConnection
             connection.requestMethod = "POST"
+            connection.connectTimeout = 60_000
+            connection.readTimeout = 60_000
 
             connection.setRequestProperty("Accept", "application/json")
             connection.setRequestProperty("Content-Type", "application/json")
