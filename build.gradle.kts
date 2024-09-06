@@ -200,7 +200,7 @@ tasks {
             properties["forge_loader_version"] = forgeLoaderVersion!!
             properties["mod_loader_name"] = mcData.loader.friendlyString
 
-            if (mcData.isForge && mcData.version.rawVersion <= 1_20_1) {
+            if (mcData.isForge && mcData.version.rawVersion <= 1_20_01) {
                 properties["forge_loader"] = "javafml"
             } else {
                 properties["forge_loader"] = "kotlinforforge"
