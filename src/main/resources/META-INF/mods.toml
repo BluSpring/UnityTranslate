@@ -1,4 +1,4 @@
-modLoader="javafml"
+modLoader="${forge_loader}"
 loaderVersion="${forge_loader_version}"
 license="MIT"
 issueTrackerURL="https://github.com/BluSpring/UnityTranslate/issues"
@@ -15,29 +15,29 @@ issueTrackerURL="https://github.com/BluSpring/UnityTranslate/issues"
     '''
 
 [[dependencies.unitytranslate]]
-    modId="forge"
-    mandatory=true
-    versionRange="[47,)"
+    modId="${mod_loader_name}"
+    ${FUCKING_REQUIRED}
+    versionRange="[1,)"
     ordering="NONE"
     side="BOTH"
 
 [[dependencies.unitytranslate]]
     modId="minecraft"
-    mandatory=true
+    ${FUCKING_REQUIRED}
     versionRange="[${mc_version},)"
     ordering="NONE"
     side="BOTH"
 
 [[dependencies.unitytranslate]]
     modId="kotlinforforge"
-    mandatory=true
+    ${FUCKING_REQUIRED}
     versionRange="[${forge_kotlin_version},)"
     ordering="NONE"
     side="BOTH"
 
 [[dependencies.unitytranslate]]
     modId="architectury"
-    mandatory=true
+    ${FUCKING_REQUIRED}
     versionRange="[${architectury_version},)"
     ordering="NONE"
     side="BOTH"

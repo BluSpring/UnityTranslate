@@ -198,6 +198,19 @@ tasks {
         if (mcData.isForgeLike) {
             properties["forge_kotlin_version"] = mcData.dependencies.forgeLike.kotlinForForgeVersion
             properties["forge_loader_version"] = forgeLoaderVersion!!
+            properties["mod_loader_name"] = mcData.loader.friendlyString
+
+            if (mcData.isForge && mcData.version.rawVersion <= 1_20_1) {
+                properties["forge_loader"] = "javafml"
+            } else {
+                properties["forge_loader"] = "kotlinforforge"
+            }
+
+            if (mcData.isForge) {
+                properties["FUCKING_REQUIRED"] = "mandatory=true"
+            } else {
+                properties["FUCKING_REQUIRED"] = "required=true"
+            }
         }
 
         if (mcData.isFabric) {

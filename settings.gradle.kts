@@ -17,7 +17,7 @@ pluginManagement {
     plugins {
         kotlin("jvm") version("2.0.20")
         kotlin("plugin.serialization") version("2.0.20")
-        id("dev.deftu.gradle.multiversion-root") version("2.8.1")
+        id("dev.deftu.gradle.multiversion-root") version("2.9.1+alpha.3")
     }
 }
 
