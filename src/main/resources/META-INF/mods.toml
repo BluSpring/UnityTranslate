@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[${forge_loader_version},)"
+loaderVersion="${forge_loader_version}"
 license="MIT"
 issueTrackerURL="https://github.com/BluSpring/UnityTranslate/issues"
 
