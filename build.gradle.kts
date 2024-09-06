@@ -152,15 +152,15 @@ toolkitReleases {
         projectId.set("1093604")
 
         if (mcData.loader == ModLoader.FABRIC) {
-            relations.add(CurseRelation("308769", CurseRelationType.REQUIRED)) // Fabric Language Kotlin
+            relations.add(CurseRelation("fabric-language-kotlin", CurseRelationType.REQUIRED)) // Fabric Language Kotlin
         } else if (mcData.isForgeLike) {
-            relations.add(CurseRelation("351264", CurseRelationType.REQUIRED)) // Kotlin for Forge
+            relations.add(CurseRelation("kotlin-for-forge", CurseRelationType.REQUIRED)) // Kotlin for Forge
         }
 
         relations.addAll(listOf(
-            CurseRelation("419699", CurseRelationType.REQUIRED), // Architectury API
-            CurseRelation("992601", CurseRelationType.OPTIONAL), // Talk Balloons
-            CurseRelation("416089", CurseRelationType.OPTIONAL), // Simple Voice Chat
+            CurseRelation("architectury-api", CurseRelationType.REQUIRED), // Architectury API
+            CurseRelation("talk-balloons", CurseRelationType.OPTIONAL), // Talk Balloons
+            CurseRelation("simple-voice-chat", CurseRelationType.OPTIONAL), // Simple Voice Chat
         ))
     }
 
