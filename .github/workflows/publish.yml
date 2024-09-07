@@ -4,6 +4,10 @@ on:
     types:
       - 'published'
 
+env:
+  MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+  CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+
 jobs:
   build:
     name: Publish Versions
@@ -21,4 +25,4 @@ jobs:
           cache-read-only: true
 
       - name: Execute Gradle build
-        run: ./gradlew publishMod
+        run: ./gradlew publishMod -Pdgt.publish.modrinth.token=${{ env.MODRINTH_TOKEN }} -Pdgt.publish.curseforge.apikey=${{ env.CURSEFORGE_TOKEN }}
