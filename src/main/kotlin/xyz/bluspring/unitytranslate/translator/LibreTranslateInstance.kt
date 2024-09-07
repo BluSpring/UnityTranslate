@@ -63,7 +63,9 @@ open class LibreTranslateInstance(val url: String, private var weight: Int, val 
         return try {
             batchTranslate(from.code, to.code, texts)
         } catch (e: Exception) {
-            e.printStackTrace()
+            if (SHOULD_PRINT_ERRORS)
+                e.printStackTrace()
+
             null
         }
     }
@@ -133,5 +135,6 @@ open class LibreTranslateInstance(val url: String, private var weight: Int, val 
 
     companion object {
         const val MAX_CONCURRENT_TRANSLATIONS = 15
+        val SHOULD_PRINT_ERRORS = (System.getProperty("unitytranslate.printHttpErrors") == "true") || UnityTranslate.instance.proxy.isDev
     }
 }
