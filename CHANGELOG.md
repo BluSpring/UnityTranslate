@@ -7,3 +7,4 @@
 - Fix config not loading with invalid keys
 - Made config JSON beautified
 - (internal) Migrated to Deftu's Gradle Toolkit for easier updates
+- Fixed packet crashes on (Neo)Forge <= 1.20.4
