@@ -305,6 +305,14 @@ object TranslatorManager {
     }
 
     fun loadFromConfig() {
+        ForkJoinPool.commonPool().execute {
+            loadFromConfigBlocking()
+        }
+    }
+
+    fun loadFromConfigBlocking() {
+        UnityTranslate.logger.info("Loading UnityTranslate translation configs...")
+
         val list = mutableListOf<LibreTranslateInstance>()
 
         timer.cancel()
@@ -383,6 +391,8 @@ object TranslatorManager {
         }, 0L, (UnityTranslate.config.server.batchTranslateInterval * 1000.0).toLong())
 
         instances = ConcurrentLinkedDeque(list)
+
+        UnityTranslate.logger.info("UnityTranslate translation config successfully loaded!")
     }
 
     //#if MC <= 1.20.4
