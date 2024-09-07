@@ -1,4 +1,4 @@
-name: Publish JDK 17 Mods
+name: Publish JDK 21 Mods
 on:
   release:
     types:
@@ -13,7 +13,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
+          java-version: 21
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
@@ -21,4 +21,4 @@ jobs:
           cache-read-only: true
 
       - name: Execute Gradle build
-        run: ./gradlew publishModFiles
+        run: ./gradlew publishMod
