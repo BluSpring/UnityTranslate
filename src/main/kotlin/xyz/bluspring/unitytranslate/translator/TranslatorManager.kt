@@ -6,6 +6,7 @@ package xyz.bluspring.unitytranslate.translator
 import dev.architectury.event.events.common.LifecycleEvent
 import dev.architectury.event.events.common.PlayerEvent
 import net.minecraft.Util
+import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.Player
 import org.lwjgl.system.APIUtil
@@ -384,16 +385,24 @@ object TranslatorManager {
         instances = ConcurrentLinkedDeque(list)
     }
 
-    private fun broadcastIncomplete(isIncomplete: Boolean, translation: Translation) {
-        if (translation.player !is ServerPlayer)
-            return
-
+    //#if MC <= 1.20.4
+    // turns out, Forge requires us to rebuild the buffer every time we send it to a player,
+    // so unfortunately, we cannot reuse the buffer.
+    private fun buildBroadcastPacket(isIncomplete: Boolean, translation: Translation): FriendlyByteBuf {
         val buf = UnityTranslate.instance.proxy.createByteBuf()
         buf.writeEnum(translation.fromLang)
         buf.writeEnum(translation.toLang)
         buf.writeUUID(translation.player.uuid)
         buf.writeVarInt(translation.index)
         buf.writeBoolean(isIncomplete)
+
+        return buf
+    }
+    //#endif
+
+    private fun broadcastIncomplete(isIncomplete: Boolean, translation: Translation) {
+        if (translation.player !is ServerPlayer)
+            return
 
         val source = translation.player
 
@@ -407,6 +416,7 @@ object TranslatorManager {
                 //#if MC >= 1.20.6
                 //$$  UnityTranslate.instance.proxy.sendPacketServer(player, MarkIncompletePayload(translation.fromLang, translation.toLang, translation.player.uuid, translation.index, isIncomplete))
                 //#else
+                val buf = buildBroadcastPacket(isIncomplete, translation)
                 UnityTranslate.instance.proxy.sendPacketServer(player, PacketIds.MARK_INCOMPLETE, buf)
                 //#endif
             }
@@ -414,6 +424,7 @@ object TranslatorManager {
             //#if MC >= 1.20.6
             //$$  UnityTranslate.instance.proxy.sendPacketServer(source, MarkIncompletePayload(translation.fromLang, translation.toLang, translation.player.uuid, translation.index, isIncomplete))
             //#else
+            val buf = buildBroadcastPacket(isIncomplete, translation)
             UnityTranslate.instance.proxy.sendPacketServer(source, PacketIds.MARK_INCOMPLETE, buf)
             //#endif
         }

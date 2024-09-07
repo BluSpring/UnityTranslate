@@ -11,6 +11,7 @@ package xyz.bluspring.unitytranslate.network
 import dev.architectury.event.events.common.PlayerEvent
 import dev.architectury.networking.NetworkManager
 import net.minecraft.ChatFormatting
+import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.level.block.SignBlock
@@ -173,25 +174,29 @@ object UTServerNetworking {
         }
     }
 
-    private fun broadcastTranslations(source: ServerPlayer, sourceLanguage: Language, index: Int, updateTime: Long, translationsToSend: ConcurrentLinkedDeque<Language>, translations: ConcurrentHashMap<Language, String>) {
-        //#if MC <= 1.20.4
+    //#if MC <= 1.20.4
+    // turns out, Forge requires us to rebuild the buffer every time we send it to a player,
+    // so unfortunately, we cannot reuse the buffer.
+    private fun buildBroadcastPacket(source: ServerPlayer, sourceLanguage: Language, index: Int, updateTime: Long, toSend: Map<Language, String>): FriendlyByteBuf {
         val buf = proxy.createByteBuf()
         buf.writeUUID(source.uuid)
         buf.writeEnum(sourceLanguage)
         buf.writeVarInt(index)
         buf.writeVarLong(updateTime)
-        //#endif
 
-        val toSend = translations.filter { a -> translationsToSend.contains(a.key) }
-
-        //#if MC <= 1.20.4
         buf.writeVarInt(toSend.size)
 
         for ((language, translated) in toSend) {
             buf.writeEnum(language)
             buf.writeUtf(translated)
         }
-        //#endif
+
+        return buf
+    }
+    //#endif
+
+    private fun broadcastTranslations(source: ServerPlayer, sourceLanguage: Language, index: Int, updateTime: Long, translationsToSend: ConcurrentLinkedDeque<Language>, translations: ConcurrentHashMap<Language, String>) {
+        val toSend = translations.filter { a -> translationsToSend.contains(a.key) }
 
         if (hasVoiceChat) {
             val nearby = UTVoiceChatCompat.getNearbyPlayers(source)
@@ -203,6 +208,7 @@ object UTServerNetworking {
                 //#if MC >= 1.20.6
                 //$$ proxy.sendPacketServer(player, SendTranscriptToClientPayload(source.uuid, sourceLanguage, index, updateTime, toSend))
                 //#else
+                val buf = buildBroadcastPacket(source, sourceLanguage, index, updateTime, toSend)
                 proxy.sendPacketServer(player, PacketIds.SEND_TRANSCRIPT, buf)
                 //#endif
             }
@@ -210,6 +216,7 @@ object UTServerNetworking {
             //#if MC >= 1.20.6
             //$$ proxy.sendPacketServer(source, SendTranscriptToClientPayload(source.uuid, sourceLanguage, index, updateTime, toSend))
             //#else
+            val buf = buildBroadcastPacket(source, sourceLanguage, index, updateTime, toSend)
             proxy.sendPacketServer(source, PacketIds.SEND_TRANSCRIPT, buf)
             //#endif
         }
