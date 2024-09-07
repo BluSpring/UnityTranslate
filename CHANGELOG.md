@@ -1,1 +1,2 @@
-- Hide HTTP error printing behind flag
+- Defer UnityTranslate translation config loading to another thread
+  - This should help reduce server loading times when an offloaded instance is unavailable / slow to connect.
