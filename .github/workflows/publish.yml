@@ -10,6 +10,7 @@ env:
 
 jobs:
   build:
+    environment: UnityTranslate Publishing
     name: Publish Versions
     runs-on: ubuntu-latest
     steps:
