@@ -52,7 +52,7 @@ class SimpleVoiceChatCompat : VoicechatPlugin {
 
             return source.serverLevel().getPlayers {
                 (!isPlayerDeafened(it) &&
-                        ((it.distanceToSqr(source) <= voiceChatServer.voiceChatDistance * voiceChatServer.voiceChatDistance && UTVoiceChatCompat.areBothSpectator(it, source)) ||
+                        ((it.distanceToSqr(source) <= voiceChatServer.voiceChatDistance * voiceChatServer.voiceChatDistance && UTVoiceChatCompat.areBothSpectator(source, it)) ||
                                 playerSharesGroup(it, source))
                         )
                         || it == source

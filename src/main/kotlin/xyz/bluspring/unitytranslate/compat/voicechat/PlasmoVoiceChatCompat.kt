@@ -31,7 +31,7 @@ class PlasmoVoiceChatCompat : AddonInitializer {
 
             return source.serverLevel().getPlayers {
                 (!isPlayerDeafened(it) &&
-                        ((it.distanceToSqr(source) <= distance * distance && UTVoiceChatCompat.areBothSpectator(it, source)) ||
+                        ((it.distanceToSqr(source) <= distance * distance && UTVoiceChatCompat.areBothSpectator(source, it)) ||
                                 playerSharesGroup(it, source))
                         )
                         || it == source
