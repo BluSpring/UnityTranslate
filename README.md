@@ -1,4 +1,4 @@
-<img src="common/src/main/resources/icon.png" width="128">
+<img src="src/main/resources/icon.png" width="128">
 
 # UnityTranslate
 
