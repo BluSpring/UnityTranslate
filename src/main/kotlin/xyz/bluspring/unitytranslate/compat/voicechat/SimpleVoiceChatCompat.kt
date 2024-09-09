@@ -1,6 +1,7 @@
 package xyz.bluspring.unitytranslate.compat.voicechat
 
 import de.maxhenkel.voicechat.api.ForgeVoicechatPlugin
+import de.maxhenkel.voicechat.api.Group
 import de.maxhenkel.voicechat.api.VoicechatPlugin
 import de.maxhenkel.voicechat.api.VoicechatServerApi
 import de.maxhenkel.voicechat.api.events.EventRegistration
@@ -53,7 +54,7 @@ class SimpleVoiceChatCompat : VoicechatPlugin {
             return source.serverLevel().getPlayers {
                 (!isPlayerDeafened(it) &&
                         ((it.distanceToSqr(source) <= voiceChatServer.voiceChatDistance * voiceChatServer.voiceChatDistance && UTVoiceChatCompat.areBothSpectator(source, it)) ||
-                                playerSharesGroup(it, source))
+                                playerSharesGroup(source, it))
                         )
                         || it == source
             }
@@ -61,7 +62,12 @@ class SimpleVoiceChatCompat : VoicechatPlugin {
 
         fun playerSharesGroup(player: ServerPlayer, other: ServerPlayer): Boolean {
             val firstGroup = voiceChatServer.getConnectionOf(player.uuid)?.group ?: return false
+            if (firstGroup.type == Group.Type.OPEN)
+                return true
+
             val secondGroup = voiceChatServer.getConnectionOf(other.uuid)?.group ?: return false
+            if (secondGroup.type == Group.Type.ISOLATED && firstGroup.id != secondGroup.id)
+                return false
 
             return firstGroup.id == secondGroup.id
         }
