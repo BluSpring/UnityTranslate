@@ -118,9 +118,9 @@ object TranslatorManager {
             if (instance.currentlyTranslating >= LibreTranslateInstance.MAX_CONCURRENT_TRANSLATIONS && index++ < possible.size - 1)
                 continue
 
-            instance.currentlyTranslating++
+            instance.currentlyTranslating += lines.size
             val translated = instance.batchTranslate(lines, from, to)
-            instance.currentlyTranslating--
+            instance.currentlyTranslating -= lines.size
 
             if (translated == null) {
                 continue
