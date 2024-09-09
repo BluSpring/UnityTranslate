@@ -58,6 +58,7 @@ repositories {
     maven("https://maven.terraformersmc.com/")
     maven("https://maven.maxhenkel.de/repository/public")
     maven("https://maven.neoforged.net/releases/")
+    maven("https://repo.plo.su")
     maven("https://repo.plasmoverse.com/releases")
     maven("https://repo.plasmoverse.com/snapshots")
     maven("https://maven.nucleoid.xyz/")
@@ -91,7 +92,15 @@ dependencies {
         modImplementation("com.terraformersmc:modmenu:$modMenuVersion")
     }
 
-    modRuntimeOnly("maven.modrinth:simple-voice-chat:${mcData.loader.friendlyString}-${if (mcData.version != MinecraftVersion.VERSION_1_21_1) mcData.version else "1.21"}-${project.property("voicechat_version")}")
+    val useSVC = false
+
+    if (useSVC)
+        modRuntimeOnly("maven.modrinth:simple-voice-chat:${mcData.loader.friendlyString}-${if (mcData.version != MinecraftVersion.VERSION_1_21_1) mcData.version else "1.21"}-${project.property("voicechat_version")}")
+    else if (!mcData.isNeoForge) {
+        modRuntimeOnly("maven.modrinth:plasmo-voice:${mcData.loader.friendlyString}-${if (mcData.version != MinecraftVersion.VERSION_1_21_1) mcData.version else "1.21"}-${project.property("plasmo_version")}")
+        runtimeOnly("su.plo.voice.api:server:${project.property("plasmo_api_version")}")
+        modRuntimeOnly("me.lucko:fabric-permissions-api:0.3.1") // buddy.
+    }
 
     val clothConfigVersion = when(mcData.version.rawVersion) {
         1_20_01 -> "11.1.118"

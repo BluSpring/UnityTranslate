@@ -6,6 +6,7 @@ import kotlinx.serialization.json.Json
 import net.minecraft.resources.ResourceLocation
 import org.slf4j.LoggerFactory
 import xyz.bluspring.unitytranslate.commands.UnityTranslateCommands
+import xyz.bluspring.unitytranslate.compat.voicechat.PlasmoVoiceChatCompat
 import xyz.bluspring.unitytranslate.compat.voicechat.UTVoiceChatCompat
 import xyz.bluspring.unitytranslate.config.UnityTranslateConfig
 import xyz.bluspring.unitytranslate.network.UTServerNetworking
@@ -31,6 +32,10 @@ class UnityTranslate(val proxy: PlatformProxy = PlatformProxyImpl()) {
         }
 
         UTServerNetworking.init()
+
+        if (proxy.isModLoaded("plasmovoice")) {
+            PlasmoVoiceChatCompat.init()
+        }
     }
 
     companion object {
