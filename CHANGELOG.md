@@ -1,2 +1,3 @@
-- Defer UnityTranslate translation config loading to another thread
-  - This should help reduce server loading times when an offloaded instance is unavailable / slow to connect.
+- Fix Plasmo Voice support
+- Fix spectators unable to hear other players (again)
+- Hopefully try to balance translations better
