@@ -2,10 +2,7 @@ import com.modrinth.minotaur.dependencies.DependencyType
 import com.modrinth.minotaur.dependencies.ModDependency
 import dev.deftu.gradle.tools.minecraft.CurseRelation
 import dev.deftu.gradle.tools.minecraft.CurseRelationType
-import dev.deftu.gradle.utils.MinecraftInfo
-import dev.deftu.gradle.utils.MinecraftVersion
-import dev.deftu.gradle.utils.ModLoader
-import dev.deftu.gradle.utils.includeOrShade
+import dev.deftu.gradle.utils.*
 
 plugins {
     java
@@ -92,6 +89,8 @@ dependencies {
         modImplementation("com.terraformersmc:modmenu:$modMenuVersion")
     }
 
+    includeOrShade(modImplementation("me.lucko:fabric-permissions-api:0.3.1")!!)
+
     val useSVC = false
 
     if (useSVC)
@@ -99,7 +98,6 @@ dependencies {
     else if (!mcData.isNeoForge) {
         modRuntimeOnly("maven.modrinth:plasmo-voice:${mcData.loader.friendlyString}-${if (mcData.version != MinecraftVersion.VERSION_1_21_1) mcData.version else "1.21"}-${project.property("plasmo_version")}")
         runtimeOnly("su.plo.voice.api:server:${project.property("plasmo_api_version")}")
-        modRuntimeOnly("me.lucko:fabric-permissions-api:0.3.1") // buddy.
     }
 
     val clothConfigVersion = when(mcData.version.rawVersion) {

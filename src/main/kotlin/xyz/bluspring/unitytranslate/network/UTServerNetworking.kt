@@ -10,10 +10,12 @@ package xyz.bluspring.unitytranslate.network
 //#endif
 import dev.architectury.event.events.common.PlayerEvent
 import dev.architectury.networking.NetworkManager
+import me.lucko.fabric.api.permissions.v0.Permissions
 import net.minecraft.ChatFormatting
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.entity.player.Player
 import net.minecraft.world.level.block.SignBlock
 import net.minecraft.world.level.block.entity.SignBlockEntity
 import xyz.bluspring.unitytranslate.Language
@@ -60,6 +62,9 @@ object UTServerNetworking {
             val index = buf.readVarInt()
             val updateTime = buf.readVarLong()
         //#endif
+
+            if (!canPlayerRequestTranslations(ctx.player))
+                return@registerReceiver
 
             // TODO: probably make this better
             if (text.length > 1500) {
@@ -129,6 +134,9 @@ object UTServerNetworking {
         NetworkManager.registerReceiver(NetworkManager.Side.C2S, PacketIds.TRANSLATE_SIGN) { buf, ctx ->
             val pos = buf.readBlockPos()
         //#endif
+
+            if (!canPlayerRequestTranslations(ctx.player))
+                return@registerReceiver
 
             val player = ctx.player
             val level = player.level()
@@ -220,6 +228,10 @@ object UTServerNetworking {
             proxy.sendPacketServer(source, PacketIds.SEND_TRANSCRIPT, buf)
             //#endif
         }
+    }
+
+    fun canPlayerRequestTranslations(player: Player): Boolean {
+        return Permissions.check(player, "unitytranslate.request_translations", true)
     }
 
     //#if MC >= 1.20.6
