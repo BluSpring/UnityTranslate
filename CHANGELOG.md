@@ -1,2 +1,1 @@
-- Improve Simple Voice Chat group handling
-- Add permission for disabling player transcripts (`unitytranslate.request_translations`, default `true`). 
+- Fixed permissions on Forge

@@ -20,9 +20,6 @@ package xyz.bluspring.unitytranslate.neoforge
 //$$ import net.neoforged.fml.ModLoadingContext
 //$$ import net.neoforged.fml.common.Mod
 //$$ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent
-
-//$$ import net.neoforged.neoforge.common.NeoForge
-//$$ import net.neoforged.neoforge.server.permission.events.PermissionGatherEvent
 //$$ import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent
 //#endif
 
@@ -39,11 +36,10 @@ package xyz.bluspring.unitytranslate.neoforge
 //$$         UnityTranslate()
 //#if MC >= 1.20.4
 //$$         MOD_BUS.register(this)
-//$$         NeoForge.EVENT_BUS.register(this::onPermissionsGather)
 //#else
 //$$         FMLJavaModLoadingContext.get().modEventBus.register(this)
-//$$         MinecraftForge.EVENT_BUS.register(this::onPermissionsGather)
 //#endif
+//$$         NeoForgeEvents.init()
 //$$     }
 //$$
 //$$     @OnlyIn(Dist.CLIENT)
@@ -52,10 +48,6 @@ package xyz.bluspring.unitytranslate.neoforge
 //$$         UnityTranslateClient()
 //$$
 //$$         ConfigScreenHelper.createConfigScreen()
-//$$     }
-//$$
-//$$     fun onPermissionsGather(event: PermissionGatherEvent.Nodes) {
-//$$         UnityTranslate.instance.proxy.registerPermissions(event)
 //$$     }
 //$$
 //$$     @OnlyIn(Dist.CLIENT)
