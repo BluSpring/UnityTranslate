@@ -27,9 +27,6 @@ class PlasmoVoiceChatCompat : AddonInitializer {
     @Inject
     lateinit var voiceServer: PlasmoVoiceServer
 
-    @Inject
-    lateinit var voiceClient: PlasmoVoiceClient
-
     private var proximityHelper: ProximityServerActivationHelper? = null
 
     override fun onAddonInitialize() {
@@ -56,9 +53,8 @@ class PlasmoVoiceChatCompat : AddonInitializer {
         lateinit var instance: PlasmoVoiceChatCompat
 
         fun init() {
-            val compat = PlasmoVoiceChatCompat()
-            PlasmoVoiceServer.getAddonsLoader().load(compat)
-            PlasmoVoiceClient.getAddonsLoader().load(compat)
+            PlasmoVoiceServer.getAddonsLoader().load(PlasmoVoiceChatCompat())
+            PlasmoVoiceClient.getAddonsLoader().load(PlasmoVoiceChatClientCompat())
         }
 
         fun getNearbyPlayers(source: ServerPlayer): List<ServerPlayer> {
@@ -77,7 +73,7 @@ class PlasmoVoiceChatCompat : AddonInitializer {
         }
 
         fun isPlayerAudible(source: Player): Boolean {
-            val connection = instance.voiceClient.serverConnection.orElse(null) ?: return false
+            val connection = PlasmoVoiceChatClientCompat.instance.voiceClient.serverConnection.orElse(null) ?: return false
             val vcPlayer = connection.getPlayerById(source.uuid).orElse(null) ?: return false
 
             return !vcPlayer.isMuted && !vcPlayer.isMicrophoneMuted && !vcPlayer.isVoiceDisabled
