@@ -39,10 +39,10 @@ package xyz.bluspring.unitytranslate.neoforge
 //$$         UnityTranslate()
 //#if MC >= 1.20.4
 //$$         MOD_BUS.register(this)
-//$$         NeoForge.EVENT_BUS.register(this)
+//$$         NeoForge.EVENT_BUS.register(this::onPermissionsGather)
 //#else
 //$$         FMLJavaModLoadingContext.get().modEventBus.register(this)
-//$$         MinecraftForge.EVENT_BUS.register(this)
+//$$         MinecraftForge.EVENT_BUS.register(this::onPermissionsGather)
 //#endif
 //$$     }
 //$$
