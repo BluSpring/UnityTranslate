@@ -49,6 +49,7 @@ object HttpHelper {
                 return result
             }
         } finally {
+            connection?.outputStream?.close()
             connection?.disconnect()
         }
     }
