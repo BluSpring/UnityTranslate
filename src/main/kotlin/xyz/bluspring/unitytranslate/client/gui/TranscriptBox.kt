@@ -12,6 +12,7 @@ import net.minecraft.world.entity.player.Player
 import xyz.bluspring.unitytranslate.Language
 import xyz.bluspring.unitytranslate.UnityTranslate
 import xyz.bluspring.unitytranslate.client.UnityTranslateClient
+import xyz.bluspring.unitytranslate.compat.voicechat.UTVoiceChatCompat
 import xyz.bluspring.unitytranslate.events.TranscriptEvents
 import xyz.bluspring.unitytranslate.transcript.Transcript
 import java.util.*
@@ -147,6 +148,9 @@ data class TranscriptBox(
     }
 
     fun updateTranscript(source: Player, text: String, language: Language, index: Int, updateTime: Long, incomplete: Boolean) {
+        if (!UTVoiceChatCompat.isPlayerAudible(source))
+            return
+
         if (this.transcripts.any { it.player.uuid == source.uuid && it.index == index }) {
             val transcript = this.transcripts.first { it.player.uuid == source.uuid && it.index == index }
 

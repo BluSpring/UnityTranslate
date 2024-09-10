@@ -73,6 +73,7 @@ val architecturyVersion = when (mcData.version.rawVersion) {
 dependencies {
     implementation("de.maxhenkel.voicechat:voicechat-api:${project.property("voicechat_api_version")}")
     compileOnly("su.plo.voice.api:server:${project.property("plasmo_api_version")}")
+    compileOnly("su.plo.voice.api:client:${project.property("plasmo_api_version")}")
 
     modApi("dev.architectury:architectury-${mcData.loader.friendlyString}:$architecturyVersion")
 
@@ -98,6 +99,7 @@ dependencies {
     else if (!mcData.isNeoForge) {
         modRuntimeOnly("maven.modrinth:plasmo-voice:${mcData.loader.friendlyString}-${if (mcData.version != MinecraftVersion.VERSION_1_21_1) mcData.version else "1.21"}-${project.property("plasmo_version")}")
         runtimeOnly("su.plo.voice.api:server:${project.property("plasmo_api_version")}")
+        runtimeOnly("su.plo.voice.api:client:${project.property("plasmo_api_version")}")
     }
 
     val clothConfigVersion = when(mcData.version.rawVersion) {

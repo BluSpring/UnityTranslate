@@ -15,6 +15,7 @@ import net.minecraft.client.Minecraft
 import xyz.bluspring.unitytranslate.Language
 import xyz.bluspring.unitytranslate.UnityTranslate
 import xyz.bluspring.unitytranslate.client.UnityTranslateClient
+import xyz.bluspring.unitytranslate.compat.voicechat.UTVoiceChatCompat
 import xyz.bluspring.unitytranslate.events.TranscriptEvents
 import xyz.bluspring.unitytranslate.transcript.Transcript
 import java.util.*
@@ -96,7 +97,7 @@ object UTClientNetworking {
                 val box = boxes.firstOrNull { it.language == language }
                 box?.updateTranscript(source, text, sourceLanguage, index, updateTime, false)
 
-                if (box == null) {
+                if (box == null && UTVoiceChatCompat.isPlayerAudible(ctx.player)) {
                     TranscriptEvents.UPDATE.invoker().onTranscriptUpdate(Transcript(index, source, text, language, updateTime, false), language)
                 }
             }

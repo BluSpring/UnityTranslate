@@ -1,6 +1,8 @@
 package xyz.bluspring.unitytranslate.compat.voicechat
 
+import net.minecraft.client.Minecraft
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.entity.player.Player
 import net.minecraft.world.level.GameType
 import xyz.bluspring.unitytranslate.UnityTranslate
 
@@ -36,6 +38,17 @@ object UTVoiceChatCompat {
             PlasmoVoiceChatCompat.isPlayerDeafened(player)
         else
             false
+    }
+
+    fun isPlayerAudible(player: Player): Boolean {
+        if (player == Minecraft.getInstance().player)
+            return true
+
+        return if (usesSimpleVoiceChat)
+            SimpleVoiceChatCompat.isPlayerAudible(player)
+        else if (usesPlasmoVoice)
+            PlasmoVoiceChatCompat.isPlayerAudible(player)
+        else false
     }
 
     fun areBothSpectator(player: ServerPlayer, other: ServerPlayer): Boolean {
