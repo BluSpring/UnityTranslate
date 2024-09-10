@@ -1,3 +1,2 @@
-- Fix Plasmo Voice support
-- Fix spectators unable to hear other players (again)
-- Hopefully try to balance translations better
+- Improve Simple Voice Chat group handling
+- Add permission for disabling player transcripts (`unitytranslate.request_translations`, default `true`). 
