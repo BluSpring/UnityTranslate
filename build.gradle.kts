@@ -90,7 +90,9 @@ dependencies {
         modImplementation("com.terraformersmc:modmenu:$modMenuVersion")
     }
 
-    includeOrShade(modImplementation("me.lucko:fabric-permissions-api:0.3.1")!!)
+    if (mcData.isFabric) {
+        includeOrShade(modImplementation("me.lucko:fabric-permissions-api:0.3.1")!!)
+    }
 
     val useSVC = false
 

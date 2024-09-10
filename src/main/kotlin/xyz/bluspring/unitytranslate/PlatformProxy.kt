@@ -8,6 +8,14 @@ import net.minecraft.network.FriendlyByteBuf
 //#endif
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.entity.player.Player
+
+//#if FORGE
+//$$ import net.minecraftforge.server.permission.events.PermissionGatherEvent
+//#elseif NEOFORGE
+//$$ import net.neoforged.neoforge.server.permission.events.PermissionGatherEvent
+//#endif
+
 import java.nio.file.Path
 
 interface PlatformProxy {
@@ -40,4 +48,10 @@ interface PlatformProxy {
         NetworkManager.sendToPlayer(player, id, buf)
     //#endif
     }
+
+    //#if FORGE-LIKE
+    //$$ fun registerPermissions(event: PermissionGatherEvent.Nodes)
+    //#endif
+
+    fun hasTranscriptPermission(player: Player): Boolean
 }

@@ -10,7 +10,6 @@ package xyz.bluspring.unitytranslate.network
 //#endif
 import dev.architectury.event.events.common.PlayerEvent
 import dev.architectury.networking.NetworkManager
-import me.lucko.fabric.api.permissions.v0.Permissions
 import net.minecraft.ChatFormatting
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.chat.Component
@@ -231,7 +230,7 @@ object UTServerNetworking {
     }
 
     fun canPlayerRequestTranslations(player: Player): Boolean {
-        return Permissions.check(player, "unitytranslate.request_translations", true)
+        return UnityTranslate.instance.proxy.hasTranscriptPermission(player)
     }
 
     //#if MC >= 1.20.6
