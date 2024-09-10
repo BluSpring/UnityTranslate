@@ -5,6 +5,7 @@ package xyz.bluspring.unitytranslate.neoforge
 //#if FORGE
 //$$ import net.minecraftforge.api.distmarker.Dist
 //$$ import net.minecraftforge.api.distmarker.OnlyIn
+//$$ import net.minecraftforge.common.MinecraftForge
 //$$ import net.minecraftforge.client.event.RegisterKeyMappingsEvent
 //$$ import net.minecraftforge.eventbus.api.SubscribeEvent
 //$$ import net.minecraftforge.fml.ModLoadingContext
@@ -20,6 +21,7 @@ package xyz.bluspring.unitytranslate.neoforge
 //$$ import net.neoforged.fml.common.Mod
 //$$ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent
 
+//$$ import net.neoforged.neoforge.common.NeoForge
 //$$ import net.neoforged.neoforge.server.permission.events.PermissionGatherEvent
 //$$ import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent
 //#endif
@@ -37,8 +39,10 @@ package xyz.bluspring.unitytranslate.neoforge
 //$$         UnityTranslate()
 //#if MC >= 1.20.4
 //$$         MOD_BUS.register(this)
+//$$         NeoForge.EVENT_BUS.register(this)
 //#else
 //$$         FMLJavaModLoadingContext.get().modEventBus.register(this)
+//$$         MinecraftForge.EVENT_BUS.register(this)
 //#endif
 //$$     }
 //$$
