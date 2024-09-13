@@ -18,8 +18,10 @@ import xyz.bluspring.unitytranslate.client.transcribers.SpeechTranscriber
 import xyz.bluspring.unitytranslate.client.transcribers.windows.sapi5.WindowsSpeechApiTranscriber
 import xyz.bluspring.unitytranslate.commands.UnityTranslateClientCommands
 import xyz.bluspring.unitytranslate.compat.talkballoons.TalkBalloonsCompat
+import xyz.bluspring.unitytranslate.events.TranscriptEvents
 import xyz.bluspring.unitytranslate.network.PacketIds
 import xyz.bluspring.unitytranslate.network.UTClientNetworking
+import xyz.bluspring.unitytranslate.transcript.Transcript
 //#if MC >= 1.20.6
 //$$ import xyz.bluspring.unitytranslate.network.payloads.SendTranscriptToServerPayload
 //#endif
@@ -149,6 +151,10 @@ class UnityTranslateClient {
                 UnityTranslate.instance.proxy.sendPacketClient(PacketIds.SEND_TRANSCRIPT, buf)
                 //#endif
                 languageBoxes.firstOrNull { it.language == transcriber.language }?.updateTranscript(Minecraft.getInstance().player!!, text, transcriber.language, index, updateTime, false)
+
+                if (languageBoxes.none { it.language == transcriber.language }) {
+                    TranscriptEvents.UPDATE.invoker().onTranscriptUpdate(Transcript(index, Minecraft.getInstance().player!!, text, transcriber.language, updateTime, false), transcriber.language)
+                }
             } else {
                 if (Minecraft.getInstance().player == null)
                     return@BiConsumer
@@ -167,6 +173,10 @@ class UnityTranslateClient {
 
                             box.updateTranscript(Minecraft.getInstance().player!!, it, transcriber.language, index, updateTime, false)
                         }
+                }
+
+                if (languageBoxes.none { it.language == transcriber.language }) {
+                    TranscriptEvents.UPDATE.invoker().onTranscriptUpdate(Transcript(index, Minecraft.getInstance().player!!, text, transcriber.language, updateTime, false), transcriber.language)
                 }
             }
         }
