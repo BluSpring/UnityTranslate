@@ -1,1 +1,1 @@
-- Fixed permissions on Forge
+- Fixed bubbles not displaying for self with no language boxes
