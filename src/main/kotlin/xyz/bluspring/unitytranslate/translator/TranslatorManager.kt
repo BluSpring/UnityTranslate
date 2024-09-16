@@ -305,8 +305,11 @@ object TranslatorManager {
     }
 
     fun loadFromConfig() {
-        ForkJoinPool.commonPool().execute {
+        // Forge shenanigans
+        val customThreadPool = ForkJoinPool(1)
+        customThreadPool.execute {
             loadFromConfigBlocking()
+            customThreadPool.shutdown()
         }
     }
 
