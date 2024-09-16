@@ -134,7 +134,7 @@ class LocalLibreTranslateInstance private constructor(val process: Process, val 
             environment["PYTHONIOENCODING"] = "utf-8"
             environment["PYTHONLEGACYWINDOWSSTDIO"] = "utf-8"
 
-            if (UnityTranslate.instance.proxy.isDev || System.getenv("unitytranslate.enableLogging") == "true") {
+            if (UnityTranslate.instance.proxy.isDev || System.getProperty("unitytranslate.enableLogging") == "true") {
                 processBuilder
                     .redirectOutput(ProcessBuilder.Redirect.INHERIT)
                     .redirectError(ProcessBuilder.Redirect.INHERIT)
