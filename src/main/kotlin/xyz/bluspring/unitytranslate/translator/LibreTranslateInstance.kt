@@ -112,6 +112,9 @@ open class LibreTranslateInstance(val url: String, private var weight: Int, val 
         return try {
             translate(from.code, to.code, text)
         } catch (e: Exception) {
+            if (SHOULD_PRINT_ERRORS)
+                e.printStackTrace()
+
             null
         }
     }
