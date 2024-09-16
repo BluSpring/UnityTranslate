@@ -37,6 +37,9 @@ object UTClientNetworking {
                 //#if MC >= 1.20.6
                 //$$ proxy.sendPacketClient(SetUsedLanguagesPayload(UnityTranslateClient.languageBoxes.map { it.language }))
                 //#else
+                if (UnityTranslateClient.languageBoxes.isEmpty())
+                    return@execute
+
                 val buf = proxy.createByteBuf()
                 buf.writeEnumSet(EnumSet.copyOf(UnityTranslateClient.languageBoxes.map { it.language }), Language::class.java)
 
