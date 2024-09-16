@@ -53,13 +53,13 @@ enum class Language(
         TranscriberType.BROWSER to "ja"
     )),
     CHINESE("zh", mapOf(
-        TranscriberType.BROWSER to "zh"
+        TranscriberType.BROWSER to "cmn"
     )),
     ITALIAN("it", mapOf(
         TranscriberType.BROWSER to "it"
     )),
     CHINESE_TRADITIONAL("zt", mapOf(
-        TranscriberType.BROWSER to "zh" // TODO: ???
+        TranscriberType.BROWSER to "cmn" // TODO: ???
     )),
     CZECH("cs", mapOf(
         TranscriberType.BROWSER to "cs"
