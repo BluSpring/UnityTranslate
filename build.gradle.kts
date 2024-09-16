@@ -53,12 +53,15 @@ repositories {
     }
     maven("https://repo.clojars.org")
     maven("https://maven.terraformersmc.com/")
+    maven("https://maven.architectury.dev/")
     maven("https://maven.maxhenkel.de/repository/public")
     maven("https://maven.neoforged.net/releases/")
+    maven("https://maven.nucleoid.xyz/")
+    maven("https://maven.minecraftforge.net")
+
     maven("https://repo.plo.su")
     maven("https://repo.plasmoverse.com/releases")
     maven("https://repo.plasmoverse.com/snapshots")
-    maven("https://maven.nucleoid.xyz/")
 }
 
 val architecturyVersion = when (mcData.version.rawVersion) {
