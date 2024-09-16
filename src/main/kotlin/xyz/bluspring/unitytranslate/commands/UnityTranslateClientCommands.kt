@@ -31,6 +31,7 @@ object UnityTranslateClientCommands {
                         Component.literal("- Current transcriber: ${UnityTranslate.config.client.transcriber}"),
                         Component.literal("- Spoken language: ${UnityTranslate.config.client.language}"),
                         Component.empty(),
+                        Component.literal("- Server supports UnityTranslate: ${UnityTranslateClient.connectedServerHasSupport}"),
                         Component.literal("- Supports local translation server: ${LocalLibreTranslateInstance.canRunLibreTranslate()}"),
                         Component.literal("- Is local translation server running: ${LocalLibreTranslateInstance.hasStarted}"),
                         Component.literal("- Supports CUDA: ${TranslatorManager.supportsCuda}"),
