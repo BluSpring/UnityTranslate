@@ -1,1 +1,3 @@
-- Fixed bubbles not displaying for self with no language boxes
+- Fixed translations not working
+- Fixed Forge not loading translation servers on startup
+- Fix "Collection is empty" error when first logging in without language boxes
