@@ -97,7 +97,7 @@ dependencies {
         includeOrShade(modImplementation("me.lucko:fabric-permissions-api:0.3.1")!!)
     }
 
-    val useSVC = false
+    val useSVC = true
 
     if (useSVC)
         modRuntimeOnly("maven.modrinth:simple-voice-chat:${mcData.loader.friendlyString}-${if (mcData.version != MinecraftVersion.VERSION_1_21_1) mcData.version else "1.21"}-${project.property("voicechat_version")}")

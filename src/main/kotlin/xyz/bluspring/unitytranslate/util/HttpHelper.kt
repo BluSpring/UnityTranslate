@@ -3,53 +3,41 @@ package xyz.bluspring.unitytranslate.util
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import java.io.BufferedInputStream
-import java.io.BufferedOutputStream
-import java.net.HttpURLConnection
-import java.net.URL
+import org.apache.http.HttpHeaders
+import org.apache.http.client.config.CookieSpecs
+import org.apache.http.client.config.RequestConfig
+import org.apache.http.client.methods.HttpPost
+import org.apache.http.entity.StringEntity
+import org.apache.http.impl.client.HttpClients
+import org.apache.http.util.EntityUtils
 
 object HttpHelper {
     fun post(uri: String, body: JsonObject, headers: Map<String, String> = mapOf()): JsonElement {
-        val url = URL(uri)
-        var connection: HttpURLConnection? = null
+        HttpClients.createDefault().use { httpClient ->
+            val request = HttpPost(uri)
+            request.config = RequestConfig.custom()
+                .setConnectTimeout(60_000)
+                .setSocketTimeout(60_000)
+                .setCookieSpec(CookieSpecs.STANDARD)
+                .setConnectionRequestTimeout(60_000)
+                .build()
 
-        val data = body.toString().toByteArray(Charsets.UTF_8)
-
-        try {
-            connection = url.openConnection() as HttpURLConnection
-            connection.requestMethod = "POST"
-            connection.connectTimeout = 60_000
-            connection.readTimeout = 60_000
-
-            connection.setRequestProperty("Accept", "application/json")
-            connection.setRequestProperty("Content-Type", "application/json")
-            headers.forEach { (key, value) ->
-                connection.setRequestProperty(key, value)
+            request.setHeader(HttpHeaders.ACCEPT, "application/json")
+            request.setHeader(HttpHeaders.CONTENT_TYPE, "application/json")
+            for ((key, value) in headers) {
+                request.setHeader(key, value)
             }
 
-            connection.doOutput = true
-            connection.setFixedLengthStreamingMode(data.size)
+            request.entity = StringEntity(body.toString())
 
-            val outputStream = BufferedOutputStream(connection.outputStream)
+            val response = httpClient.execute(request)
 
-            outputStream.write(data)
-            outputStream.flush()
-            outputStream.close()
+            if (response.statusLine.statusCode / 100 != 2)
+                throw Exception("Failed to load $uri (code: ${response.statusLine.statusCode})")
 
-            if (connection.responseCode / 100 != 2) {
-                throw Exception("Failed to load $uri (code: ${connection.responseCode})")
-            } else {
-                val inputStream = BufferedInputStream(connection.inputStream)
-                val reader = inputStream.bufferedReader(Charsets.UTF_8)
-                val result = JsonParser.parseReader(reader)
+            val responseBody = EntityUtils.toString(response.entity, Charsets.UTF_8)
 
-                reader.close()
-                inputStream.close()
-
-                return result
-            }
-        } finally {
-            connection?.disconnect()
+            return JsonParser.parseString(responseBody)
         }
     }
 }
