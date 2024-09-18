@@ -1,1 +1,1 @@
-- Fix crash on the dedicated server
+- Fix Forge-exclusive crash
