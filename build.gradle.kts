@@ -141,10 +141,11 @@ dependencies {
         minecraftRuntimeLibraries(jws)
     }
 
-    includeOrShade("org.apache.httpcomponents:httpcore:4.4.16")
-    includeOrShade("org.apache.httpcomponents:httpclient:4.5.13")
-    includeOrShade("org.apache.httpcomponents:httpcore:4.4.16")
-    includeOrShade("commons-logging:commons-logging:1.3.4")
+    if (!mcData.isForgeLike) {// fuck you Forge
+        includeOrShade("commons-logging:commons-logging:1.3.4")
+        includeOrShade("org.apache.httpcomponents:httpcore:4.4.16")
+        includeOrShade("org.apache.httpcomponents:httpclient:4.5.13")
+    }
 }
 
 toolkitReleases {
