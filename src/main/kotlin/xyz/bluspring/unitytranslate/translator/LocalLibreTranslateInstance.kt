@@ -143,6 +143,8 @@ class LocalLibreTranslateInstance private constructor(val process: Process, val 
             val process = processBuilder.start()
             lastPid = process.pid()
 
+            info("LibreTranslate is starting... (PID: ${process.pid()})")
+
             val timer = Timer()
 
             process.onExit()
