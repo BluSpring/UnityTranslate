@@ -153,6 +153,8 @@ class LocalLibreTranslateInstance private constructor(val process: Process, val 
                     if (!hasStarted) {
                         timer.cancel()
                         warn("LibreTranslate appears to have exited with code ${process.exitValue()}, not proceeding with local translator instance.")
+                        UnityTranslate.logger.error(process.inputReader(Charsets.UTF_8).readText())
+                        UnityTranslate.logger.error(process.errorReader(Charsets.UTF_8).readText())
                     }
 
                     hasStarted = false
