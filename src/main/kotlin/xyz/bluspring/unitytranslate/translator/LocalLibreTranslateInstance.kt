@@ -110,12 +110,10 @@ class LocalLibreTranslateInstance private constructor(val process: Process, val 
 
             clearDeadDirectories()
 
-            if (!source.canExecute()) {
-                if (!source.setExecutable(true)) {
-                    UnityTranslate.logger.error("Unable to start local LibreTranslate instance! You may have to manually set the execute permission on the file yourself!")
-                    UnityTranslate.logger.error("File path: ${source.absolutePath}")
-                    return
-                }
+            if (!source.setExecutable(true, false) && !source.canExecute()) {
+                UnityTranslate.logger.error("Unable to start local LibreTranslate instance! You may have to manually set the execute permission on the file yourself!")
+                UnityTranslate.logger.error("File path: ${source.absolutePath}")
+                return
             }
 
             val processBuilder = ProcessBuilder(listOf(
