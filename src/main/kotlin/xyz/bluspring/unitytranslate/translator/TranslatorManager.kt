@@ -18,6 +18,7 @@ import xyz.bluspring.unitytranslate.UnityTranslate
 import xyz.bluspring.unitytranslate.client.UnityTranslateClient
 import xyz.bluspring.unitytranslate.compat.voicechat.UTVoiceChatCompat
 import xyz.bluspring.unitytranslate.network.PacketIds
+import xyz.bluspring.unitytranslate.util.ClassLoaderProviderForkJoinWorkerThreadFactory
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentLinkedDeque
@@ -306,7 +307,7 @@ object TranslatorManager {
 
     fun loadFromConfig() {
         // Forge shenanigans
-        val customThreadPool = ForkJoinPool(1)
+        val customThreadPool = ForkJoinPool(1, ClassLoaderProviderForkJoinWorkerThreadFactory(Thread.currentThread().contextClassLoader), null, false)
         customThreadPool.execute {
             loadFromConfigBlocking()
             customThreadPool.shutdown()
@@ -322,7 +323,7 @@ object TranslatorManager {
         timer = Timer("UnityTranslate Batch Translate Manager")
         
         translationPool.shutdownNow()
-        translationPool = ForkJoinPool((Runtime.getRuntime().availableProcessors() - 3).coerceAtLeast(1))
+        translationPool = ForkJoinPool((Runtime.getRuntime().availableProcessors() - 3).coerceAtLeast(1), ClassLoaderProviderForkJoinWorkerThreadFactory(Thread.currentThread().contextClassLoader), null, false)
 
         for (server in UnityTranslate.config.server.offloadServers) {
             try {
