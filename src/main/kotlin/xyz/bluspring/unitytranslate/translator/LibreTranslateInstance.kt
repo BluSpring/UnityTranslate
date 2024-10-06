@@ -9,6 +9,7 @@ import net.minecraft.util.random.Weight
 import net.minecraft.util.random.WeightedEntry
 import xyz.bluspring.unitytranslate.Language
 import xyz.bluspring.unitytranslate.UnityTranslate
+import xyz.bluspring.unitytranslate.util.Flags
 import xyz.bluspring.unitytranslate.util.HttpHelper
 import java.net.URL
 
@@ -138,6 +139,6 @@ open class LibreTranslateInstance(val url: String, private var weight: Int, val 
 
     companion object {
         const val MAX_CONCURRENT_TRANSLATIONS = 15
-        val SHOULD_PRINT_ERRORS = (System.getProperty("unitytranslate.printHttpErrors") == "true") || UnityTranslate.instance.proxy.isDev
+        val SHOULD_PRINT_ERRORS = Flags.PRINT_HTTP_ERRORS || UnityTranslate.instance.proxy.isDev
     }
 }

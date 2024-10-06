@@ -9,6 +9,7 @@ import net.minecraft.util.Mth
 import oshi.SystemInfo
 import xyz.bluspring.unitytranslate.UnityTranslate
 import xyz.bluspring.unitytranslate.client.UnityTranslateClient
+import xyz.bluspring.unitytranslate.util.Flags
 import java.io.File
 import java.net.URL
 import java.util.*
@@ -134,7 +135,7 @@ class LocalLibreTranslateInstance private constructor(val process: Process, val 
             environment["PYTHONIOENCODING"] = "utf-8"
             environment["PYTHONLEGACYWINDOWSSTDIO"] = "utf-8"
 
-            if (UnityTranslate.instance.proxy.isDev || System.getProperty("unitytranslate.enableLogging") == "true") {
+            if (UnityTranslate.instance.proxy.isDev || Flags.ENABLE_LOGGING) {
                 processBuilder
                     .redirectOutput(ProcessBuilder.Redirect.INHERIT)
                     .redirectError(ProcessBuilder.Redirect.INHERIT)
