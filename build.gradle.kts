@@ -141,11 +141,7 @@ dependencies {
         minecraftRuntimeLibraries(jws)
     }
 
-    if (!mcData.isForgeLike) {// fuck you Forge
-        includeOrShade("commons-logging:commons-logging:1.3.4")
-        includeOrShade("org.apache.httpcomponents:httpcore:4.4.16")
-        includeOrShade("org.apache.httpcomponents:httpclient:4.5.13")
-    }
+    shade(implementation("com.squareup.okhttp3:okhttp:${project.property("okhttp_version")}")!!)
 }
 
 toolkitReleases {
@@ -256,5 +252,11 @@ tasks {
         filesMatching("fabric.mod.json") {
             expand(properties)
         }
+    }
+
+    fatJar {
+        relocate("okhttp3", "xyz.bluspring.unitytranslate.shaded.okhttp3")
+        relocate("okio", "xyz.bluspring.unitytranslate.shaded.okio")
+        exclude("kotlin/**/*", "org/**/*")
     }
 }
