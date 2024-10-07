@@ -204,7 +204,7 @@ class LocalLibreTranslateInstance private constructor(val process: Process, val 
 
             return CompletableFuture.supplyAsync {
                 if (!file.exists()) {
-                    if (file.parentFile.usableSpace <= 4L * 1024L * 1024L * 1024L) {
+                    if (file.parentFile.usableSpace <= 15L * 1024L * 1024L * 1024L) {
                         warn("Current drive doesn't have enough space for local LibreTranslate instance! Not installing LibreTranslate.")
                         throw IndexOutOfBoundsException()
                     }
