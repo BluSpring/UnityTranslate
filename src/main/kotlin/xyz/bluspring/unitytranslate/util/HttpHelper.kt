@@ -13,6 +13,7 @@ object HttpHelper {
 
     fun post(uri: String, body: JsonObject, headers: Map<String, String> = mapOf()): JsonElement {
         val request = Request.Builder().apply {
+            url(uri)
             post(body.toString().toRequestBody("application/json; charset=utf-8".toMediaType()))
             header("Accept", "application/json; charset=utf-8")
             header("Content-Type", "application/json; charset=utf-8")
