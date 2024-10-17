@@ -55,6 +55,7 @@ class UnityTranslate(val proxy: PlatformProxy = PlatformProxyImpl()) {
         private val json = Json {
             this.ignoreUnknownKeys = true
             this.prettyPrint = true
+            this.encodeDefaults = true
         }
 
         @JvmStatic
