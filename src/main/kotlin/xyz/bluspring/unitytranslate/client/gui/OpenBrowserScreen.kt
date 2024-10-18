@@ -3,11 +3,13 @@ package xyz.bluspring.unitytranslate.client.gui
 import net.minecraft.Util
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.Button
+import net.minecraft.client.gui.components.Tooltip
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.resources.language.I18n
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.FormattedText
 import xyz.bluspring.unitytranslate.UnityTranslate
+import xyz.bluspring.unitytranslate.client.UnityTranslateClient
 import xyz.bluspring.unitytranslate.config.UnityTranslateConfig
 
 class OpenBrowserScreen(val address: String) : Screen(Component.empty()) {
@@ -16,12 +18,15 @@ class OpenBrowserScreen(val address: String) : Screen(Component.empty()) {
 
         addRenderableWidget(
             Button.builder(Component.translatable("unitytranslate.do_not_show_again")) {
-                Util.getPlatform().openUri(address)
-                UnityTranslate.config.client.openBrowserWithoutPrompt = UnityTranslateConfig.TriState.TRUE
+                UnityTranslate.config.client.openBrowserWithoutPromptV2 = UnityTranslateConfig.TriState.FALSE
                 UnityTranslate.saveConfig()
+
+                UnityTranslateClient.displayMessage(Component.translatable("unitytranslate.disabled_browser_transcription", Component.keybind("unitytranslate.open_config")))
+
                 this.onClose()
             }
                 .pos(this.width / 2 - (Button.DEFAULT_WIDTH / 2), this.height - 20 - Button.DEFAULT_HEIGHT - 5 - Button.DEFAULT_HEIGHT - 15)
+                .tooltip(Tooltip.create(Component.translatable("unitytranslate.do_not_show_again.desc")))
                 .build()
         )
 
@@ -36,10 +41,13 @@ class OpenBrowserScreen(val address: String) : Screen(Component.empty()) {
 
         addRenderableWidget(
             Button.builder(Component.translatable("unitytranslate.open_browser.open_in_browser")) {
+                UnityTranslate.config.client.openBrowserWithoutPromptV2 = UnityTranslateConfig.TriState.TRUE
+                UnityTranslate.saveConfig()
                 Util.getPlatform().openUri(address)
                 this.onClose()
             }
                 .pos(this.width / 2 - (Button.DEFAULT_WIDTH / 2), this.height - 20 - Button.DEFAULT_HEIGHT - 15)
+                .tooltip(Tooltip.create(Component.translatable("unitytranslate.open_browser.open_in_browser.desc")))
                 .build()
         )
     }

@@ -50,9 +50,9 @@ class BrowserSpeechTranscriber(language: Language) : SpeechTranscriber(language)
         val mc = Minecraft.getInstance()
 
         if (socket.totalConnections <= 0 && UnityTranslate.config.client.enabled) {
-            if (UnityTranslate.config.client.openBrowserWithoutPrompt == UnityTranslateConfig.TriState.TRUE) {
+            if (UnityTranslate.config.client.openBrowserWithoutPromptV2 == UnityTranslateConfig.TriState.TRUE) {
                 Util.getPlatform().openUri("http://127.0.0.1:$serverPort")
-            } else if (UnityTranslate.config.client.openBrowserWithoutPrompt == UnityTranslateConfig.TriState.DEFAULT) {
+            } else if (UnityTranslate.config.client.openBrowserWithoutPromptV2 == UnityTranslateConfig.TriState.DEFAULT) {
                 Minecraft.getInstance().execute {
                     if (mc.screen is RequestDownloadScreen) {
                         (mc.screen as RequestDownloadScreen).parent = OpenBrowserScreen("http://127.0.0.1:$serverPort")

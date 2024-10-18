@@ -13,7 +13,7 @@ data class UnityTranslateConfig(
     @Serializable
     data class ClientConfig(
         var enabled: Boolean = true,
-        var openBrowserWithoutPrompt: TriState = TriState.DEFAULT,
+        var openBrowserWithoutPromptV2: TriState = TriState.DEFAULT,
         var muteTranscriptWhenVoiceChatMuted: Boolean = true,
 
         @get:IntRange(from = 10, to = 300, increment = 10)
