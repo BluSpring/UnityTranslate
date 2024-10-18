@@ -19,6 +19,7 @@ import xyz.bluspring.unitytranslate.client.gui.OpenBrowserScreen
 import xyz.bluspring.unitytranslate.client.gui.RequestDownloadScreen
 import xyz.bluspring.unitytranslate.client.transcribers.SpeechTranscriber
 import xyz.bluspring.unitytranslate.client.transcribers.TranscriberType
+import xyz.bluspring.unitytranslate.config.UnityTranslateConfig
 import java.net.InetSocketAddress
 
 class BrowserSpeechTranscriber(language: Language) : SpeechTranscriber(language) {
@@ -49,9 +50,9 @@ class BrowserSpeechTranscriber(language: Language) : SpeechTranscriber(language)
         val mc = Minecraft.getInstance()
 
         if (socket.totalConnections <= 0 && UnityTranslate.config.client.enabled) {
-            if (UnityTranslate.config.client.openBrowserWithoutPrompt) {
+            if (UnityTranslate.config.client.openBrowserWithoutPrompt == UnityTranslateConfig.TriState.TRUE) {
                 Util.getPlatform().openUri("http://127.0.0.1:$serverPort")
-            } else {
+            } else if (UnityTranslate.config.client.openBrowserWithoutPrompt == UnityTranslateConfig.TriState.DEFAULT) {
                 Minecraft.getInstance().execute {
                     if (mc.screen is RequestDownloadScreen) {
                         (mc.screen as RequestDownloadScreen).parent = OpenBrowserScreen("http://127.0.0.1:$serverPort")
