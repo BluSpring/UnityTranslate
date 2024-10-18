@@ -13,10 +13,21 @@ abstract class SpeechTranscriber(var language: Language) {
     var lastIndex = 0
     var currentOffset = 0
 
+    // JSGF Grammar strings
+    // See: https://www.w3.org/TR/jsgf/
+    val grammars = mutableListOf<String>()
+
+    init {
+        run {
+            grammars.add(UnityTranslate::class.java.getResource("/default_grammar.jsgf")?.readText(Charsets.UTF_8) ?: return@run)
+        }
+    }
+
     lateinit var updater: BiConsumer<Int, String>
 
     abstract fun stop()
     open fun setMuted(muted: Boolean) {}
+    open fun updateGrammars() {}
 
     open fun changeLanguage(language: Language) {
         this.language = language

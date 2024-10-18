@@ -1,6 +1,7 @@
 let ws = new WebSocket('ws://127.0.0.1:%SOCKET_PORT%');
 
 window.SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+window.SpeechGrammarList = window.webkitSpeechGrammarList || window.SpeechGrammarList;  
 
 const pause = document.getElementById('pause');
 
@@ -14,6 +15,8 @@ let totalResetsBelow50ms = 0;
 let isErrored = false;
 let wasNoSpeech = false;
 let isCurrentlyMuted = false;
+
+let grammars = [];
 
 ws.onopen = () => {
     console.log('Connected');
@@ -145,6 +148,18 @@ ws.onmessage = (ev) => {
             } else if (!!transcriber) {
                 transcriber.stop();
             }
+        }
+
+        case 'set_grammars': {
+            const grammars = new SpeechGrammarList();
+
+            for (const grammar of data.d.grammars) {
+                grammars.addFromString(grammar, 1);
+            }
+
+            transcriber.grammars = grammars;
+
+            break;
         }
     }
 }

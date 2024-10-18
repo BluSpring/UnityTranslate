@@ -1,5 +1,6 @@
 package xyz.bluspring.unitytranslate.client.transcribers.browser
 
+import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.sun.net.httpserver.HttpServer
@@ -81,6 +82,16 @@ class BrowserSpeechTranscriber(language: Language) : SpeechTranscriber(language)
         })
     }
 
+    override fun updateGrammars() {
+        socket.broadcast("set_grammars", JsonObject().apply {
+            this.add("grammars", JsonArray().apply {
+                for (grammarSrc in grammars) {
+                    this.add(grammarSrc)
+                }
+            })
+        })
+    }
+
     inner class BrowserSocket : WebSocketServer(InetSocketAddress("0.0.0.0", socketPort)) {
         var totalConnections = 0
 
@@ -92,6 +103,7 @@ class BrowserSpeechTranscriber(language: Language) : SpeechTranscriber(language)
 
             UnityTranslateClient.displayMessage(Component.translatable("unitytranslate.transcriber.connected"))
             setMuted(!UnityTranslateClient.shouldTranscribe)
+            updateGrammars()
         }
 
         override fun onClose(ws: WebSocket, code: Int, reason: String, remote: Boolean) {
@@ -134,6 +146,7 @@ class BrowserSpeechTranscriber(language: Language) : SpeechTranscriber(language)
 
                 "reset" -> {
                     currentOffset = lastIndex + 1
+                    updateGrammars()
                 }
 
                 "error" -> {

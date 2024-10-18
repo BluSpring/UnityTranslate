@@ -1,0 +1,18 @@
+// UnityTranslate's default grammar data, which cannot be modified by the user (unless they edit the data directly, of course.)
+// More information can be found here: https://www.w3.org/TR/jsgf/
+// Please note that this file may be formatted very incorrectly, but may be improved in the future.
+#JSGF V1.0 UTF-8;
+
+// Handles Unity Multiplayer related terms
+grammar xyz.bluspring.unitytranslate.unitymp;
+
+public <mods> = UnityTranslate;
+
+// Only specifies those that are actually known / actors.
+public <team> = TheoClouds | Naz | BluSpring | Adri | Cherop | CypherAG | Lei | Leilany;
+
+// In order of lines: Avalore, Hawthorne, Everbloom
+public <factions> = Avalore | Hawthorne | Everbloom;
+public <creators> = MxAero | Zuite | MisticSins | Juliberry | JuliberryLive | Balam | ElBalam15 | Cerdu | LadyAuro | Maskyzee | MorganIsCo | Resa | RESAMOKAS | Sqyoshi | Lantastic | Neli | GameHuntress |
+                    Muhndaze | Fymada | James_AAP | KatieGoBrr | OliverRio | QueenElysey | Rufusdotcom | Soupdotjpeg | Uli | Uliseh | Xushii | Galaxushii | Infiniite8 | Maddsxp | Madds | TabbeeLive | Tabbee |
+                    Colette | wheelchairvibes | DarkPhoenix | ThatDarkPhoenix | Dre | Aquelefelix | Josho | TheStoryPainter | Muumuu | Olivehoodies | Rifty | Rifty115 | Yadig_tina | Bagel_Queen | Crimrose | Crimrosetv | KatsExistance | MiniMinBlade;
