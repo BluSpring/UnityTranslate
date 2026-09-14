@@ -1,7 +1,7 @@
 package xyz.bluspring.unitytranslate.client.renderer.arc3d
 
+import com.mojang.blaze3d.IndexType
 import com.mojang.blaze3d.buffers.GpuFence
-import com.mojang.blaze3d.systems.CommandEncoder
 import com.mojang.blaze3d.systems.RenderPass
 import com.mojang.blaze3d.systems.RenderPassDescriptor
 import icyllis.arc3d.core.RawPtr
@@ -9,21 +9,22 @@ import icyllis.arc3d.core.Rect2ic
 import icyllis.arc3d.engine.*
 import icyllis.arc3d.vulkan.VKUtil
 import org.joml.Vector4f
-import xyz.bluspring.unitytranslate.api.v2.client.util.ScreenRectangle
 import xyz.bluspring.unitytranslate.client.renderer.arc3d.noop.NoopGpuTextureView
 import java.util.*
 import java.util.function.Function
 
-class BlazeCommandBuffer(val encoder: CommandEncoder) : CommandBuffer() {
+class BlazeCommandBuffer(val device: BlazeDevice) : CommandBuffer() {
+    val encoder = this.device.device.createCommandEncoder()
+
     private var currentFence: GpuFence? = null
     private var currentRenderPassDesc: RenderPassDescriptor? = null
-    private var currentScissor: ScreenRectangle? = null
 
-    override fun <T : Any?> setupForShaderRead(
+    private val commandQueue = BlazeCommandQueue()
+
+    override fun <T> setupForShaderRead(
         textures: List<@RawPtr T?>,
         toTexture: Function<in T, @RawPtr Image?>
     ) {
-        TODO("Not yet implemented")
     }
 
     override fun beginRenderPass(
@@ -72,19 +73,33 @@ class BlazeCommandBuffer(val encoder: CommandEncoder) : CommandBuffer() {
     }
 
     override fun setScissor(x: Int, y: Int, width: Int, height: Int) {
-        this.currentScissor = ScreenRectangle(x, y, width, height)
+        this.commandQueue.queue { pass ->
+            pass.enableScissor(x, y, width, height)
+        }
     }
 
     override fun bindGraphicsPipeline(graphicsPipeline: @RawPtr GraphicsPipeline?): Boolean {
         TODO("Not yet implemented")
     }
 
+    private var vertexBufferOffset = LongArray(Caps.MAX_VERTEX_BINDINGS)
+    private var indexBufferOffset = 0L
+
     override fun bindIndexBuffer(
         indexType: Int,
-        buffer: @RawPtr Buffer?,
+        buffer: @RawPtr Buffer,
         offset: Long
     ) {
+        if (buffer !is BlazeBuffer)
+            return
 
+        this.commandQueue.queue { pass ->
+            pass.setIndexBuffer(buffer.source, when (indexType) {
+                Engine.IndexType.kUInt -> IndexType.INT
+                Engine.IndexType.kUShort -> IndexType.SHORT
+                else -> throw IllegalArgumentException("Unknown index type $indexType")
+            })
+        }
     }
 
     override fun bindVertexBuffer(
@@ -92,7 +107,13 @@ class BlazeCommandBuffer(val encoder: CommandEncoder) : CommandBuffer() {
         buffer: @RawPtr Buffer?,
         offset: Long
     ) {
-        TODO("Not yet implemented")
+        if (buffer != null && buffer !is BlazeBuffer)
+            return
+
+        this.commandQueue.queue { pass ->
+            this.vertexBufferOffset[binding] = offset
+            pass.setVertexBuffer(binding, buffer?.source?.slice())
+        }
     }
 
     override fun bindUniformBuffer(
@@ -102,6 +123,9 @@ class BlazeCommandBuffer(val encoder: CommandEncoder) : CommandBuffer() {
         offset: Int,
         size: Int
     ) {
+        if (buffer != null && buffer !is BlazeBuffer)
+            return
+
         TODO("Not yet implemented")
     }
 
@@ -112,15 +136,33 @@ class BlazeCommandBuffer(val encoder: CommandEncoder) : CommandBuffer() {
         swizzle: Short,
         sampler: @RawPtr Sampler?
     ) {
-        TODO("Not yet implemented")
+        if (texture != null && texture !is BlazeImage)
+            return
+
+        if (sampler != null && sampler !is BlazeSampler)
+            return
+
+        val view = texture?.source?.let { this.device.device.createTextureView(it) }
+
+        this.commandQueue.queue { pass ->
+            pass.bindTexture("Sampler$binding", view, sampler?.source)
+        }
+
+        this.commandQueue.cleanup {
+            view?.close()
+        }
     }
 
     override fun draw(vertexCount: Int, baseVertex: Int) {
-        TODO("Not yet implemented")
+        this.commandQueue.queue { pass ->
+            pass.draw(vertexCount, 1, baseVertex, 0)
+        }
     }
 
     override fun drawIndexed(indexCount: Int, baseIndex: Int, baseVertex: Int) {
-        TODO("Not yet implemented")
+        this.commandQueue.queue { pass ->
+            pass.drawIndexed(indexCount, 1, baseIndex, baseVertex, 0)
+        }
     }
 
     override fun drawInstanced(
@@ -129,7 +171,9 @@ class BlazeCommandBuffer(val encoder: CommandEncoder) : CommandBuffer() {
         vertexCount: Int,
         baseVertex: Int
     ) {
-
+        this.commandQueue.queue { pass ->
+            pass.draw(vertexCount, instanceCount, baseVertex, baseInstance)
+        }
     }
 
     override fun drawIndexedInstanced(
@@ -139,11 +183,19 @@ class BlazeCommandBuffer(val encoder: CommandEncoder) : CommandBuffer() {
         baseInstance: Int,
         baseVertex: Int
     ) {
-        TODO("Not yet implemented")
+        this.commandQueue.queue { pass ->
+            pass.drawIndexed(indexCount, instanceCount, baseIndex, baseVertex, baseInstance)
+        }
     }
 
     override fun endRenderPass() {
-        this.currentRenderPassDesc?.use
+        val renderPassDesc = this.currentRenderPassDesc ?: return
+
+        this.encoder.createRenderPass(renderPassDesc).use { pass ->
+            this.commandQueue.runAllCommands(pass)
+        }
+
+        this.indexBufferOffset = 0
     }
 
     override fun onCopyBuffer(
@@ -222,5 +274,9 @@ class BlazeCommandBuffer(val encoder: CommandEncoder) : CommandBuffer() {
     override fun destroy() {
         this.currentFence?.close()
         this.currentFence = null
+        for (i in this.vertexBufferOffset.indices) {
+            this.vertexBufferOffset[i] = 0
+        }
+        this.indexBufferOffset = 0
     }
 }

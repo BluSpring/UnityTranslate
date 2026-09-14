@@ -7,10 +7,10 @@ import icyllis.arc3d.engine.*
 
 class BlazeDevice(val device: GpuDevice, options: ContextOptions) : Device(0xB1A2E3D, options, BlazeCaps(options)) {
     override fun makeResourceProvider(
-        context: Context?,
+        context: Context,
         maxResourceBudget: Long
-    ): ResourceProvider? {
-        TODO("Not yet implemented")
+    ): ResourceProvider {
+        return BlazeResourceProvider(this, context, maxResourceBudget)
     }
 
     override fun onCreateRenderTarget(
