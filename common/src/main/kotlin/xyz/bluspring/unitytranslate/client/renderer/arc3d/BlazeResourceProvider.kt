@@ -63,11 +63,11 @@ class BlazeResourceProvider(private val device: BlazeDevice, context: Context, m
                 GL32C.GL_RGB32F -> GpuFormat.RGB32_FLOAT
                 GL32C.GL_RGBA32F -> GpuFormat.RGBA32_FLOAT
                 GL32C.GL_RGB10_A2 -> GpuFormat.RGB10A2_UNORM
-                GL32C.GL_RGB10_A2 -> GpuFormat.RGB10A2_UINT
+                GL32C.GL_UNSIGNED_INT_10_10_10_2 -> GpuFormat.RGB10A2_UINT
                 GL32C.GL_R11F_G11F_B10F -> GpuFormat.RG11B10_FLOAT
                 GL32C.GL_DEPTH_COMPONENT32F -> GpuFormat.D32_FLOAT
                 GL32C.GL_DEPTH32F_STENCIL8 -> GpuFormat.D32_FLOAT_S8_UINT
-                GL32C.GL_FLOAT_32_UNSIGNED_INT_24_8_REV -> GpuFormat.D24_UNORM_S8_UINT
+                GL32C.GL_UNSIGNED_INT_24_8 -> GpuFormat.D24_UNORM_S8_UINT
                 GL32C.GL_DEPTH_COMPONENT16 -> GpuFormat.D16_UNORM
                 GL32C.GL_STENCIL_INDEX8 -> GpuFormat.S8_UINT
                 else -> throw IllegalArgumentException("Unknown texture type (GL: ${desc.glFormat}, VK: ${desc.vkFormat})")
