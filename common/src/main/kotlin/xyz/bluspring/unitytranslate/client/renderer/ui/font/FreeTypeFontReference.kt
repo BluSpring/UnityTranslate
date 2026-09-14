@@ -29,7 +29,9 @@ class FreeTypeFontReference(val stream: InputStream, val fontSize: Float) : Font
             FreeTypeUtil.assertError(FreeType.FT_Select_Charmap(this.face, FreeType.FT_ENCODING_UNICODE), "Find unicode charmap for UnityTranslate")
         }
 
-        val glyph = this.face.glyph()!!.
+        FreeTypeUtil.assertError(FreeType.FT_Set_Pixel_Sizes(this.face, this.fontSize.roundToInt(), this.fontSize.roundToInt()),
+            "Set pixel size for UnityTranslate")
+
     }
 
     override val lineHeight: Int
