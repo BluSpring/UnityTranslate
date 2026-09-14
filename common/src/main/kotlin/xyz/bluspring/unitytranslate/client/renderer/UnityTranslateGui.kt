@@ -13,7 +13,9 @@ object UnityTranslateGui {
     val quickLanguageSelector = QuickLanguageRadialSelector()
     val downloadProgressHud = DownloadProgressHud()
 
-    fun resize() {
+    fun resize(width: Int, height: Int) {
+        BatchedGuiRenderer.resize(width, height)
+
         for (container in this.transcriptRenderer.containers) {
             container.updateConfig()
         }
@@ -25,7 +27,7 @@ object UnityTranslateGui {
 
     private fun updateSizes() {
         if (ClientPlatformProxy.instance.windowWidth != lastWidth || ClientPlatformProxy.instance.windowHeight != lastHeight || ClientPlatformProxy.instance.guiScale != lastGui) {
-            this.resize()
+            this.resize(ClientPlatformProxy.instance.windowWidth, ClientPlatformProxy.instance.windowHeight)
             this.lastWidth = ClientPlatformProxy.instance.windowWidth
             this.lastHeight = ClientPlatformProxy.instance.windowHeight
             this.lastGui = ClientPlatformProxy.instance.guiScale

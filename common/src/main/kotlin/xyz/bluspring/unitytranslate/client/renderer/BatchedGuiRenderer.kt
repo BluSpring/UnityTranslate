@@ -10,6 +10,8 @@ import com.mojang.blaze3d.textures.GpuTextureView
 import com.mojang.blaze3d.vertex.BufferBuilder
 import com.mojang.blaze3d.vertex.ByteBufferBuilder
 import com.mojang.blaze3d.vertex.VertexConsumer
+import icyllis.arc3d.core.ImageInfo
+import icyllis.arc3d.engine.Engine
 import icyllis.arc3d.granite.GraniteSurface
 import icyllis.arc3d.granite.RecordingContext
 import net.minecraft.client.renderer.Projection
@@ -30,7 +32,11 @@ object BatchedGuiRenderer {
 
     val immediateContext = ClientPlatformProxy.instance.createArcContext()
     val recordingContext = RecordingContext.makeRecordingContext(immediateContext, RecordingContext.Options())
-    val surface = GraniteSurface.makeRenderTarget(Core)
+    lateinit var surface: GraniteSurface
+
+    fun resize(width: Int, height: Int) {
+        this.surface = GraniteSurface.makeRenderTarget(this.recordingContext, ImageInfo(width, height), false, Engine.SurfaceOrigin.kUpperLeft, "UnityTranslate Batched GUI")!!
+    }
 
     @JvmStatic @JvmOverloads
     fun getBuffer(type: RenderType, scissor: ScreenRectangle? = null, layer: DrawLayer = DrawLayer.IN_GAME): VertexConsumer {
