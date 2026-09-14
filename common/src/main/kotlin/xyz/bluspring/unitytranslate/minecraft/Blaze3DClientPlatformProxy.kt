@@ -12,12 +12,14 @@ import icyllis.arc3d.engine.ImmediateContext
 import icyllis.arc3d.opengl.GLUtil
 import icyllis.arc3d.vulkan.VKUtil
 import icyllis.arc3d.vulkan.VulkanBackendContext
+import icyllis.arc3d.vulkan.VulkanMemoryAllocator
 import net.minecraft.client.Minecraft
 import org.lwjgl.opengl.GL
 import xyz.bluspring.unitytranslate.api.v2.client.InputValue
 import xyz.bluspring.unitytranslate.api.v2.util.reverse
 import xyz.bluspring.unitytranslate.client.ClientPlatformProxy
 import xyz.bluspring.unitytranslate.client.renderer.arc3d.BlazeDevice
+import xyz.bluspring.unitytranslate.client.renderer.arc3d.BlazeQueueManager
 
 abstract class Blaze3DClientPlatformProxy : ClientPlatformProxy {
     private val lookup: Map<InputValue, Int> = mapOf(
@@ -166,8 +168,7 @@ abstract class Blaze3DClientPlatformProxy : ClientPlatformProxy {
     }
 
     override fun createArcContext(): ImmediateContext {
-        val backend = Minecraft.getInstance().window.backend()
-        val context = when (backend) {
+        val context = when (Minecraft.getInstance().window.backend()) {
             is GlBackend -> {
                 GLUtil.makeOpenGL(GL.getCapabilities(), ContextOptions())
                     ?: throw RuntimeException("UnityTranslate failed to create an Arc3D backend in OpenGL!")
@@ -182,21 +183,35 @@ abstract class Blaze3DClientPlatformProxy : ClientPlatformProxy {
                     throw IllegalStateException("")
 
                 VKUtil.makeVulkan(VulkanBackendContext().apply {
-
+                    this.mInstance = deviceBackend.instance().vkInstance()
+                    this.mDevice = deviceBackend.vkDevice()
+                    this.mPhysicalDevice = deviceBackend.vkDevice().physicalDevice
+                    this.mQueue = deviceBackend.graphicsQueue().vkQueue
+                    this.mGraphicsQueueIndex = deviceBackend.graphicsQueue().queueFamilyIndex
+                    this.mMemoryAllocator = VulkanMemoryAllocator(deviceBackend.vma(), false)
                 }, ContextOptions())
             }
             //? }
 
-            else -> {
-                // We don't want to hard crash, let's try to defer to Blaze3D directly.
-                val device = BlazeDevice(RenderSystem.getDevice(), ContextOptions())
-                val context = ImmediateContext(device, queueManager)
-            }
+            else -> null
         }
+
+        if (context == null) {
+            // We don't want to hard crash, let's try to defer to Blaze3D directly.
+            val options = ContextOptions()
+            val device = BlazeDevice(RenderSystem.getDevice(), options)
+            return ImmediateContext(device, BlazeQueueManager(device, options))
+        }
+
+        return context
     }
 
     private val GpuDevice.backend: GpuDeviceBackend
         get() {
-            return GpuDevice::class.java.getDeclaredField("backend").get(this) as GpuDeviceBackend
+            return GpuDevice::class.java.getDeclaredField("backend")
+                .apply {
+                    this.isAccessible = true
+                }
+                .get(this) as GpuDeviceBackend
         }
 }

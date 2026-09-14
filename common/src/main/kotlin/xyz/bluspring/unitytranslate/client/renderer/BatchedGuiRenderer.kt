@@ -10,10 +10,8 @@ import com.mojang.blaze3d.textures.GpuTextureView
 import com.mojang.blaze3d.vertex.BufferBuilder
 import com.mojang.blaze3d.vertex.ByteBufferBuilder
 import com.mojang.blaze3d.vertex.VertexConsumer
-import icyllis.arc3d.core.ImageInfo
-import icyllis.arc3d.engine.Engine
-import icyllis.arc3d.granite.GraniteSurface
-import icyllis.arc3d.granite.RecordingContext
+import icyllis.modernui.core.Core
+import icyllis.modernui.core.Looper
 import net.minecraft.client.renderer.Projection
 import net.minecraft.client.renderer.ProjectionMatrixBuffer
 import net.minecraft.client.renderer.rendertype.RenderType
@@ -30,12 +28,36 @@ object BatchedGuiRenderer {
     private val projection = Projection()
     private val projectionBuffer = ProjectionMatrixBuffer("unitytranslate_gui")
 
-    val immediateContext = ClientPlatformProxy.instance.createArcContext()
-    val recordingContext = RecordingContext.makeRecordingContext(immediateContext, RecordingContext.Options())
-    lateinit var surface: GraniteSurface
+    private fun setCoreValue(field: String, value: Any?) {
+        Core::class.java.getDeclaredField(field)
+            .apply {
+                this.isAccessible = true
+            }
+            .set(null, value)
+    }
+
+    init {
+        if (Core.getMainThread() == null) {
+            // Assume that we don't have someone else taking over.
+
+            val immediateContext = ClientPlatformProxy.instance.createArcContext()
+            setCoreValue("sImmediateContext", immediateContext)
+
+            val thread = Thread.currentThread()
+            setCoreValue("sMainThread", thread)
+            setCoreValue("sRenderThread", thread)
+            setCoreValue("sUiThread", thread)
+
+            try {
+                Looper.prepareMainLooper()
+            } catch (_: Throwable) {}
+
+            Core.initUiThread()
+        }
+    }
 
     fun resize(width: Int, height: Int) {
-        this.surface = GraniteSurface.makeRenderTarget(this.recordingContext, ImageInfo(width, height), false, Engine.SurfaceOrigin.kUpperLeft, "UnityTranslate Batched GUI")!!
+//        this.surface = GraniteSurface.makeRenderTarget(this.recordingContext, ImageInfo(width, height), false, Engine.SurfaceOrigin.kUpperLeft, "UnityTranslate Batched GUI")!!
     }
 
     @JvmStatic @JvmOverloads

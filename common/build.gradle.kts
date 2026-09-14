@@ -60,6 +60,7 @@ dependencies {
     api(libs.plasmo.api.client)
     api(libs.bundles.arc3d.api)
     api(libs.bundles.arc3d.impl)
+    api(libs.bundles.modernui)
 
     api("maven.modrinth:talk-balloons:${libs.versions.talk.balloons.get()}+${mcVersion}-neoforge")
 }

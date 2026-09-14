@@ -8,6 +8,7 @@ import xyz.bluspring.unitytranslate.api.v2.client.gui.font.FontReference
 import xyz.bluspring.unitytranslate.api.v2.display.text.TextComponent
 import java.io.InputStream
 import java.nio.ByteBuffer
+import kotlin.math.roundToInt
 
 class FreeTypeFontReference(val stream: InputStream, val fontSize: Float) : FontReference {
     val face: FT_Face
@@ -27,13 +28,15 @@ class FreeTypeFontReference(val stream: InputStream, val fontSize: Float) : Font
 
             FreeTypeUtil.assertError(FreeType.FT_Select_Charmap(this.face, FreeType.FT_ENCODING_UNICODE), "Find unicode charmap for UnityTranslate")
         }
+
+        val glyph = this.face.glyph()!!.
     }
 
     override val lineHeight: Int
-        get() = TODO("Not yet implemented")
+        get() = (this.fontSize + 2f).roundToInt()
 
     override fun width(text: TextComponent): Int {
-        TODO("Not yet implemented")
+        return FreeType.FT_Load_Char(this.face, 'L', FreeType.FT_LOAD_COLOR)
     }
 
     override fun width(text: String): Int {

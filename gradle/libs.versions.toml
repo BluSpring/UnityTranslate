@@ -73,6 +73,8 @@ joml = "1.10.8"
 
 # https://github.com/BloCamLimb/Arc3D
 arc3d = "2026.2.0"
+# https://github.com/BloCamLimb/ModernUI
+modernui = "3.13.0"
 
 [bundles]
 kotlin = [
@@ -89,6 +91,9 @@ arc3d-api = [
 arc3d-impl = [
     "arc3d-compiler", "arc3d-opengl",
     "arc3d-vulkan", "arc3d-granite", "arc3d-engine",
+]
+modernui = [
+    "modernui-core", "modernui-ktx",
 ]
 
 [libraries]
@@ -135,6 +140,9 @@ arc3d-granite = { module = "dev.icyllis:arc3d-granite", version.ref = "arc3d" }
 arc3d-opengl = { module = "dev.icyllis:arc3d-opengl", version.ref = "arc3d" }
 arc3d-sketch = { module = "dev.icyllis:arc3d-sketch", version.ref = "arc3d" }
 arc3d-vulkan = { module = "dev.icyllis:arc3d-vulkan", version.ref = "arc3d" }
+
+modernui-core = { module = "dev.icyllis:modernui-core", version.ref = "modernui" }
+modernui-ktx = { module = "dev.icyllis:modernui-core-ktx", version.ref = "modernui" }
 
 [plugins]
 moddevgradle = { id = "net.neoforged.moddev" }
