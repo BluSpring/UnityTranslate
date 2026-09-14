@@ -29,12 +29,6 @@ The complete text for each software license can be found in the directory "third
       * Added publishing to https://mvn.devos.one/releases
       * Disabled `println` calls so logs don't get spammed
 
-## ModernUI by Icyllis Milica
-* Copyright © 2019-2026 BloCamLimb
-* License: GNU Lesser General Public License v3.0 (SPDX: LGPL-3.0)
-* Original Source:
-  * https://github.com/BloCamLimb/ModernUI
-
 # Fonts
 
 ## OpenDyslexic by Abbie Gonzales
