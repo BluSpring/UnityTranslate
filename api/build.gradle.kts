@@ -15,6 +15,7 @@ dependencies {
     "stubsApi"(libs.datafixerupper.get())
     api(libs.unitytranslatelib.get())
     api(libs.joml)
+    api(libs.bundles.arc3d.api)
 
     compileOnly(stubs.output)
 }

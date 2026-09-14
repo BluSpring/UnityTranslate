@@ -1,9 +1,23 @@
 package xyz.bluspring.unitytranslate.minecraft
 
+import com.mojang.blaze3d.opengl.GlBackend
 import com.mojang.blaze3d.platform.InputConstants
+import com.mojang.blaze3d.systems.GpuDevice
+import com.mojang.blaze3d.systems.GpuDeviceBackend
+import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.blaze3d.vulkan.VulkanBackend
+import com.mojang.blaze3d.vulkan.VulkanDevice
+import icyllis.arc3d.engine.ContextOptions
+import icyllis.arc3d.engine.ImmediateContext
+import icyllis.arc3d.opengl.GLUtil
+import icyllis.arc3d.vulkan.VKUtil
+import icyllis.arc3d.vulkan.VulkanBackendContext
+import net.minecraft.client.Minecraft
+import org.lwjgl.opengl.GL
 import xyz.bluspring.unitytranslate.api.v2.client.InputValue
 import xyz.bluspring.unitytranslate.api.v2.util.reverse
 import xyz.bluspring.unitytranslate.client.ClientPlatformProxy
+import xyz.bluspring.unitytranslate.client.renderer.arc3d.BlazeDevice
 
 abstract class Blaze3DClientPlatformProxy : ClientPlatformProxy {
     private val lookup: Map<InputValue, Int> = mapOf(
@@ -150,4 +164,39 @@ abstract class Blaze3DClientPlatformProxy : ClientPlatformProxy {
     override fun translate(value: Int): InputValue? {
         return this.reverseLookup[value]
     }
+
+    override fun createArcContext(): ImmediateContext {
+        val backend = Minecraft.getInstance().window.backend()
+        val context = when (backend) {
+            is GlBackend -> {
+                GLUtil.makeOpenGL(GL.getCapabilities(), ContextOptions())
+                    ?: throw RuntimeException("UnityTranslate failed to create an Arc3D backend in OpenGL!")
+            }
+
+            //? if >= 26.2 {
+            is VulkanBackend -> {
+                val device = RenderSystem.getDevice()
+                val deviceBackend = device.backend
+
+                if (deviceBackend !is VulkanDevice)
+                    throw IllegalStateException("")
+
+                VKUtil.makeVulkan(VulkanBackendContext().apply {
+
+                }, ContextOptions())
+            }
+            //? }
+
+            else -> {
+                // We don't want to hard crash, let's try to defer to Blaze3D directly.
+                val device = BlazeDevice(RenderSystem.getDevice(), ContextOptions())
+                val context = ImmediateContext(device, queueManager)
+            }
+        }
+    }
+
+    private val GpuDevice.backend: GpuDeviceBackend
+        get() {
+            return GpuDevice::class.java.getDeclaredField("backend").get(this) as GpuDeviceBackend
+        }
 }

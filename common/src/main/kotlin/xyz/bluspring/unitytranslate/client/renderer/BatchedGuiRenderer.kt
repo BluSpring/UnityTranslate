@@ -10,6 +10,8 @@ import com.mojang.blaze3d.textures.GpuTextureView
 import com.mojang.blaze3d.vertex.BufferBuilder
 import com.mojang.blaze3d.vertex.ByteBufferBuilder
 import com.mojang.blaze3d.vertex.VertexConsumer
+import icyllis.arc3d.granite.GraniteSurface
+import icyllis.arc3d.granite.RecordingContext
 import net.minecraft.client.renderer.Projection
 import net.minecraft.client.renderer.ProjectionMatrixBuffer
 import net.minecraft.client.renderer.rendertype.RenderType
@@ -25,6 +27,10 @@ object BatchedGuiRenderer {
     private val screenBuffers = mutableMapOf<QueuedDraw, BufferBuilder>()
     private val projection = Projection()
     private val projectionBuffer = ProjectionMatrixBuffer("unitytranslate_gui")
+
+    val immediateContext = ClientPlatformProxy.instance.createArcContext()
+    val recordingContext = RecordingContext.makeRecordingContext(immediateContext, RecordingContext.Options())
+    val surface = GraniteSurface.makeRenderTarget(Core)
 
     @JvmStatic @JvmOverloads
     fun getBuffer(type: RenderType, scissor: ScreenRectangle? = null, layer: DrawLayer = DrawLayer.IN_GAME): VertexConsumer {

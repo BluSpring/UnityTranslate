@@ -71,8 +71,8 @@ jna = "5.19.1"
 
 joml = "1.10.8"
 
-# https://github.com/BloCamLimb/ModernUI/releases
-modernui = "3.13.0"
+# https://github.com/BloCamLimb/Arc3D
+arc3d = "2026.2.0"
 
 [bundles]
 kotlin = [
@@ -82,6 +82,13 @@ logging = [
     "slf4j-api", "slf4j-log4j",
     "log4j-api", "log4j-core",
     "terminalconsoleappender"
+]
+arc3d-api = [
+    "arc3d-core", "arc3d-sketch",
+]
+arc3d-impl = [
+    "arc3d-compiler", "arc3d-opengl",
+    "arc3d-vulkan", "arc3d-granite", "arc3d-engine",
 ]
 
 [libraries]
@@ -120,7 +127,14 @@ flac-java = { module = "io.nayuki:flac-library-java", version.ref = "flac-java" 
 jna = { module = "net.java.dev.jna:jna", version.ref = "jna" }
 
 joml = { module = "org.joml:joml", version.ref = "joml" }
-modernui = { module = "dev.icyllis:modernui-core", version.ref = "modernui" }
+
+arc3d-core = { module = "dev.icyllis:arc3d-core", version.ref = "arc3d" }
+arc3d-compiler = { module = "dev.icyllis:arc3d-compiler", version.ref = "arc3d" }
+arc3d-engine = { module = "dev.icyllis:arc3d-engine", version.ref = "arc3d" }
+arc3d-granite = { module = "dev.icyllis:arc3d-granite", version.ref = "arc3d" }
+arc3d-opengl = { module = "dev.icyllis:arc3d-opengl", version.ref = "arc3d" }
+arc3d-sketch = { module = "dev.icyllis:arc3d-sketch", version.ref = "arc3d" }
+arc3d-vulkan = { module = "dev.icyllis:arc3d-vulkan", version.ref = "arc3d" }
 
 [plugins]
 moddevgradle = { id = "net.neoforged.moddev" }
