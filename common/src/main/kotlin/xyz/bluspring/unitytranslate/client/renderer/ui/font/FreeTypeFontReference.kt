@@ -1,5 +1,6 @@
 package xyz.bluspring.unitytranslate.client.renderer.ui.font
 
+import com.mojang.blaze3d.platform.NativeImage
 import xyz.bluspring.unitytranslate.api.v2.client.gui.font.FontReference
 import xyz.bluspring.unitytranslate.api.v2.display.text.TextComponent
 import java.awt.Font
@@ -13,6 +14,13 @@ class FreeTypeFontReference(stream: InputStream, val fontSize: Float) : FontRefe
     val font: Font = Font.createFonts(stream)[0]
         .deriveFont(fontSize)
     private val context = FontRenderContext(AffineTransform(), true, false)
+    private val glyphs = mutableMapOf<Int, GlyphInfo>()
+    private var currentAtlas = NativeImage(NativeImage.Format.LUMINANCE_ALPHA, 256, 256, false)
+        set(value) {
+            value.copyFrom(field)
+            field.close()
+            field = value
+        }
 
     override val lineHeight: Int
         get() = Toolkit.getDefaultToolkit().getFontMetrics(this.font).height
@@ -87,4 +95,17 @@ class FreeTypeFontReference(stream: InputStream, val fontSize: Float) : FontRefe
 
         return main
     }
+
+    private fun getOrCreateGlyphInfo(codepoint: Int): GlyphInfo {
+        return this.glyphs.computeIfAbsent(codepoint) { _ ->
+
+
+        }
+    }
+
+    @JvmRecord
+    private data class GlyphInfo(
+        val u: Int, val v: Int,
+        val width: Int, val height: Int,
+    )
 }
