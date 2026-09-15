@@ -6,9 +6,9 @@
         },
         {
             "type": "ttf",
-            "file": "unitytranslate:tiktok_sans",
-            "size": 16,
-            "oversample": 24
+            "file": "unitytranslate:tiktok_sans.ttf",
+            "size": 10,
+            "oversample": 20
         },
         {
             "type": "reference",
